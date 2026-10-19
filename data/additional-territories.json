@@ -1,0 +1,19 @@
+[
+  { "id": "custom:KOS", "sourceId": "KOS", "name": "Kosovo", "continent": "Europe" },
+  { "id": "custom:CYN", "sourceId": "CYN", "name": "Northern Cyprus", "continent": "Europe" },
+  { "id": "custom:SOL", "sourceId": "SOL", "name": "Somaliland", "continent": "Africa" },
+  { "id": "custom:WSB", "sourceId": "WSB", "name": "Akrotiri", "continent": "Europe" },
+  { "id": "custom:ESB", "sourceId": "ESB", "name": "Dhekelia", "continent": "Europe" },
+  { "id": "custom:CNM", "sourceId": "CNM", "name": "Cyprus UN Buffer Zone", "continent": "Europe" },
+  { "id": "custom:KNX", "sourceId": "KNX", "name": "Korean DMZ (south)", "continent": "Asia" },
+  { "id": "custom:KNZ", "sourceId": "KNZ", "name": "Korean DMZ (north)", "continent": "Asia" },
+  { "id": "custom:USG", "sourceId": "USG", "name": "Guantanamo Bay Naval Base", "continent": "North America" },
+  { "id": "custom:KAS", "sourceId": "KAS", "name": "Siachen Glacier", "continent": "Asia" },
+  { "id": "custom:SPI", "sourceId": "SPI", "name": "Southern Patagonian Ice Field", "continent": "South America" },
+  { "id": "custom:BRT", "sourceId": "BRT", "name": "Bir Tawil", "continent": "Africa" },
+  { "id": "custom:PFA", "sourceId": "PFA", "name": "Paracel Islands", "continent": "Asia" },
+  { "id": "custom:PGA", "sourceId": "PGA", "name": "Spratly Islands", "continent": "Asia" },
+  { "id": "custom:BJN", "sourceId": "BJN", "name": "Bajo Nuevo Bank", "continent": "North America" },
+  { "id": "custom:SER", "sourceId": "SER", "name": "Serranilla Bank", "continent": "North America" },
+  { "id": "custom:SCR", "sourceId": "SCR", "name": "Scarborough Reef", "continent": "Asia" }
+]

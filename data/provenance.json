@@ -1,0 +1,23 @@
+{
+  "boundaries": {
+    "source": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_10m_admin_0_map_units.geojson",
+    "revision": "ca96624a56bd078437bca8184e78163e5039ad19",
+    "license": "Public domain",
+    "website": "https://www.naturalearthdata.com/about/terms-of-use/"
+  },
+  "registry": {
+    "source": "https://raw.githubusercontent.com/mledoze/countries/c2ac0049c14edcf2436c7aa1b2493222a020b462/countries.json",
+    "revision": "c2ac0049c14edcf2436c7aa1b2493222a020b462",
+    "license": "ODbL-1.0",
+    "attribution": "Country metadata derived from mledoze/countries; derived registry available under ODbL-1.0."
+  },
+  "transformations": [
+    "Group ISO_A3_EH features; override ADM0_A3=UMI to UMI.",
+    "Promote exactly the 17 GU_A3 map units in additional-territories.json with custom: source IDs; keep their source polygons unchanged.",
+    "Render custom polygons after ISO polygons to preserve selectable source overlays; statuses are independent.",
+    "Additional Cypriot areas use Europe to match the existing CYP registry entry. All additions are non-ISO travel entries, not recognition claims.",
+    "Quantize topology at 1e6; do not simplify or synthesize polygons.",
+    "Use one continent per territory; Americas split by subregion; BVT Africa, SGS South America, other southern dependencies Oceania.",
+    "Clamp marker latitude to [-78,80]; Antarctica marker at [18,-76]."
+  ]
+}

@@ -1,0 +1,1871 @@
+{
+  "isoCount": 249,
+  "additionalCount": 17,
+  "totalCount": 266,
+  "polygonCount": 266,
+  "missing": [],
+  "territories": [
+    {
+      "id": "ABW",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0000041991328820606186,
+      "marker": true
+    },
+    {
+      "id": "AFG",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.015826421809913237,
+      "marker": false
+    },
+    {
+      "id": "AGO",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.030782204745800217,
+      "marker": false
+    },
+    {
+      "id": "AIA",
+      "kind": "iso",
+      "polygons": 6,
+      "areaSteradians": 0.0000021597070046316963,
+      "marker": true
+    },
+    {
+      "id": "ALA",
+      "kind": "iso",
+      "polygons": 16,
+      "areaSteradians": 0.00002308729045489494,
+      "marker": true
+    },
+    {
+      "id": "ALB",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0006971669238203581,
+      "marker": false
+    },
+    {
+      "id": "AND",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.000011126063500934466,
+      "marker": true
+    },
+    {
+      "id": "ARE",
+      "kind": "iso",
+      "polygons": 10,
+      "areaSteradians": 0.0017552809079738254,
+      "marker": false
+    },
+    {
+      "id": "ARG",
+      "kind": "iso",
+      "polygons": 8,
+      "areaSteradians": 0.06856708194069638,
+      "marker": false
+    },
+    {
+      "id": "ARM",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.000728134560596054,
+      "marker": false
+    },
+    {
+      "id": "ASM",
+      "kind": "iso",
+      "polygons": 5,
+      "areaSteradians": 0.000004455303101100048,
+      "marker": true
+    },
+    {
+      "id": "ATA",
+      "kind": "iso",
+      "polygons": 179,
+      "areaSteradians": 0.3020053459677368,
+      "marker": true
+    },
+    {
+      "id": "ATF",
+      "kind": "iso",
+      "polygons": 18,
+      "areaSteradians": 0.0001787860011629109,
+      "marker": false
+    },
+    {
+      "id": "ATG",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.000011173114966055398,
+      "marker": true
+    },
+    {
+      "id": "AUS",
+      "kind": "iso",
+      "polygons": 96,
+      "areaSteradians": 0.1898490375494119,
+      "marker": false
+    },
+    {
+      "id": "AUT",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0020634807835761973,
+      "marker": false
+    },
+    {
+      "id": "AZE",
+      "kind": "iso",
+      "polygons": 6,
+      "areaSteradians": 0.0021225197116142196,
+      "marker": false
+    },
+    {
+      "id": "BDI",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0006691848872477281,
+      "marker": false
+    },
+    {
+      "id": "BEL",
+      "kind": "iso",
+      "polygons": 5,
+      "areaSteradians": 0.000752924452314352,
+      "marker": false
+    },
+    {
+      "id": "BEN",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0028723326094280133,
+      "marker": false
+    },
+    {
+      "id": "BES",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.000007304681713773788,
+      "marker": true
+    },
+    {
+      "id": "BFA",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0067462235069945965,
+      "marker": false
+    },
+    {
+      "id": "BGD",
+      "kind": "iso",
+      "polygons": 22,
+      "areaSteradians": 0.003380561009845938,
+      "marker": false
+    },
+    {
+      "id": "BGR",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0027733495544859147,
+      "marker": false
+    },
+    {
+      "id": "BHR",
+      "kind": "iso",
+      "polygons": 7,
+      "areaSteradians": 0.000016989551260764917,
+      "marker": true
+    },
+    {
+      "id": "BHS",
+      "kind": "iso",
+      "polygons": 44,
+      "areaSteradians": 0.00031125025746614677,
+      "marker": false
+    },
+    {
+      "id": "BIH",
+      "kind": "iso",
+      "polygons": 6,
+      "areaSteradians": 0.0012742531765627854,
+      "marker": false
+    },
+    {
+      "id": "BLM",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 6.018152759330503e-7,
+      "marker": true
+    },
+    {
+      "id": "BLR",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.005090734899033219,
+      "marker": false
+    },
+    {
+      "id": "BLZ",
+      "kind": "iso",
+      "polygons": 10,
+      "areaSteradians": 0.0005512001169976559,
+      "marker": false
+    },
+    {
+      "id": "BMU",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.0000015361557105978988,
+      "marker": true
+    },
+    {
+      "id": "BOL",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.02686531002577236,
+      "marker": false
+    },
+    {
+      "id": "BRA",
+      "kind": "iso",
+      "polygons": 44,
+      "areaSteradians": 0.2095346138919163,
+      "marker": false
+    },
+    {
+      "id": "BRB",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.000010986081821297743,
+      "marker": true
+    },
+    {
+      "id": "BRN",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.0001414869378164243,
+      "marker": false
+    },
+    {
+      "id": "BTN",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0009974713179332422,
+      "marker": false
+    },
+    {
+      "id": "BVT",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0000013529094271468118,
+      "marker": true
+    },
+    {
+      "id": "BWA",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.01430195582570243,
+      "marker": false
+    },
+    {
+      "id": "CAF",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.01529069281403318,
+      "marker": false
+    },
+    {
+      "id": "CAN",
+      "kind": "iso",
+      "polygons": 412,
+      "areaSteradians": 0.24376831623586073,
+      "marker": false
+    },
+    {
+      "id": "CCK",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 3.2694654320373615e-7,
+      "marker": true
+    },
+    {
+      "id": "CHE",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0010181367228754813,
+      "marker": false
+    },
+    {
+      "id": "CHL",
+      "kind": "iso",
+      "polygons": 163,
+      "areaSteradians": 0.0181415747111115,
+      "marker": false
+    },
+    {
+      "id": "CHN",
+      "kind": "iso",
+      "polygons": 63,
+      "areaSteradians": 0.23093086061488358,
+      "marker": false
+    },
+    {
+      "id": "CIV",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.007933948858637454,
+      "marker": false
+    },
+    {
+      "id": "CMR",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.011488926079859187,
+      "marker": false
+    },
+    {
+      "id": "COD",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.05753724011858103,
+      "marker": false
+    },
+    {
+      "id": "COG",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.00853495002062905,
+      "marker": false
+    },
+    {
+      "id": "COK",
+      "kind": "iso",
+      "polygons": 13,
+      "areaSteradians": 0.000004727361502204681,
+      "marker": true
+    },
+    {
+      "id": "COL",
+      "kind": "iso",
+      "polygons": 11,
+      "areaSteradians": 0.028088299201642415,
+      "marker": false
+    },
+    {
+      "id": "COM",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.00004134811538700575,
+      "marker": true
+    },
+    {
+      "id": "CPV",
+      "kind": "iso",
+      "polygons": 11,
+      "areaSteradians": 0.00009706711836299509,
+      "marker": false
+    },
+    {
+      "id": "CRI",
+      "kind": "iso",
+      "polygons": 4,
+      "areaSteradians": 0.0012653539875488859,
+      "marker": false
+    },
+    {
+      "id": "CUB",
+      "kind": "iso",
+      "polygons": 41,
+      "areaSteradians": 0.00271552733011093,
+      "marker": false
+    },
+    {
+      "id": "CUW",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.000011457208578927536,
+      "marker": true
+    },
+    {
+      "id": "CXR",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.00000244335532747847,
+      "marker": true
+    },
+    {
+      "id": "CYM",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.000007642334975427791,
+      "marker": true
+    },
+    {
+      "id": "CYP",
+      "kind": "iso",
+      "polygons": 4,
+      "areaSteradians": 0.00013292443534297375,
+      "marker": false
+    },
+    {
+      "id": "CZE",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.001933904648884216,
+      "marker": false
+    },
+    {
+      "id": "DEU",
+      "kind": "iso",
+      "polygons": 22,
+      "areaSteradians": 0.008780032476791972,
+      "marker": false
+    },
+    {
+      "id": "DJI",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0005403969077013468,
+      "marker": false
+    },
+    {
+      "id": "DMA",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.000018056033730997502,
+      "marker": true
+    },
+    {
+      "id": "DNK",
+      "kind": "iso",
+      "polygons": 15,
+      "areaSteradians": 0.0010469414816612328,
+      "marker": false
+    },
+    {
+      "id": "DOM",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.001197095337122338,
+      "marker": false
+    },
+    {
+      "id": "DZA",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.05696752852245221,
+      "marker": false
+    },
+    {
+      "id": "ECU",
+      "kind": "iso",
+      "polygons": 16,
+      "areaSteradians": 0.006310879930997253,
+      "marker": false
+    },
+    {
+      "id": "EGY",
+      "kind": "iso",
+      "polygons": 8,
+      "areaSteradians": 0.024707382429872946,
+      "marker": false
+    },
+    {
+      "id": "ERI",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.0030296806147266414,
+      "marker": false
+    },
+    {
+      "id": "ESH",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0022344440612066647,
+      "marker": false
+    },
+    {
+      "id": "ESP",
+      "kind": "iso",
+      "polygons": 23,
+      "areaSteradians": 0.012474294160387525,
+      "marker": false
+    },
+    {
+      "id": "EST",
+      "kind": "iso",
+      "polygons": 8,
+      "areaSteradians": 0.0011228687121562356,
+      "marker": false
+    },
+    {
+      "id": "ETH",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.02789041991298181,
+      "marker": false
+    },
+    {
+      "id": "FIN",
+      "kind": "iso",
+      "polygons": 42,
+      "areaSteradians": 0.00815323320544239,
+      "marker": false
+    },
+    {
+      "id": "FJI",
+      "kind": "iso",
+      "polygons": 44,
+      "areaSteradians": 0.0004678981300793826,
+      "marker": false
+    },
+    {
+      "id": "FLK",
+      "kind": "iso",
+      "polygons": 15,
+      "areaSteradians": 0.00028463374601375556,
+      "marker": false
+    },
+    {
+      "id": "FRA",
+      "kind": "iso",
+      "polygons": 11,
+      "areaSteradians": 0.013462561105899036,
+      "marker": false
+    },
+    {
+      "id": "FRO",
+      "kind": "iso",
+      "polygons": 11,
+      "areaSteradians": 0.0000325336839614829,
+      "marker": true
+    },
+    {
+      "id": "FSM",
+      "kind": "iso",
+      "polygons": 20,
+      "areaSteradians": 0.000015681972632164328,
+      "marker": true
+    },
+    {
+      "id": "GAB",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.00643348424789859,
+      "marker": false
+    },
+    {
+      "id": "GBR",
+      "kind": "iso",
+      "polygons": 59,
+      "areaSteradians": 0.005980247243974883,
+      "marker": false
+    },
+    {
+      "id": "GEO",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.0017113294998072981,
+      "marker": false
+    },
+    {
+      "id": "GGY",
+      "kind": "iso",
+      "polygons": 4,
+      "areaSteradians": 0.0000018147013697706974,
+      "marker": true
+    },
+    {
+      "id": "GHA",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.00590485508709925,
+      "marker": false
+    },
+    {
+      "id": "GIB",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 9.086685144947843e-8,
+      "marker": true
+    },
+    {
+      "id": "GIN",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.006043162365695805,
+      "marker": false
+    },
+    {
+      "id": "GLP",
+      "kind": "iso",
+      "polygons": 6,
+      "areaSteradians": 0.000040960643234707944,
+      "marker": true
+    },
+    {
+      "id": "GMB",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.00025967052993836076,
+      "marker": false
+    },
+    {
+      "id": "GNB",
+      "kind": "iso",
+      "polygons": 13,
+      "areaSteradians": 0.0008119770107479393,
+      "marker": false
+    },
+    {
+      "id": "GNQ",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.0006600221366155631,
+      "marker": false
+    },
+    {
+      "id": "GRC",
+      "kind": "iso",
+      "polygons": 74,
+      "areaSteradians": 0.003233354501510069,
+      "marker": false
+    },
+    {
+      "id": "GRD",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.000008593425704217768,
+      "marker": true
+    },
+    {
+      "id": "GRL",
+      "kind": "iso",
+      "polygons": 128,
+      "areaSteradians": 0.052670695143792176,
+      "marker": false
+    },
+    {
+      "id": "GTM",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0026901530186721014,
+      "marker": false
+    },
+    {
+      "id": "GUF",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.002058465174213736,
+      "marker": false
+    },
+    {
+      "id": "GUM",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.000013950550831052956,
+      "marker": true
+    },
+    {
+      "id": "GUY",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.005226403647275909,
+      "marker": false
+    },
+    {
+      "id": "HKG",
+      "kind": "iso",
+      "polygons": 4,
+      "areaSteradians": 0.00002559624222561732,
+      "marker": true
+    },
+    {
+      "id": "HMD",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.000009687412250544136,
+      "marker": true
+    },
+    {
+      "id": "HND",
+      "kind": "iso",
+      "polygons": 7,
+      "areaSteradians": 0.0027751164867734074,
+      "marker": false
+    },
+    {
+      "id": "HRV",
+      "kind": "iso",
+      "polygons": 25,
+      "areaSteradians": 0.001352555941607209,
+      "marker": false
+    },
+    {
+      "id": "HTI",
+      "kind": "iso",
+      "polygons": 5,
+      "areaSteradians": 0.0006645517481783257,
+      "marker": false
+    },
+    {
+      "id": "HUN",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0022898959716128337,
+      "marker": false
+    },
+    {
+      "id": "IDN",
+      "kind": "iso",
+      "polygons": 264,
+      "areaSteradians": 0.04651779011259266,
+      "marker": false
+    },
+    {
+      "id": "IMN",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.00001410469438834898,
+      "marker": true
+    },
+    {
+      "id": "IND",
+      "kind": "iso",
+      "polygons": 35,
+      "areaSteradians": 0.0778108475168287,
+      "marker": false
+    },
+    {
+      "id": "IOT",
+      "kind": "iso",
+      "polygons": 10,
+      "areaSteradians": 0.0000012124201083186573,
+      "marker": true
+    },
+    {
+      "id": "IRL",
+      "kind": "iso",
+      "polygons": 7,
+      "areaSteradians": 0.001703873628527197,
+      "marker": false
+    },
+    {
+      "id": "IRN",
+      "kind": "iso",
+      "polygons": 12,
+      "areaSteradians": 0.03999751561305258,
+      "marker": false
+    },
+    {
+      "id": "IRQ",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.010780676760087132,
+      "marker": false
+    },
+    {
+      "id": "ISL",
+      "kind": "iso",
+      "polygons": 5,
+      "areaSteradians": 0.002506098192401619,
+      "marker": false
+    },
+    {
+      "id": "ISR",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0005449660510879257,
+      "marker": false
+    },
+    {
+      "id": "ITA",
+      "kind": "iso",
+      "polygons": 29,
+      "areaSteradians": 0.00740776346189246,
+      "marker": false
+    },
+    {
+      "id": "JAM",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0002726909989285593,
+      "marker": false
+    },
+    {
+      "id": "JEY",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0000029242242019658894,
+      "marker": true
+    },
+    {
+      "id": "JOR",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.002191211691906153,
+      "marker": false
+    },
+    {
+      "id": "JPN",
+      "kind": "iso",
+      "polygons": 109,
+      "areaSteradians": 0.009197683160742653,
+      "marker": false
+    },
+    {
+      "id": "KAZ",
+      "kind": "iso",
+      "polygons": 7,
+      "areaSteradians": 0.06683554787597872,
+      "marker": false
+    },
+    {
+      "id": "KEN",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.014494333790604455,
+      "marker": false
+    },
+    {
+      "id": "KGZ",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.004895637262955552,
+      "marker": false
+    },
+    {
+      "id": "KHM",
+      "kind": "iso",
+      "polygons": 6,
+      "areaSteradians": 0.004477862649133313,
+      "marker": false
+    },
+    {
+      "id": "KIR",
+      "kind": "iso",
+      "polygons": 35,
+      "areaSteradians": 0.00002351122226922173,
+      "marker": true
+    },
+    {
+      "id": "KNA",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.000006532776431258665,
+      "marker": true
+    },
+    {
+      "id": "KOR",
+      "kind": "iso",
+      "polygons": 53,
+      "areaSteradians": 0.002400211435424294,
+      "marker": false
+    },
+    {
+      "id": "KWT",
+      "kind": "iso",
+      "polygons": 4,
+      "areaSteradians": 0.0004309931327684101,
+      "marker": false
+    },
+    {
+      "id": "LAO",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.005637559581253974,
+      "marker": false
+    },
+    {
+      "id": "LBN",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0002465384881815032,
+      "marker": false
+    },
+    {
+      "id": "LBR",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.002357971110307214,
+      "marker": false
+    },
+    {
+      "id": "LBY",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.04007269347472886,
+      "marker": false
+    },
+    {
+      "id": "LCA",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.000014968600853571123,
+      "marker": true
+    },
+    {
+      "id": "LIE",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0000033729700159417947,
+      "marker": true
+    },
+    {
+      "id": "LKA",
+      "kind": "iso",
+      "polygons": 5,
+      "areaSteradians": 0.001640154403141246,
+      "marker": false
+    },
+    {
+      "id": "LSO",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0007426393441840506,
+      "marker": false
+    },
+    {
+      "id": "LTU",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.0015925749398982643,
+      "marker": false
+    },
+    {
+      "id": "LUX",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0000640454331432799,
+      "marker": true
+    },
+    {
+      "id": "LVA",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0015831233036115353,
+      "marker": false
+    },
+    {
+      "id": "MAC",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 7.419539191759297e-7,
+      "marker": true
+    },
+    {
+      "id": "MAF",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0000016887541226831923,
+      "marker": true
+    },
+    {
+      "id": "MAR",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.014595660392562285,
+      "marker": false
+    },
+    {
+      "id": "MCO",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 4.640444669490651e-7,
+      "marker": true
+    },
+    {
+      "id": "MDA",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0008158774584148527,
+      "marker": false
+    },
+    {
+      "id": "MDG",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.014652772271386453,
+      "marker": false
+    },
+    {
+      "id": "MDV",
+      "kind": "iso",
+      "polygons": 176,
+      "areaSteradians": 0.0000027003613028951504,
+      "marker": true
+    },
+    {
+      "id": "MEX",
+      "kind": "iso",
+      "polygons": 51,
+      "areaSteradians": 0.04834341148738471,
+      "marker": false
+    },
+    {
+      "id": "MHL",
+      "kind": "iso",
+      "polygons": 22,
+      "areaSteradians": 0.000004073712478700023,
+      "marker": true
+    },
+    {
+      "id": "MKD",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0006245378185161465,
+      "marker": false
+    },
+    {
+      "id": "MLI",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.030963860676124538,
+      "marker": false
+    },
+    {
+      "id": "MLT",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.00000802634712508103,
+      "marker": true
+    },
+    {
+      "id": "MMR",
+      "kind": "iso",
+      "polygons": 39,
+      "areaSteradians": 0.016382490625941007,
+      "marker": false
+    },
+    {
+      "id": "MNE",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.00033763243053427455,
+      "marker": false
+    },
+    {
+      "id": "MNG",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.03844663955057187,
+      "marker": false
+    },
+    {
+      "id": "MNP",
+      "kind": "iso",
+      "polygons": 12,
+      "areaSteradians": 0.000014328230670968735,
+      "marker": true
+    },
+    {
+      "id": "MOZ",
+      "kind": "iso",
+      "polygons": 4,
+      "areaSteradians": 0.01948825176418699,
+      "marker": false
+    },
+    {
+      "id": "MRT",
+      "kind": "iso",
+      "polygons": 5,
+      "areaSteradians": 0.025606394065107098,
+      "marker": false
+    },
+    {
+      "id": "MSR",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.000002457908816043714,
+      "marker": true
+    },
+    {
+      "id": "MTQ",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.000027139220066354597,
+      "marker": true
+    },
+    {
+      "id": "MUS",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.000049778550123017795,
+      "marker": true
+    },
+    {
+      "id": "MWI",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.002952714389872593,
+      "marker": false
+    },
+    {
+      "id": "MYS",
+      "kind": "iso",
+      "polygons": 17,
+      "areaSteradians": 0.00811367356307218,
+      "marker": false
+    },
+    {
+      "id": "MYT",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.000009763801077769252,
+      "marker": true
+    },
+    {
+      "id": "NAM",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.02032103580538814,
+      "marker": false
+    },
+    {
+      "id": "NCL",
+      "kind": "iso",
+      "polygons": 11,
+      "areaSteradians": 0.00046542128782481676,
+      "marker": false
+    },
+    {
+      "id": "NER",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.029198461962381995,
+      "marker": false
+    },
+    {
+      "id": "NFK",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0000010160897703876762,
+      "marker": true
+    },
+    {
+      "id": "NGA",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.022449461271111575,
+      "marker": false
+    },
+    {
+      "id": "NIC",
+      "kind": "iso",
+      "polygons": 5,
+      "areaSteradians": 0.003182447504061161,
+      "marker": false
+    },
+    {
+      "id": "NIU",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.00000544666206848778,
+      "marker": true
+    },
+    {
+      "id": "NLD",
+      "kind": "iso",
+      "polygons": 9,
+      "areaSteradians": 0.000910533342136938,
+      "marker": false
+    },
+    {
+      "id": "NOR",
+      "kind": "iso",
+      "polygons": 97,
+      "areaSteradians": 0.00783252896012374,
+      "marker": false
+    },
+    {
+      "id": "NPL",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.003629552187174934,
+      "marker": false
+    },
+    {
+      "id": "NRU",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 7.114335622316356e-7,
+      "marker": true
+    },
+    {
+      "id": "NZL",
+      "kind": "iso",
+      "polygons": 24,
+      "areaSteradians": 0.00660529114178352,
+      "marker": false
+    },
+    {
+      "id": "OMN",
+      "kind": "iso",
+      "polygons": 6,
+      "areaSteradians": 0.007688864640525803,
+      "marker": false
+    },
+    {
+      "id": "PAK",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.021530943991943136,
+      "marker": false
+    },
+    {
+      "id": "PAN",
+      "kind": "iso",
+      "polygons": 15,
+      "areaSteradians": 0.0018438928726887173,
+      "marker": false
+    },
+    {
+      "id": "PCN",
+      "kind": "iso",
+      "polygons": 4,
+      "areaSteradians": 0.0000010480512457182647,
+      "marker": true
+    },
+    {
+      "id": "PER",
+      "kind": "iso",
+      "polygons": 5,
+      "areaSteradians": 0.03190765005775497,
+      "marker": false
+    },
+    {
+      "id": "PHL",
+      "kind": "iso",
+      "polygons": 97,
+      "areaSteradians": 0.0072538836263958285,
+      "marker": false
+    },
+    {
+      "id": "PLW",
+      "kind": "iso",
+      "polygons": 9,
+      "areaSteradians": 0.000012164551307496532,
+      "marker": true
+    },
+    {
+      "id": "PNG",
+      "kind": "iso",
+      "polygons": 58,
+      "areaSteradians": 0.011508996950877192,
+      "marker": false
+    },
+    {
+      "id": "POL",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.007692117653063553,
+      "marker": false
+    },
+    {
+      "id": "PRI",
+      "kind": "iso",
+      "polygons": 4,
+      "areaSteradians": 0.00022257595804020858,
+      "marker": false
+    },
+    {
+      "id": "PRK",
+      "kind": "iso",
+      "polygons": 10,
+      "areaSteradians": 0.002983640901841589,
+      "marker": false
+    },
+    {
+      "id": "PRT",
+      "kind": "iso",
+      "polygons": 17,
+      "areaSteradians": 0.0022494120125308085,
+      "marker": false
+    },
+    {
+      "id": "PRY",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.009875922377385448,
+      "marker": false
+    },
+    {
+      "id": "PSE",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.00014975832036881625,
+      "marker": false
+    },
+    {
+      "id": "PYF",
+      "kind": "iso",
+      "polygons": 88,
+      "areaSteradians": 0.00008247232539377026,
+      "marker": false
+    },
+    {
+      "id": "QAT",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.00027527438279755493,
+      "marker": false
+    },
+    {
+      "id": "REU",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0000638006152058151,
+      "marker": true
+    },
+    {
+      "id": "ROU",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.005809477434210139,
+      "marker": false
+    },
+    {
+      "id": "RUS",
+      "kind": "iso",
+      "polygons": 214,
+      "areaSteradians": 0.4160240306532744,
+      "marker": false
+    },
+    {
+      "id": "RWA",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0006262005008883122,
+      "marker": false
+    },
+    {
+      "id": "SAU",
+      "kind": "iso",
+      "polygons": 11,
+      "areaSteradians": 0.04745062080007416,
+      "marker": false
+    },
+    {
+      "id": "SDN",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.04587347882343801,
+      "marker": false
+    },
+    {
+      "id": "SEN",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.004852018588932999,
+      "marker": false
+    },
+    {
+      "id": "SGP",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.000012638104434270866,
+      "marker": true
+    },
+    {
+      "id": "SGS",
+      "kind": "iso",
+      "polygons": 12,
+      "areaSteradians": 0.0000961849517260701,
+      "marker": false
+    },
+    {
+      "id": "SHN",
+      "kind": "iso",
+      "polygons": 4,
+      "areaSteradians": 0.000009056483080294469,
+      "marker": true
+    },
+    {
+      "id": "SJM",
+      "kind": "iso",
+      "polygons": 22,
+      "areaSteradians": 0.00151660892444074,
+      "marker": false
+    },
+    {
+      "id": "SLB",
+      "kind": "iso",
+      "polygons": 48,
+      "areaSteradians": 0.0006728606532751797,
+      "marker": false
+    },
+    {
+      "id": "SLE",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.0017716718310046866,
+      "marker": false
+    },
+    {
+      "id": "SLV",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.0005079081239641527,
+      "marker": false
+    },
+    {
+      "id": "SMR",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0000014832056513359493,
+      "marker": true
+    },
+    {
+      "id": "SOM",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.011674607635213444,
+      "marker": false
+    },
+    {
+      "id": "SPM",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.00000596466011205843,
+      "marker": true
+    },
+    {
+      "id": "SRB",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.001908608340007601,
+      "marker": false
+    },
+    {
+      "id": "SSD",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.015509680009576036,
+      "marker": false
+    },
+    {
+      "id": "STP",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.000025661094156941674,
+      "marker": true
+    },
+    {
+      "id": "SUR",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0035911508366324742,
+      "marker": false
+    },
+    {
+      "id": "SVK",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0011901624063657054,
+      "marker": false
+    },
+    {
+      "id": "SVN",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0004995434415016759,
+      "marker": false
+    },
+    {
+      "id": "SWE",
+      "kind": "iso",
+      "polygons": 41,
+      "areaSteradians": 0.010926363989031329,
+      "marker": false
+    },
+    {
+      "id": "SWZ",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.0004223604546662325,
+      "marker": false
+    },
+    {
+      "id": "SXM",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 5.787267294202604e-7,
+      "marker": true
+    },
+    {
+      "id": "SYC",
+      "kind": "iso",
+      "polygons": 26,
+      "areaSteradians": 0.000010779685308350786,
+      "marker": true
+    },
+    {
+      "id": "SYR",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.004581258606754844,
+      "marker": false
+    },
+    {
+      "id": "TCA",
+      "kind": "iso",
+      "polygons": 12,
+      "areaSteradians": 0.000010989280608070653,
+      "marker": true
+    },
+    {
+      "id": "TCD",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.03130648959425503,
+      "marker": false
+    },
+    {
+      "id": "TGO",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.00140678746934529,
+      "marker": false
+    },
+    {
+      "id": "THA",
+      "kind": "iso",
+      "polygons": 20,
+      "areaSteradians": 0.01271924728460569,
+      "marker": false
+    },
+    {
+      "id": "TJK",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.0035017581082784546,
+      "marker": false
+    },
+    {
+      "id": "TKL",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 1.0527700008775608e-7,
+      "marker": true
+    },
+    {
+      "id": "TKM",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.011590421478469656,
+      "marker": false
+    },
+    {
+      "id": "TLS",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.0003731261833369362,
+      "marker": false
+    },
+    {
+      "id": "TON",
+      "kind": "iso",
+      "polygons": 10,
+      "areaSteradians": 0.000014910106933586231,
+      "marker": true
+    },
+    {
+      "id": "TTO",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.0001267257550039998,
+      "marker": false
+    },
+    {
+      "id": "TUN",
+      "kind": "iso",
+      "polygons": 4,
+      "areaSteradians": 0.0038594727700036868,
+      "marker": false
+    },
+    {
+      "id": "TUR",
+      "kind": "iso",
+      "polygons": 6,
+      "areaSteradians": 0.019202498316298288,
+      "marker": false
+    },
+    {
+      "id": "TUV",
+      "kind": "iso",
+      "polygons": 9,
+      "areaSteradians": 5.707322338331762e-7,
+      "marker": true
+    },
+    {
+      "id": "TWN",
+      "kind": "iso",
+      "polygons": 8,
+      "areaSteradians": 0.0008938729679948349,
+      "marker": false
+    },
+    {
+      "id": "TZA",
+      "kind": "iso",
+      "polygons": 7,
+      "areaSteradians": 0.02329541920657959,
+      "marker": false
+    },
+    {
+      "id": "UGA",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.005985175934939166,
+      "marker": false
+    },
+    {
+      "id": "UKR",
+      "kind": "iso",
+      "polygons": 4,
+      "areaSteradians": 0.014047364747781909,
+      "marker": false
+    },
+    {
+      "id": "UMI",
+      "kind": "iso",
+      "polygons": 13,
+      "areaSteradians": 6.949125388841282e-7,
+      "marker": true
+    },
+    {
+      "id": "URY",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.004371531843688454,
+      "marker": false
+    },
+    {
+      "id": "USA",
+      "kind": "iso",
+      "polygons": 344,
+      "areaSteradians": 0.232764551951309,
+      "marker": false
+    },
+    {
+      "id": "UZB",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.01101706760518601,
+      "marker": false
+    },
+    {
+      "id": "VAT",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 3.4720960731951316e-10,
+      "marker": true
+    },
+    {
+      "id": "VCT",
+      "kind": "iso",
+      "polygons": 5,
+      "areaSteradians": 0.000009102200880079762,
+      "marker": true
+    },
+    {
+      "id": "VEN",
+      "kind": "iso",
+      "polygons": 29,
+      "areaSteradians": 0.02258136600702314,
+      "marker": false
+    },
+    {
+      "id": "VGB",
+      "kind": "iso",
+      "polygons": 6,
+      "areaSteradians": 0.0000035851305615775088,
+      "marker": true
+    },
+    {
+      "id": "VIR",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.000008768476063164311,
+      "marker": true
+    },
+    {
+      "id": "VNM",
+      "kind": "iso",
+      "polygons": 25,
+      "areaSteradians": 0.008129889790741484,
+      "marker": false
+    },
+    {
+      "id": "VUT",
+      "kind": "iso",
+      "polygons": 27,
+      "areaSteradians": 0.00030398625157695053,
+      "marker": false
+    },
+    {
+      "id": "WLF",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.000003441065859441703,
+      "marker": true
+    },
+    {
+      "id": "WSM",
+      "kind": "iso",
+      "polygons": 2,
+      "areaSteradians": 0.00006874881718493846,
+      "marker": true
+    },
+    {
+      "id": "YEM",
+      "kind": "iso",
+      "polygons": 9,
+      "areaSteradians": 0.011201120944464663,
+      "marker": false
+    },
+    {
+      "id": "ZAF",
+      "kind": "iso",
+      "polygons": 3,
+      "areaSteradians": 0.030092456096745906,
+      "marker": false
+    },
+    {
+      "id": "ZMB",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.01859413623999528,
+      "marker": false
+    },
+    {
+      "id": "ZWE",
+      "kind": "iso",
+      "polygons": 1,
+      "areaSteradians": 0.009621397089488922,
+      "marker": false
+    },
+    {
+      "id": "custom:KOS",
+      "kind": "custom",
+      "polygons": 1,
+      "areaSteradians": 0.0002684158423266904,
+      "marker": false
+    },
+    {
+      "id": "custom:CYN",
+      "kind": "custom",
+      "polygons": 2,
+      "areaSteradians": 0.00008177384080862646,
+      "marker": false
+    },
+    {
+      "id": "custom:SOL",
+      "kind": "custom",
+      "polygons": 1,
+      "areaSteradians": 0.004141205000732925,
+      "marker": false
+    },
+    {
+      "id": "custom:WSB",
+      "kind": "custom",
+      "polygons": 1,
+      "areaSteradians": 0.0000024321549364380907,
+      "marker": true
+    },
+    {
+      "id": "custom:ESB",
+      "kind": "custom",
+      "polygons": 1,
+      "areaSteradians": 0.000003133582527332854,
+      "marker": true
+    },
+    {
+      "id": "custom:CNM",
+      "kind": "custom",
+      "polygons": 3,
+      "areaSteradians": 0.000008402529741252578,
+      "marker": true
+    },
+    {
+      "id": "custom:KNX",
+      "kind": "custom",
+      "polygons": 1,
+      "areaSteradians": 0.0000270106790582354,
+      "marker": true
+    },
+    {
+      "id": "custom:KNZ",
+      "kind": "custom",
+      "polygons": 1,
+      "areaSteradians": 0.000028113390835907536,
+      "marker": true
+    },
+    {
+      "id": "custom:USG",
+      "kind": "custom",
+      "polygons": 2,
+      "areaSteradians": 0.0000016122267510442352,
+      "marker": true
+    },
+    {
+      "id": "custom:KAS",
+      "kind": "custom",
+      "polygons": 1,
+      "areaSteradians": 0.0000513750577976084,
+      "marker": true
+    },
+    {
+      "id": "custom:SPI",
+      "kind": "custom",
+      "polygons": 1,
+      "areaSteradians": 0.00003459332539414918,
+      "marker": true
+    },
+    {
+      "id": "custom:BRT",
+      "kind": "custom",
+      "polygons": 1,
+      "areaSteradians": 0.000049896169212912275,
+      "marker": true
+    },
+    {
+      "id": "custom:PFA",
+      "kind": "custom",
+      "polygons": 7,
+      "areaSteradians": 1.3393823611623738e-7,
+      "marker": true
+    },
+    {
+      "id": "custom:PGA",
+      "kind": "custom",
+      "polygons": 12,
+      "areaSteradians": 2.956674448643866e-7,
+      "marker": true
+    },
+    {
+      "id": "custom:BJN",
+      "kind": "custom",
+      "polygons": 1,
+      "areaSteradians": 9.069493337699147e-10,
+      "marker": true
+    },
+    {
+      "id": "custom:SER",
+      "kind": "custom",
+      "polygons": 1,
+      "areaSteradians": 2.5733889397688776e-9,
+      "marker": true
+    },
+    {
+      "id": "custom:SCR",
+      "kind": "custom",
+      "polygons": 1,
+      "areaSteradians": 2.2055050400728287e-9,
+      "marker": true
+    }
+  ]
+}

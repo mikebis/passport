@@ -1,0 +1,1496 @@
+[
+  {
+    "id": "ABW",
+    "name": "Aruba",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "AFG",
+    "name": "Afghanistan",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "AGO",
+    "name": "Angola",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "AIA",
+    "name": "Anguilla",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "ALA",
+    "name": "Åland Islands",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "ALB",
+    "name": "Albania",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "AND",
+    "name": "Andorra",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "ARE",
+    "name": "United Arab Emirates",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "ARG",
+    "name": "Argentina",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "ARM",
+    "name": "Armenia",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "ASM",
+    "name": "American Samoa",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "ATA",
+    "name": "Antarctica",
+    "continent": "Antarctica",
+    "status": "unvisited"
+  },
+  {
+    "id": "ATF",
+    "name": "French Southern and Antarctic Lands",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "ATG",
+    "name": "Antigua and Barbuda",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "AUS",
+    "name": "Australia",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "AUT",
+    "name": "Austria",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "AZE",
+    "name": "Azerbaijan",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "BDI",
+    "name": "Burundi",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "BEL",
+    "name": "Belgium",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "BEN",
+    "name": "Benin",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "BES",
+    "name": "Caribbean Netherlands",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "BFA",
+    "name": "Burkina Faso",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "BGD",
+    "name": "Bangladesh",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "BGR",
+    "name": "Bulgaria",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "BHR",
+    "name": "Bahrain",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "BHS",
+    "name": "Bahamas",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "BIH",
+    "name": "Bosnia and Herzegovina",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "BLM",
+    "name": "Saint Barthélemy",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "BLR",
+    "name": "Belarus",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "BLZ",
+    "name": "Belize",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "BMU",
+    "name": "Bermuda",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "BOL",
+    "name": "Bolivia",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "BRA",
+    "name": "Brazil",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "BRB",
+    "name": "Barbados",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "BRN",
+    "name": "Brunei",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "BTN",
+    "name": "Bhutan",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "BVT",
+    "name": "Bouvet Island",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "BWA",
+    "name": "Botswana",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "CAF",
+    "name": "Central African Republic",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "CAN",
+    "name": "Canada",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "CCK",
+    "name": "Cocos (Keeling) Islands",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "CHE",
+    "name": "Switzerland",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "CHL",
+    "name": "Chile",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "CHN",
+    "name": "China",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "CIV",
+    "name": "Ivory Coast",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "CMR",
+    "name": "Cameroon",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "COD",
+    "name": "DR Congo",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "COG",
+    "name": "Congo",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "COK",
+    "name": "Cook Islands",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "COL",
+    "name": "Colombia",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "COM",
+    "name": "Comoros",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "CPV",
+    "name": "Cape Verde",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "CRI",
+    "name": "Costa Rica",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "CUB",
+    "name": "Cuba",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "CUW",
+    "name": "Curaçao",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "CXR",
+    "name": "Christmas Island",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "CYM",
+    "name": "Cayman Islands",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "CYP",
+    "name": "Cyprus",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "CZE",
+    "name": "Czechia",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "DEU",
+    "name": "Germany",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "DJI",
+    "name": "Djibouti",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "DMA",
+    "name": "Dominica",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "DNK",
+    "name": "Denmark",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "DOM",
+    "name": "Dominican Republic",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "DZA",
+    "name": "Algeria",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "ECU",
+    "name": "Ecuador",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "EGY",
+    "name": "Egypt",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "ERI",
+    "name": "Eritrea",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "ESH",
+    "name": "Western Sahara",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "ESP",
+    "name": "Spain",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "EST",
+    "name": "Estonia",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "ETH",
+    "name": "Ethiopia",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "FIN",
+    "name": "Finland",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "FJI",
+    "name": "Fiji",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "FLK",
+    "name": "Falkland Islands",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "FRA",
+    "name": "France",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "FRO",
+    "name": "Faroe Islands",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "FSM",
+    "name": "Micronesia",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "GAB",
+    "name": "Gabon",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "GBR",
+    "name": "United Kingdom",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "GEO",
+    "name": "Georgia",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "GGY",
+    "name": "Guernsey",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "GHA",
+    "name": "Ghana",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "GIB",
+    "name": "Gibraltar",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "GIN",
+    "name": "Guinea",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "GLP",
+    "name": "Guadeloupe",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "GMB",
+    "name": "Gambia",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "GNB",
+    "name": "Guinea-Bissau",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "GNQ",
+    "name": "Equatorial Guinea",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "GRC",
+    "name": "Greece",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "GRD",
+    "name": "Grenada",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "GRL",
+    "name": "Greenland",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "GTM",
+    "name": "Guatemala",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "GUF",
+    "name": "French Guiana",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "GUM",
+    "name": "Guam",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "GUY",
+    "name": "Guyana",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "HKG",
+    "name": "Hong Kong",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "HMD",
+    "name": "Heard Island and McDonald Islands",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "HND",
+    "name": "Honduras",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "HRV",
+    "name": "Croatia",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "HTI",
+    "name": "Haiti",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "HUN",
+    "name": "Hungary",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "IDN",
+    "name": "Indonesia",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "IMN",
+    "name": "Isle of Man",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "IND",
+    "name": "India",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "IOT",
+    "name": "British Indian Ocean Territory",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "IRL",
+    "name": "Ireland",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "IRN",
+    "name": "Iran",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "IRQ",
+    "name": "Iraq",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "ISL",
+    "name": "Iceland",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "ISR",
+    "name": "Israel",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "ITA",
+    "name": "Italy",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "JAM",
+    "name": "Jamaica",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "JEY",
+    "name": "Jersey",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "JOR",
+    "name": "Jordan",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "JPN",
+    "name": "Japan",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "KAZ",
+    "name": "Kazakhstan",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "KEN",
+    "name": "Kenya",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "KGZ",
+    "name": "Kyrgyzstan",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "KHM",
+    "name": "Cambodia",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "KIR",
+    "name": "Kiribati",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "KNA",
+    "name": "Saint Kitts and Nevis",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "KOR",
+    "name": "South Korea",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "KWT",
+    "name": "Kuwait",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "LAO",
+    "name": "Laos",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "LBN",
+    "name": "Lebanon",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "LBR",
+    "name": "Liberia",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "LBY",
+    "name": "Libya",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "LCA",
+    "name": "Saint Lucia",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "LIE",
+    "name": "Liechtenstein",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "LKA",
+    "name": "Sri Lanka",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "LSO",
+    "name": "Lesotho",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "LTU",
+    "name": "Lithuania",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "LUX",
+    "name": "Luxembourg",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "LVA",
+    "name": "Latvia",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "MAC",
+    "name": "Macau",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "MAF",
+    "name": "Saint Martin",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "MAR",
+    "name": "Morocco",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "MCO",
+    "name": "Monaco",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "MDA",
+    "name": "Moldova",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "MDG",
+    "name": "Madagascar",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "MDV",
+    "name": "Maldives",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "MEX",
+    "name": "Mexico",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "MHL",
+    "name": "Marshall Islands",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "MKD",
+    "name": "North Macedonia",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "MLI",
+    "name": "Mali",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "MLT",
+    "name": "Malta",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "MMR",
+    "name": "Myanmar",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "MNE",
+    "name": "Montenegro",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "MNG",
+    "name": "Mongolia",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "MNP",
+    "name": "Northern Mariana Islands",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "MOZ",
+    "name": "Mozambique",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "MRT",
+    "name": "Mauritania",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "MSR",
+    "name": "Montserrat",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "MTQ",
+    "name": "Martinique",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "MUS",
+    "name": "Mauritius",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "MWI",
+    "name": "Malawi",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "MYS",
+    "name": "Malaysia",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "MYT",
+    "name": "Mayotte",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "NAM",
+    "name": "Namibia",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "NCL",
+    "name": "New Caledonia",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "NER",
+    "name": "Niger",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "NFK",
+    "name": "Norfolk Island",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "NGA",
+    "name": "Nigeria",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "NIC",
+    "name": "Nicaragua",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "NIU",
+    "name": "Niue",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "NLD",
+    "name": "Netherlands",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "NOR",
+    "name": "Norway",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "NPL",
+    "name": "Nepal",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "NRU",
+    "name": "Nauru",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "NZL",
+    "name": "New Zealand",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "OMN",
+    "name": "Oman",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "PAK",
+    "name": "Pakistan",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "PAN",
+    "name": "Panama",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "PCN",
+    "name": "Pitcairn Islands",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "PER",
+    "name": "Peru",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "PHL",
+    "name": "Philippines",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "PLW",
+    "name": "Palau",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "PNG",
+    "name": "Papua New Guinea",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "POL",
+    "name": "Poland",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "PRI",
+    "name": "Puerto Rico",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "PRK",
+    "name": "North Korea",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "PRT",
+    "name": "Portugal",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "PRY",
+    "name": "Paraguay",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "PSE",
+    "name": "Palestine",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "PYF",
+    "name": "French Polynesia",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "QAT",
+    "name": "Qatar",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "REU",
+    "name": "Réunion",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "ROU",
+    "name": "Romania",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "RUS",
+    "name": "Russia",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "RWA",
+    "name": "Rwanda",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "SAU",
+    "name": "Saudi Arabia",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "SDN",
+    "name": "Sudan",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "SEN",
+    "name": "Senegal",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "SGP",
+    "name": "Singapore",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "SGS",
+    "name": "South Georgia",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "SHN",
+    "name": "Saint Helena, Ascension and Tristan da Cunha",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "SJM",
+    "name": "Svalbard and Jan Mayen",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "SLB",
+    "name": "Solomon Islands",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "SLE",
+    "name": "Sierra Leone",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "SLV",
+    "name": "El Salvador",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "SMR",
+    "name": "San Marino",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "SOM",
+    "name": "Somalia",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "SPM",
+    "name": "Saint Pierre and Miquelon",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "SRB",
+    "name": "Serbia",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "SSD",
+    "name": "South Sudan",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "STP",
+    "name": "São Tomé and Príncipe",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "SUR",
+    "name": "Suriname",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "SVK",
+    "name": "Slovakia",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "SVN",
+    "name": "Slovenia",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "SWE",
+    "name": "Sweden",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "SWZ",
+    "name": "Eswatini",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "SXM",
+    "name": "Sint Maarten",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "SYC",
+    "name": "Seychelles",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "SYR",
+    "name": "Syria",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "TCA",
+    "name": "Turks and Caicos Islands",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "TCD",
+    "name": "Chad",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "TGO",
+    "name": "Togo",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "THA",
+    "name": "Thailand",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "TJK",
+    "name": "Tajikistan",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "TKL",
+    "name": "Tokelau",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "TKM",
+    "name": "Turkmenistan",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "TLS",
+    "name": "Timor-Leste",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "TON",
+    "name": "Tonga",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "TTO",
+    "name": "Trinidad and Tobago",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "TUN",
+    "name": "Tunisia",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "TUR",
+    "name": "Türkiye",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "TUV",
+    "name": "Tuvalu",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "TWN",
+    "name": "Taiwan",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "TZA",
+    "name": "Tanzania",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "UGA",
+    "name": "Uganda",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "UKR",
+    "name": "Ukraine",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "UMI",
+    "name": "United States Minor Outlying Islands",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "URY",
+    "name": "Uruguay",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "USA",
+    "name": "United States",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "UZB",
+    "name": "Uzbekistan",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "VAT",
+    "name": "Vatican City",
+    "continent": "Europe",
+    "status": "unvisited"
+  },
+  {
+    "id": "VCT",
+    "name": "Saint Vincent and the Grenadines",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "VEN",
+    "name": "Venezuela",
+    "continent": "South America",
+    "status": "unvisited"
+  },
+  {
+    "id": "VGB",
+    "name": "British Virgin Islands",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "VIR",
+    "name": "United States Virgin Islands",
+    "continent": "North America",
+    "status": "unvisited"
+  },
+  {
+    "id": "VNM",
+    "name": "Vietnam",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "VUT",
+    "name": "Vanuatu",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "WLF",
+    "name": "Wallis and Futuna",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "WSM",
+    "name": "Samoa",
+    "continent": "Oceania",
+    "status": "unvisited"
+  },
+  {
+    "id": "YEM",
+    "name": "Yemen",
+    "continent": "Asia",
+    "status": "unvisited"
+  },
+  {
+    "id": "ZAF",
+    "name": "South Africa",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "ZMB",
+    "name": "Zambia",
+    "continent": "Africa",
+    "status": "unvisited"
+  },
+  {
+    "id": "ZWE",
+    "name": "Zimbabwe",
+    "continent": "Africa",
+    "status": "unvisited"
+  }
+]

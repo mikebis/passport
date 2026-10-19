@@ -1,0 +1,3177 @@
+[
+  {
+    "id": "ABW",
+    "kind": "iso",
+    "alpha2": "AW",
+    "name": "Aruba",
+    "continent": "North America",
+    "marker": [
+      -69.97418396451565,
+      12.516931395092955
+    ],
+    "microstate": true
+  },
+  {
+    "id": "AFG",
+    "kind": "iso",
+    "alpha2": "AF",
+    "name": "Afghanistan",
+    "continent": "Asia",
+    "marker": [
+      65.9295064636863,
+      33.81971301764267
+    ],
+    "microstate": false
+  },
+  {
+    "id": "AGO",
+    "kind": "iso",
+    "alpha2": "AO",
+    "name": "Angola",
+    "continent": "Africa",
+    "marker": [
+      17.53146517500297,
+      -12.269565910503568
+    ],
+    "microstate": false
+  },
+  {
+    "id": "AIA",
+    "kind": "iso",
+    "alpha2": "AI",
+    "name": "Anguilla",
+    "continent": "North America",
+    "marker": [
+      -63.0591564411431,
+      18.230149846601712
+    ],
+    "microstate": true
+  },
+  {
+    "id": "ALA",
+    "kind": "iso",
+    "alpha2": "AX",
+    "name": "Åland Islands",
+    "continent": "Europe",
+    "marker": [
+      20.056085057130577,
+      60.186469778521094
+    ],
+    "microstate": true
+  },
+  {
+    "id": "ALB",
+    "kind": "iso",
+    "alpha2": "AL",
+    "name": "Albania",
+    "continent": "Europe",
+    "marker": [
+      20.055825831326057,
+      41.13486782151425
+    ],
+    "microstate": false
+  },
+  {
+    "id": "AND",
+    "kind": "iso",
+    "alpha2": "AD",
+    "name": "Andorra",
+    "continent": "Europe",
+    "marker": [
+      1.5607369549278272,
+      42.541315266169775
+    ],
+    "microstate": true
+  },
+  {
+    "id": "ARE",
+    "kind": "iso",
+    "alpha2": "AE",
+    "name": "United Arab Emirates",
+    "continent": "Asia",
+    "marker": [
+      54.2933300567315,
+      23.905758148328225
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ARG",
+    "kind": "iso",
+    "alpha2": "AR",
+    "name": "Argentina",
+    "continent": "South America",
+    "marker": [
+      -64.75742280208976,
+      -34.68161737257567
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ARM",
+    "kind": "iso",
+    "alpha2": "AM",
+    "name": "Armenia",
+    "continent": "Asia",
+    "marker": [
+      44.94070241990439,
+      40.285941515074676
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ASM",
+    "kind": "iso",
+    "alpha2": "AS",
+    "name": "American Samoa",
+    "continent": "Oceania",
+    "marker": [
+      -170.39899217270548,
+      -14.255181310331816
+    ],
+    "microstate": true
+  },
+  {
+    "id": "ATA",
+    "kind": "iso",
+    "alpha2": "AQ",
+    "name": "Antarctica",
+    "continent": "Antarctica",
+    "marker": [
+      18,
+      -76
+    ],
+    "microstate": true
+  },
+  {
+    "id": "ATF",
+    "kind": "iso",
+    "alpha2": "TF",
+    "name": "French Southern and Antarctic Lands",
+    "continent": "Oceania",
+    "marker": [
+      68.90574324310796,
+      -49.07933277007226
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ATG",
+    "kind": "iso",
+    "alpha2": "AG",
+    "name": "Antigua and Barbuda",
+    "continent": "North America",
+    "marker": [
+      -61.792173118061505,
+      17.283696028568478
+    ],
+    "microstate": true
+  },
+  {
+    "id": "AUS",
+    "kind": "iso",
+    "alpha2": "AU",
+    "name": "Australia",
+    "continent": "Oceania",
+    "marker": [
+      134.30380002709774,
+      -25.763359389397408
+    ],
+    "microstate": false
+  },
+  {
+    "id": "AUT",
+    "kind": "iso",
+    "alpha2": "AT",
+    "name": "Austria",
+    "continent": "Europe",
+    "marker": [
+      14.11462937292017,
+      47.592364185857164
+    ],
+    "microstate": false
+  },
+  {
+    "id": "AZE",
+    "kind": "iso",
+    "alpha2": "AZ",
+    "name": "Azerbaijan",
+    "continent": "Asia",
+    "marker": [
+      47.543869132357244,
+      40.287436716137506
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BDI",
+    "kind": "iso",
+    "alpha2": "BI",
+    "name": "Burundi",
+    "continent": "Africa",
+    "marker": [
+      29.87518582609151,
+      -3.3572428572753847
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BEL",
+    "kind": "iso",
+    "alpha2": "BE",
+    "name": "Belgium",
+    "continent": "Europe",
+    "marker": [
+      4.64719414140003,
+      50.636746605150094
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BEN",
+    "kind": "iso",
+    "alpha2": "BJ",
+    "name": "Benin",
+    "continent": "Africa",
+    "marker": [
+      2.327498862157025,
+      9.635059856636275
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BES",
+    "kind": "iso",
+    "alpha2": "BQ",
+    "name": "Caribbean Netherlands",
+    "continent": "North America",
+    "marker": [
+      -67.83526142577136,
+      12.661898555841518
+    ],
+    "microstate": true
+  },
+  {
+    "id": "BFA",
+    "kind": "iso",
+    "alpha2": "BF",
+    "name": "Burkina Faso",
+    "continent": "Africa",
+    "marker": [
+      -1.7621009090642084,
+      12.270731365816086
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BGD",
+    "kind": "iso",
+    "alpha2": "BD",
+    "name": "Bangladesh",
+    "continent": "Asia",
+    "marker": [
+      90.25095719533786,
+      23.838909175578248
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BGR",
+    "kind": "iso",
+    "alpha2": "BG",
+    "name": "Bulgaria",
+    "continent": "Europe",
+    "marker": [
+      25.21112397596315,
+      42.7708339173165
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BHR",
+    "kind": "iso",
+    "alpha2": "BH",
+    "name": "Bahrain",
+    "continent": "Asia",
+    "marker": [
+      50.56360951589301,
+      26.035340787981873
+    ],
+    "microstate": true
+  },
+  {
+    "id": "BHS",
+    "kind": "iso",
+    "alpha2": "BS",
+    "name": "Bahamas",
+    "continent": "North America",
+    "marker": [
+      -76.51201395931017,
+      24.214302619740536
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BIH",
+    "kind": "iso",
+    "alpha2": "BA",
+    "name": "Bosnia and Herzegovina",
+    "continent": "Europe",
+    "marker": [
+      17.77950454596551,
+      44.16865947311059
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BLM",
+    "kind": "iso",
+    "alpha2": "BL",
+    "name": "Saint Barthélemy",
+    "continent": "North America",
+    "marker": [
+      -62.83261897415076,
+      17.905585686491644
+    ],
+    "microstate": true
+  },
+  {
+    "id": "BLR",
+    "kind": "iso",
+    "alpha2": "BY",
+    "name": "Belarus",
+    "continent": "Europe",
+    "marker": [
+      28.016367050873125,
+      53.52005483333619
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BLZ",
+    "kind": "iso",
+    "alpha2": "BZ",
+    "name": "Belize",
+    "continent": "North America",
+    "marker": [
+      -88.69482809782598,
+      17.20630471686597
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BMU",
+    "kind": "iso",
+    "alpha2": "BM",
+    "name": "Bermuda",
+    "continent": "North America",
+    "marker": [
+      -64.76353941853917,
+      32.310137723107445
+    ],
+    "microstate": true
+  },
+  {
+    "id": "BOL",
+    "kind": "iso",
+    "alpha2": "BO",
+    "name": "Bolivia",
+    "continent": "South America",
+    "marker": [
+      -64.69780481280503,
+      -16.680678683776943
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BRA",
+    "kind": "iso",
+    "alpha2": "BR",
+    "name": "Brazil",
+    "continent": "South America",
+    "marker": [
+      -53.210124639737955,
+      -10.632071326631028
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BRB",
+    "kind": "iso",
+    "alpha2": "BB",
+    "name": "Barbados",
+    "continent": "North America",
+    "marker": [
+      -59.561201750702224,
+      13.18104123500366
+    ],
+    "microstate": true
+  },
+  {
+    "id": "BRN",
+    "kind": "iso",
+    "alpha2": "BN",
+    "name": "Brunei",
+    "continent": "Asia",
+    "marker": [
+      114.72718309247738,
+      4.5164940982265245
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BTN",
+    "kind": "iso",
+    "alpha2": "BT",
+    "name": "Bhutan",
+    "continent": "Asia",
+    "marker": [
+      90.40701595188956,
+      27.42247599825652
+    ],
+    "microstate": false
+  },
+  {
+    "id": "BVT",
+    "kind": "iso",
+    "alpha2": "BV",
+    "name": "Bouvet Island",
+    "continent": "Africa",
+    "marker": [
+      3.4131507833866865,
+      -54.41926387890049
+    ],
+    "microstate": true
+  },
+  {
+    "id": "BWA",
+    "kind": "iso",
+    "alpha2": "BW",
+    "name": "Botswana",
+    "continent": "Africa",
+    "marker": [
+      23.809129409711286,
+      -22.166903095463887
+    ],
+    "microstate": false
+  },
+  {
+    "id": "CAF",
+    "kind": "iso",
+    "alpha2": "CF",
+    "name": "Central African Republic",
+    "continent": "Africa",
+    "marker": [
+      20.458347389685517,
+      6.57037904316919
+    ],
+    "microstate": false
+  },
+  {
+    "id": "CAN",
+    "kind": "iso",
+    "alpha2": "CA",
+    "name": "Canada",
+    "continent": "North America",
+    "marker": [
+      -96.53639233809295,
+      60.42701250799993
+    ],
+    "microstate": false
+  },
+  {
+    "id": "CCK",
+    "kind": "iso",
+    "alpha2": "CC",
+    "name": "Cocos (Keeling) Islands",
+    "continent": "Oceania",
+    "marker": [
+      96.86729361944707,
+      -12.175901524113753
+    ],
+    "microstate": true
+  },
+  {
+    "id": "CHE",
+    "kind": "iso",
+    "alpha2": "CH",
+    "name": "Switzerland",
+    "continent": "Europe",
+    "marker": [
+      8.212907332243166,
+      46.79994451232248
+    ],
+    "microstate": false
+  },
+  {
+    "id": "CHL",
+    "kind": "iso",
+    "alpha2": "CL",
+    "name": "Chile",
+    "continent": "South America",
+    "marker": [
+      -71.04518108863776,
+      -36.08011358036296
+    ],
+    "microstate": false
+  },
+  {
+    "id": "CHN",
+    "kind": "iso",
+    "alpha2": "CN",
+    "name": "China",
+    "continent": "Asia",
+    "marker": [
+      103.39290204374929,
+      36.68823044949112
+    ],
+    "microstate": false
+  },
+  {
+    "id": "CIV",
+    "kind": "iso",
+    "alpha2": "CI",
+    "name": "Ivory Coast",
+    "continent": "Africa",
+    "marker": [
+      -5.5688818738821455,
+      7.625406963686245
+    ],
+    "microstate": false
+  },
+  {
+    "id": "CMR",
+    "kind": "iso",
+    "alpha2": "CM",
+    "name": "Cameroon",
+    "continent": "Africa",
+    "marker": [
+      12.731261535579236,
+      5.683110424366862
+    ],
+    "microstate": false
+  },
+  {
+    "id": "COD",
+    "kind": "iso",
+    "alpha2": "CD",
+    "name": "DR Congo",
+    "continent": "Africa",
+    "marker": [
+      23.63884200204358,
+      -2.8677865020226028
+    ],
+    "microstate": false
+  },
+  {
+    "id": "COG",
+    "kind": "iso",
+    "alpha2": "CG",
+    "name": "Congo",
+    "continent": "Africa",
+    "marker": [
+      15.219821844935638,
+      -0.8379936116037974
+    ],
+    "microstate": false
+  },
+  {
+    "id": "COK",
+    "kind": "iso",
+    "alpha2": "CK",
+    "name": "Cook Islands",
+    "continent": "Oceania",
+    "marker": [
+      -158.79502087122816,
+      -19.770302374360856
+    ],
+    "microstate": true
+  },
+  {
+    "id": "COL",
+    "kind": "iso",
+    "alpha2": "CO",
+    "name": "Colombia",
+    "continent": "South America",
+    "marker": [
+      -73.07976428795591,
+      3.899077255887956
+    ],
+    "microstate": false
+  },
+  {
+    "id": "COM",
+    "kind": "iso",
+    "alpha2": "KM",
+    "name": "Comoros",
+    "continent": "Africa",
+    "marker": [
+      43.6792756863811,
+      -11.884254874696577
+    ],
+    "microstate": true
+  },
+  {
+    "id": "CPV",
+    "kind": "iso",
+    "alpha2": "CV",
+    "name": "Cape Verde",
+    "continent": "Africa",
+    "marker": [
+      -23.972541541581133,
+      15.943187845053755
+    ],
+    "microstate": false
+  },
+  {
+    "id": "CRI",
+    "kind": "iso",
+    "alpha2": "CR",
+    "name": "Costa Rica",
+    "continent": "North America",
+    "marker": [
+      -84.19135573448095,
+      9.97321219789394
+    ],
+    "microstate": false
+  },
+  {
+    "id": "CUB",
+    "kind": "iso",
+    "alpha2": "CU",
+    "name": "Cuba",
+    "continent": "North America",
+    "marker": [
+      -79.0062225021106,
+      21.640291950656625
+    ],
+    "microstate": false
+  },
+  {
+    "id": "CUW",
+    "kind": "iso",
+    "alpha2": "CW",
+    "name": "Curaçao",
+    "continent": "North America",
+    "marker": [
+      -68.9712301936472,
+      12.193815173087954
+    ],
+    "microstate": true
+  },
+  {
+    "id": "CXR",
+    "kind": "iso",
+    "alpha2": "CX",
+    "name": "Christmas Island",
+    "continent": "Oceania",
+    "marker": [
+      105.6625224916325,
+      -10.492522614889655
+    ],
+    "microstate": true
+  },
+  {
+    "id": "CYM",
+    "kind": "iso",
+    "alpha2": "KY",
+    "name": "Cayman Islands",
+    "continent": "North America",
+    "marker": [
+      -80.87834811304663,
+      19.427154044543016
+    ],
+    "microstate": true
+  },
+  {
+    "id": "CYP",
+    "kind": "iso",
+    "alpha2": "CY",
+    "name": "Cyprus",
+    "continent": "Europe",
+    "marker": [
+      32.98987738954942,
+      34.91564477342273
+    ],
+    "microstate": false
+  },
+  {
+    "id": "CZE",
+    "kind": "iso",
+    "alpha2": "CZ",
+    "name": "Czechia",
+    "continent": "Europe",
+    "marker": [
+      15.32114225967503,
+      49.73702000426679
+    ],
+    "microstate": false
+  },
+  {
+    "id": "DEU",
+    "kind": "iso",
+    "alpha2": "DE",
+    "name": "Germany",
+    "continent": "Europe",
+    "marker": [
+      10.3607138944916,
+      51.05000897686802
+    ],
+    "microstate": false
+  },
+  {
+    "id": "DJI",
+    "kind": "iso",
+    "alpha2": "DJ",
+    "name": "Djibouti",
+    "continent": "Africa",
+    "marker": [
+      42.56583465779294,
+      11.749748789672028
+    ],
+    "microstate": false
+  },
+  {
+    "id": "DMA",
+    "kind": "iso",
+    "alpha2": "DM",
+    "name": "Dominica",
+    "continent": "North America",
+    "marker": [
+      -61.35689050089027,
+      15.436395973549626
+    ],
+    "microstate": true
+  },
+  {
+    "id": "DNK",
+    "kind": "iso",
+    "alpha2": "DK",
+    "name": "Denmark",
+    "continent": "Europe",
+    "marker": [
+      10.06600542113852,
+      55.95897719141272
+    ],
+    "microstate": false
+  },
+  {
+    "id": "DOM",
+    "kind": "iso",
+    "alpha2": "DO",
+    "name": "Dominican Republic",
+    "continent": "North America",
+    "marker": [
+      -70.49611455906059,
+      18.897174081491396
+    ],
+    "microstate": false
+  },
+  {
+    "id": "DZA",
+    "kind": "iso",
+    "alpha2": "DZ",
+    "name": "Algeria",
+    "continent": "Africa",
+    "marker": [
+      2.665808161334871,
+      28.04445680514963
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ECU",
+    "kind": "iso",
+    "alpha2": "EC",
+    "name": "Ecuador",
+    "continent": "South America",
+    "marker": [
+      -78.76945504064685,
+      -1.4265845029049264
+    ],
+    "microstate": false
+  },
+  {
+    "id": "EGY",
+    "kind": "iso",
+    "alpha2": "EG",
+    "name": "Egypt",
+    "continent": "Africa",
+    "marker": [
+      29.87752511262777,
+      26.456912853448795
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ERI",
+    "kind": "iso",
+    "alpha2": "ER",
+    "name": "Eritrea",
+    "continent": "Africa",
+    "marker": [
+      38.86401384814539,
+      15.356787024739118
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ESH",
+    "kind": "iso",
+    "alpha2": "EH",
+    "name": "Western Sahara",
+    "continent": "Africa",
+    "marker": [
+      -12.266507108302664,
+      24.2147621735299
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ESP",
+    "kind": "iso",
+    "alpha2": "ES",
+    "name": "Spain",
+    "continent": "Europe",
+    "marker": [
+      -3.710596103540043,
+      40.19000269943155
+    ],
+    "microstate": false
+  },
+  {
+    "id": "EST",
+    "kind": "iso",
+    "alpha2": "EE",
+    "name": "Estonia",
+    "continent": "Europe",
+    "marker": [
+      25.538385156701455,
+      58.6719667551604
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ETH",
+    "kind": "iso",
+    "alpha2": "ET",
+    "name": "Ethiopia",
+    "continent": "Africa",
+    "marker": [
+      39.60955545922229,
+      8.614533719069845
+    ],
+    "microstate": false
+  },
+  {
+    "id": "FIN",
+    "kind": "iso",
+    "alpha2": "FI",
+    "name": "Finland",
+    "continent": "Europe",
+    "marker": [
+      26.190871013164315,
+      64.25166556172698
+    ],
+    "microstate": false
+  },
+  {
+    "id": "FJI",
+    "kind": "iso",
+    "alpha2": "FJ",
+    "name": "Fiji",
+    "continent": "Oceania",
+    "marker": [
+      178.52613229039588,
+      -17.44651577361029
+    ],
+    "microstate": false
+  },
+  {
+    "id": "FLK",
+    "kind": "iso",
+    "alpha2": "FK",
+    "name": "Falkland Islands",
+    "continent": "South America",
+    "marker": [
+      -59.373599698982666,
+      -51.73485043309819
+    ],
+    "microstate": false
+  },
+  {
+    "id": "FRA",
+    "kind": "iso",
+    "alpha2": "FR",
+    "name": "France",
+    "continent": "Europe",
+    "marker": [
+      2.569781985913122,
+      46.50623833853774
+    ],
+    "microstate": false
+  },
+  {
+    "id": "FRO",
+    "kind": "iso",
+    "alpha2": "FO",
+    "name": "Faroe Islands",
+    "continent": "Europe",
+    "marker": [
+      -6.87036529809432,
+      62.07234668544164
+    ],
+    "microstate": true
+  },
+  {
+    "id": "FSM",
+    "kind": "iso",
+    "alpha2": "FM",
+    "name": "Micronesia",
+    "continent": "Oceania",
+    "marker": [
+      155.33720565414976,
+      7.026813086624625
+    ],
+    "microstate": true
+  },
+  {
+    "id": "GAB",
+    "kind": "iso",
+    "alpha2": "GA",
+    "name": "Gabon",
+    "continent": "Africa",
+    "marker": [
+      11.789685083726035,
+      -0.5914973880058094
+    ],
+    "microstate": false
+  },
+  {
+    "id": "GBR",
+    "kind": "iso",
+    "alpha2": "GB",
+    "name": "United Kingdom",
+    "continent": "Europe",
+    "marker": [
+      -2.7777190525817614,
+      54.03366945292
+    ],
+    "microstate": false
+  },
+  {
+    "id": "GEO",
+    "kind": "iso",
+    "alpha2": "GE",
+    "name": "Georgia",
+    "continent": "Asia",
+    "marker": [
+      43.52413803827055,
+      42.17320456347752
+    ],
+    "microstate": false
+  },
+  {
+    "id": "GGY",
+    "kind": "iso",
+    "alpha2": "GG",
+    "name": "Guernsey",
+    "continent": "Europe",
+    "marker": [
+      -2.530789148324195,
+      49.484320547310546
+    ],
+    "microstate": true
+  },
+  {
+    "id": "GHA",
+    "kind": "iso",
+    "alpha2": "GH",
+    "name": "Ghana",
+    "continent": "Africa",
+    "marker": [
+      -1.2167433428268404,
+      7.948194103759806
+    ],
+    "microstate": false
+  },
+  {
+    "id": "GIB",
+    "kind": "iso",
+    "alpha2": "GI",
+    "name": "Gibraltar",
+    "continent": "Europe",
+    "marker": [
+      -5.346699987933912,
+      36.12946306629534
+    ],
+    "microstate": true
+  },
+  {
+    "id": "GIN",
+    "kind": "iso",
+    "alpha2": "GN",
+    "name": "Guinea",
+    "continent": "Africa",
+    "marker": [
+      -10.936666595440526,
+      10.435771071423945
+    ],
+    "microstate": false
+  },
+  {
+    "id": "GLP",
+    "kind": "iso",
+    "alpha2": "GP",
+    "name": "Guadeloupe",
+    "continent": "North America",
+    "marker": [
+      -61.52962422250169,
+      16.20826405757205
+    ],
+    "microstate": true
+  },
+  {
+    "id": "GMB",
+    "kind": "iso",
+    "alpha2": "GM",
+    "name": "Gambia",
+    "continent": "Africa",
+    "marker": [
+      -15.397875072740339,
+      13.45104272961114
+    ],
+    "microstate": false
+  },
+  {
+    "id": "GNB",
+    "kind": "iso",
+    "alpha2": "GW",
+    "name": "Guinea-Bissau",
+    "continent": "Africa",
+    "marker": [
+      -14.977838104235953,
+      12.02722638373683
+    ],
+    "microstate": false
+  },
+  {
+    "id": "GNQ",
+    "kind": "iso",
+    "alpha2": "GQ",
+    "name": "Equatorial Guinea",
+    "continent": "Africa",
+    "marker": [
+      10.333242685226278,
+      1.7068179941555948
+    ],
+    "microstate": false
+  },
+  {
+    "id": "GRC",
+    "kind": "iso",
+    "alpha2": "GR",
+    "name": "Greece",
+    "continent": "Europe",
+    "marker": [
+      22.984699926294077,
+      39.02446819091348
+    ],
+    "microstate": false
+  },
+  {
+    "id": "GRD",
+    "kind": "iso",
+    "alpha2": "GD",
+    "name": "Grenada",
+    "continent": "North America",
+    "marker": [
+      -61.656746175048816,
+      12.153327099254161
+    ],
+    "microstate": true
+  },
+  {
+    "id": "GRL",
+    "kind": "iso",
+    "alpha2": "GL",
+    "name": "Greenland",
+    "continent": "North America",
+    "marker": [
+      -41.77729451184172,
+      73.12688766840212
+    ],
+    "microstate": false
+  },
+  {
+    "id": "GTM",
+    "kind": "iso",
+    "alpha2": "GT",
+    "name": "Guatemala",
+    "continent": "North America",
+    "marker": [
+      -90.36263825059166,
+      15.692041027626143
+    ],
+    "microstate": false
+  },
+  {
+    "id": "GUF",
+    "kind": "iso",
+    "alpha2": "GF",
+    "name": "French Guiana",
+    "continent": "South America",
+    "marker": [
+      -53.24453800056625,
+      3.9218281815763025
+    ],
+    "microstate": false
+  },
+  {
+    "id": "GUM",
+    "kind": "iso",
+    "alpha2": "GU",
+    "name": "Guam",
+    "continent": "Oceania",
+    "marker": [
+      144.77188089142396,
+      13.443760916746495
+    ],
+    "microstate": true
+  },
+  {
+    "id": "GUY",
+    "kind": "iso",
+    "alpha2": "GY",
+    "name": "Guyana",
+    "continent": "South America",
+    "marker": [
+      -58.978022469218466,
+      4.789325779104531
+    ],
+    "microstate": false
+  },
+  {
+    "id": "HKG",
+    "kind": "iso",
+    "alpha2": "HK",
+    "name": "Hong Kong",
+    "continent": "Asia",
+    "marker": [
+      114.13139753220445,
+      22.38462850204452
+    ],
+    "microstate": true
+  },
+  {
+    "id": "HMD",
+    "kind": "iso",
+    "alpha2": "HM",
+    "name": "Heard Island and McDonald Islands",
+    "continent": "Oceania",
+    "marker": [
+      73.50507970374116,
+      -53.088807648283385
+    ],
+    "microstate": true
+  },
+  {
+    "id": "HND",
+    "kind": "iso",
+    "alpha2": "HN",
+    "name": "Honduras",
+    "continent": "North America",
+    "marker": [
+      -86.627614559461,
+      14.82316455449565
+    ],
+    "microstate": false
+  },
+  {
+    "id": "HRV",
+    "kind": "iso",
+    "alpha2": "HR",
+    "name": "Croatia",
+    "continent": "Europe",
+    "marker": [
+      16.392517648593667,
+      45.06261188151292
+    ],
+    "microstate": false
+  },
+  {
+    "id": "HTI",
+    "kind": "iso",
+    "alpha2": "HT",
+    "name": "Haiti",
+    "continent": "North America",
+    "marker": [
+      -72.69231314574286,
+      18.937920853764076
+    ],
+    "microstate": false
+  },
+  {
+    "id": "HUN",
+    "kind": "iso",
+    "alpha2": "HU",
+    "name": "Hungary",
+    "continent": "Europe",
+    "marker": [
+      19.380446647737067,
+      47.16636835859988
+    ],
+    "microstate": false
+  },
+  {
+    "id": "IDN",
+    "kind": "iso",
+    "alpha2": "ID",
+    "name": "Indonesia",
+    "continent": "Asia",
+    "marker": [
+      117.21051867630307,
+      -2.2720125755606015
+    ],
+    "microstate": false
+  },
+  {
+    "id": "IMN",
+    "kind": "iso",
+    "alpha2": "IM",
+    "name": "Isle of Man",
+    "continent": "Europe",
+    "marker": [
+      -4.534008734614107,
+      54.22896882781398
+    ],
+    "microstate": true
+  },
+  {
+    "id": "IND",
+    "kind": "iso",
+    "alpha2": "IN",
+    "name": "India",
+    "continent": "Asia",
+    "marker": [
+      79.55970823051996,
+      22.778143147280232
+    ],
+    "microstate": false
+  },
+  {
+    "id": "IOT",
+    "kind": "iso",
+    "alpha2": "IO",
+    "name": "British Indian Ocean Territory",
+    "continent": "Africa",
+    "marker": [
+      72.29823145544925,
+      -7.144005307795931
+    ],
+    "microstate": true
+  },
+  {
+    "id": "IRL",
+    "kind": "iso",
+    "alpha2": "IE",
+    "name": "Ireland",
+    "continent": "Europe",
+    "marker": [
+      -8.15270820977041,
+      53.165213115141995
+    ],
+    "microstate": false
+  },
+  {
+    "id": "IRN",
+    "kind": "iso",
+    "alpha2": "IR",
+    "name": "Iran",
+    "continent": "Asia",
+    "marker": [
+      54.443771841740094,
+      32.52269406031486
+    ],
+    "microstate": false
+  },
+  {
+    "id": "IRQ",
+    "kind": "iso",
+    "alpha2": "IQ",
+    "name": "Iraq",
+    "continent": "Asia",
+    "marker": [
+      43.77507793219214,
+      33.00972815096513
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ISL",
+    "kind": "iso",
+    "alpha2": "IS",
+    "name": "Iceland",
+    "continent": "Europe",
+    "marker": [
+      -18.601665704418227,
+      65.00046532258303
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ISR",
+    "kind": "iso",
+    "alpha2": "IL",
+    "name": "Israel",
+    "continent": "Asia",
+    "marker": [
+      34.99289469232625,
+      31.43803179798445
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ITA",
+    "kind": "iso",
+    "alpha2": "IT",
+    "name": "Italy",
+    "continent": "Europe",
+    "marker": [
+      12.202771684013403,
+      42.70537687164515
+    ],
+    "microstate": false
+  },
+  {
+    "id": "JAM",
+    "kind": "iso",
+    "alpha2": "JM",
+    "name": "Jamaica",
+    "continent": "North America",
+    "marker": [
+      -77.3183874813684,
+      18.155719164901953
+    ],
+    "microstate": false
+  },
+  {
+    "id": "JEY",
+    "kind": "iso",
+    "alpha2": "JE",
+    "name": "Jersey",
+    "continent": "Europe",
+    "marker": [
+      -2.1274167081269146,
+      49.22107230470669
+    ],
+    "microstate": true
+  },
+  {
+    "id": "JOR",
+    "kind": "iso",
+    "alpha2": "JO",
+    "name": "Jordan",
+    "continent": "Asia",
+    "marker": [
+      36.757239804125675,
+      31.238443743289437
+    ],
+    "microstate": false
+  },
+  {
+    "id": "JPN",
+    "kind": "iso",
+    "alpha2": "JP",
+    "name": "Japan",
+    "continent": "Asia",
+    "marker": [
+      137.6049871946734,
+      37.41985160208272
+    ],
+    "microstate": false
+  },
+  {
+    "id": "KAZ",
+    "kind": "iso",
+    "alpha2": "KZ",
+    "name": "Kazakhstan",
+    "continent": "Asia",
+    "marker": [
+      67.2412406896539,
+      48.36087124699936
+    ],
+    "microstate": false
+  },
+  {
+    "id": "KEN",
+    "kind": "iso",
+    "alpha2": "KE",
+    "name": "Kenya",
+    "continent": "Africa",
+    "marker": [
+      37.82257309980241,
+      0.5504575076131316
+    ],
+    "microstate": false
+  },
+  {
+    "id": "KGZ",
+    "kind": "iso",
+    "alpha2": "KG",
+    "name": "Kyrgyzstan",
+    "continent": "Asia",
+    "marker": [
+      74.50914368180477,
+      41.474038194388434
+    ],
+    "microstate": false
+  },
+  {
+    "id": "KHM",
+    "kind": "iso",
+    "alpha2": "KH",
+    "name": "Cambodia",
+    "continent": "Asia",
+    "marker": [
+      104.90116063909315,
+      12.71500255666273
+    ],
+    "microstate": false
+  },
+  {
+    "id": "KIR",
+    "kind": "iso",
+    "alpha2": "KI",
+    "name": "Kiribati",
+    "continent": "Oceania",
+    "marker": [
+      -167.04914351943455,
+      0.6403600027750117
+    ],
+    "microstate": true
+  },
+  {
+    "id": "KNA",
+    "kind": "iso",
+    "alpha2": "KN",
+    "name": "Saint Kitts and Nevis",
+    "continent": "North America",
+    "marker": [
+      -62.6984536380794,
+      17.27102111720941
+    ],
+    "microstate": true
+  },
+  {
+    "id": "KOR",
+    "kind": "iso",
+    "alpha2": "KR",
+    "name": "South Korea",
+    "continent": "Asia",
+    "marker": [
+      127.81793632725989,
+      36.339971069008676
+    ],
+    "microstate": false
+  },
+  {
+    "id": "KWT",
+    "kind": "iso",
+    "alpha2": "KW",
+    "name": "Kuwait",
+    "continent": "Asia",
+    "marker": [
+      47.59535082145648,
+      29.339014746257877
+    ],
+    "microstate": false
+  },
+  {
+    "id": "LAO",
+    "kind": "iso",
+    "alpha2": "LA",
+    "name": "Laos",
+    "continent": "Asia",
+    "marker": [
+      103.77510441383312,
+      18.4875081165083
+    ],
+    "microstate": false
+  },
+  {
+    "id": "LBN",
+    "kind": "iso",
+    "alpha2": "LB",
+    "name": "Lebanon",
+    "continent": "Asia",
+    "marker": [
+      35.87737322773401,
+      33.91861706600744
+    ],
+    "microstate": false
+  },
+  {
+    "id": "LBR",
+    "kind": "iso",
+    "alpha2": "LR",
+    "name": "Liberia",
+    "continent": "Africa",
+    "marker": [
+      -9.317619370022934,
+      6.451363233804102
+    ],
+    "microstate": false
+  },
+  {
+    "id": "LBY",
+    "kind": "iso",
+    "alpha2": "LY",
+    "name": "Libya",
+    "continent": "Africa",
+    "marker": [
+      18.067654555594867,
+      27.015988445007537
+    ],
+    "microstate": false
+  },
+  {
+    "id": "LCA",
+    "kind": "iso",
+    "alpha2": "LC",
+    "name": "Saint Lucia",
+    "continent": "North America",
+    "marker": [
+      -60.97032792376147,
+      13.90264000475256
+    ],
+    "microstate": true
+  },
+  {
+    "id": "LIE",
+    "kind": "iso",
+    "alpha2": "LI",
+    "name": "Liechtenstein",
+    "continent": "Europe",
+    "marker": [
+      9.540921650548562,
+      47.13815799878563
+    ],
+    "microstate": true
+  },
+  {
+    "id": "LKA",
+    "kind": "iso",
+    "alpha2": "LK",
+    "name": "Sri Lanka",
+    "continent": "Asia",
+    "marker": [
+      80.70372094286898,
+      7.61424280448767
+    ],
+    "microstate": false
+  },
+  {
+    "id": "LSO",
+    "kind": "iso",
+    "alpha2": "LS",
+    "name": "Lesotho",
+    "continent": "Africa",
+    "marker": [
+      28.230356193587465,
+      -29.578759345464153
+    ],
+    "microstate": false
+  },
+  {
+    "id": "LTU",
+    "kind": "iso",
+    "alpha2": "LT",
+    "name": "Lithuania",
+    "continent": "Europe",
+    "marker": [
+      23.898181374062606,
+      55.32462658720161
+    ],
+    "microstate": false
+  },
+  {
+    "id": "LUX",
+    "kind": "iso",
+    "alpha2": "LU",
+    "name": "Luxembourg",
+    "continent": "Europe",
+    "marker": [
+      6.072101186683068,
+      49.76634702835911
+    ],
+    "microstate": true
+  },
+  {
+    "id": "LVA",
+    "kind": "iso",
+    "alpha2": "LV",
+    "name": "Latvia",
+    "continent": "Europe",
+    "marker": [
+      24.916747782664597,
+      56.86048780464936
+    ],
+    "microstate": false
+  },
+  {
+    "id": "MAC",
+    "kind": "iso",
+    "alpha2": "MO",
+    "name": "Macau",
+    "continent": "Asia",
+    "marker": [
+      113.55020161074604,
+      22.15777778244857
+    ],
+    "microstate": true
+  },
+  {
+    "id": "MAF",
+    "kind": "iso",
+    "alpha2": "MF",
+    "name": "Saint Martin",
+    "continent": "North America",
+    "marker": [
+      -63.055071348182096,
+      18.077621664284095
+    ],
+    "microstate": true
+  },
+  {
+    "id": "MAR",
+    "kind": "iso",
+    "alpha2": "MA",
+    "name": "Morocco",
+    "continent": "Africa",
+    "marker": [
+      -8.66377145601261,
+      29.773045358914715
+    ],
+    "microstate": false
+  },
+  {
+    "id": "MCO",
+    "kind": "iso",
+    "alpha2": "MC",
+    "name": "Monaco",
+    "continent": "Europe",
+    "marker": [
+      7.398972069166045,
+      43.73984587482033
+    ],
+    "microstate": true
+  },
+  {
+    "id": "MDA",
+    "kind": "iso",
+    "alpha2": "MD",
+    "name": "Moldova",
+    "continent": "Europe",
+    "marker": [
+      28.47021899259796,
+      47.18733018511872
+    ],
+    "microstate": false
+  },
+  {
+    "id": "MDG",
+    "kind": "iso",
+    "alpha2": "MG",
+    "name": "Madagascar",
+    "continent": "Africa",
+    "marker": [
+      46.744159862497376,
+      -19.317670216154617
+    ],
+    "microstate": false
+  },
+  {
+    "id": "MDV",
+    "kind": "iso",
+    "alpha2": "MV",
+    "name": "Maldives",
+    "continent": "Asia",
+    "marker": [
+      73.30249299277583,
+      3.8233171781598245
+    ],
+    "microstate": true
+  },
+  {
+    "id": "MEX",
+    "kind": "iso",
+    "alpha2": "MX",
+    "name": "Mexico",
+    "continent": "North America",
+    "marker": [
+      -102.17819436225835,
+      23.925655963573824
+    ],
+    "microstate": false
+  },
+  {
+    "id": "MHL",
+    "kind": "iso",
+    "alpha2": "MH",
+    "name": "Marshall Islands",
+    "continent": "Oceania",
+    "marker": [
+      170.10538106800595,
+      7.11044313816812
+    ],
+    "microstate": true
+  },
+  {
+    "id": "MKD",
+    "kind": "iso",
+    "alpha2": "MK",
+    "name": "North Macedonia",
+    "continent": "Europe",
+    "marker": [
+      21.68234705241595,
+      41.594862080718826
+    ],
+    "microstate": false
+  },
+  {
+    "id": "MLI",
+    "kind": "iso",
+    "alpha2": "ML",
+    "name": "Mali",
+    "continent": "Africa",
+    "marker": [
+      -3.5869260947172443,
+      17.313441778056124
+    ],
+    "microstate": false
+  },
+  {
+    "id": "MLT",
+    "kind": "iso",
+    "alpha2": "MT",
+    "name": "Malta",
+    "continent": "Europe",
+    "marker": [
+      14.403898432967697,
+      35.92099876724839
+    ],
+    "microstate": true
+  },
+  {
+    "id": "MMR",
+    "kind": "iso",
+    "alpha2": "MM",
+    "name": "Myanmar",
+    "continent": "Asia",
+    "marker": [
+      96.49564694939481,
+      21.09435060556775
+    ],
+    "microstate": false
+  },
+  {
+    "id": "MNE",
+    "kind": "iso",
+    "alpha2": "ME",
+    "name": "Montenegro",
+    "continent": "Europe",
+    "marker": [
+      19.23827098195345,
+      42.784873564326865
+    ],
+    "microstate": false
+  },
+  {
+    "id": "MNG",
+    "kind": "iso",
+    "alpha2": "MN",
+    "name": "Mongolia",
+    "continent": "Asia",
+    "marker": [
+      103.12703619526187,
+      46.95524460966693
+    ],
+    "microstate": false
+  },
+  {
+    "id": "MNP",
+    "kind": "iso",
+    "alpha2": "MP",
+    "name": "Northern Mariana Islands",
+    "continent": "Oceania",
+    "marker": [
+      145.59914130202995,
+      16.233034417026353
+    ],
+    "microstate": true
+  },
+  {
+    "id": "MOZ",
+    "kind": "iso",
+    "alpha2": "MZ",
+    "name": "Mozambique",
+    "continent": "Africa",
+    "marker": [
+      35.60712960588372,
+      -17.1920994995658
+    ],
+    "microstate": false
+  },
+  {
+    "id": "MRT",
+    "kind": "iso",
+    "alpha2": "MR",
+    "name": "Mauritania",
+    "continent": "Africa",
+    "marker": [
+      -10.365479621155956,
+      20.21955385529989
+    ],
+    "microstate": false
+  },
+  {
+    "id": "MSR",
+    "kind": "iso",
+    "alpha2": "MS",
+    "name": "Montserrat",
+    "continent": "North America",
+    "marker": [
+      -62.187397059545845,
+      16.737518714081972
+    ],
+    "microstate": true
+  },
+  {
+    "id": "MTQ",
+    "kind": "iso",
+    "alpha2": "MQ",
+    "name": "Martinique",
+    "continent": "North America",
+    "marker": [
+      -61.01754686520177,
+      14.656375153956619
+    ],
+    "microstate": true
+  },
+  {
+    "id": "MUS",
+    "kind": "iso",
+    "alpha2": "MU",
+    "name": "Mauritius",
+    "continent": "Africa",
+    "marker": [
+      57.85043319228128,
+      -20.187103337366114
+    ],
+    "microstate": true
+  },
+  {
+    "id": "MWI",
+    "kind": "iso",
+    "alpha2": "MW",
+    "name": "Malawi",
+    "continent": "Africa",
+    "marker": [
+      34.283391425592185,
+      -13.203518975375708
+    ],
+    "microstate": false
+  },
+  {
+    "id": "MYS",
+    "kind": "iso",
+    "alpha2": "MY",
+    "name": "Malaysia",
+    "continent": "Asia",
+    "marker": [
+      109.70046351661404,
+      3.8137000054827435
+    ],
+    "microstate": false
+  },
+  {
+    "id": "MYT",
+    "kind": "iso",
+    "alpha2": "YT",
+    "name": "Mayotte",
+    "continent": "Africa",
+    "marker": [
+      45.14216877955705,
+      -12.817376764906818
+    ],
+    "microstate": true
+  },
+  {
+    "id": "NAM",
+    "kind": "iso",
+    "alpha2": "NA",
+    "name": "Namibia",
+    "continent": "Africa",
+    "marker": [
+      17.196621929115928,
+      -22.068591270609808
+    ],
+    "microstate": false
+  },
+  {
+    "id": "NCL",
+    "kind": "iso",
+    "alpha2": "NC",
+    "name": "New Caledonia",
+    "continent": "Oceania",
+    "marker": [
+      165.6975949820106,
+      -21.304954220831664
+    ],
+    "microstate": false
+  },
+  {
+    "id": "NER",
+    "kind": "iso",
+    "alpha2": "NE",
+    "name": "Niger",
+    "continent": "Africa",
+    "marker": [
+      9.332173292117721,
+      17.411276838715715
+    ],
+    "microstate": false
+  },
+  {
+    "id": "NFK",
+    "kind": "iso",
+    "alpha2": "NF",
+    "name": "Norfolk Island",
+    "continent": "Oceania",
+    "marker": [
+      167.95516829981707,
+      -29.034974125991134
+    ],
+    "microstate": true
+  },
+  {
+    "id": "NGA",
+    "kind": "iso",
+    "alpha2": "NG",
+    "name": "Nigeria",
+    "continent": "Africa",
+    "marker": [
+      8.081384347041519,
+      9.592137521588096
+    ],
+    "microstate": false
+  },
+  {
+    "id": "NIC",
+    "kind": "iso",
+    "alpha2": "NI",
+    "name": "Nicaragua",
+    "continent": "North America",
+    "marker": [
+      -85.03483631710361,
+      12.843381946519473
+    ],
+    "microstate": false
+  },
+  {
+    "id": "NIU",
+    "kind": "iso",
+    "alpha2": "NU",
+    "name": "Niue",
+    "continent": "Oceania",
+    "marker": [
+      -169.86934333359468,
+      -19.048913358555126
+    ],
+    "microstate": true
+  },
+  {
+    "id": "NLD",
+    "kind": "iso",
+    "alpha2": "NL",
+    "name": "Netherlands",
+    "continent": "Europe",
+    "marker": [
+      5.573363441113673,
+      52.262190478143076
+    ],
+    "microstate": false
+  },
+  {
+    "id": "NOR",
+    "kind": "iso",
+    "alpha2": "NO",
+    "name": "Norway",
+    "continent": "Europe",
+    "marker": [
+      12.32994825431527,
+      63.99243332064298
+    ],
+    "microstate": false
+  },
+  {
+    "id": "NPL",
+    "kind": "iso",
+    "alpha2": "NP",
+    "name": "Nepal",
+    "continent": "Asia",
+    "marker": [
+      83.94729813206304,
+      28.257015991189203
+    ],
+    "microstate": false
+  },
+  {
+    "id": "NRU",
+    "kind": "iso",
+    "alpha2": "NR",
+    "name": "Nauru",
+    "continent": "Oceania",
+    "marker": [
+      166.9331320748649,
+      -0.5207827911648647
+    ],
+    "microstate": true
+  },
+  {
+    "id": "NZL",
+    "kind": "iso",
+    "alpha2": "NZ",
+    "name": "New Zealand",
+    "continent": "Oceania",
+    "marker": [
+      172.90639305527168,
+      -41.71927716179799
+    ],
+    "microstate": false
+  },
+  {
+    "id": "OMN",
+    "kind": "iso",
+    "alpha2": "OM",
+    "name": "Oman",
+    "continent": "Asia",
+    "marker": [
+      56.063167249378,
+      20.582406648795295
+    ],
+    "microstate": false
+  },
+  {
+    "id": "PAK",
+    "kind": "iso",
+    "alpha2": "PK",
+    "name": "Pakistan",
+    "continent": "Asia",
+    "marker": [
+      69.17019074038826,
+      29.882604753760077
+    ],
+    "microstate": false
+  },
+  {
+    "id": "PAN",
+    "kind": "iso",
+    "alpha2": "PA",
+    "name": "Panama",
+    "continent": "North America",
+    "marker": [
+      -80.12094816724732,
+      8.51724206883742
+    ],
+    "microstate": false
+  },
+  {
+    "id": "PCN",
+    "kind": "iso",
+    "alpha2": "PN",
+    "name": "Pitcairn Islands",
+    "continent": "Oceania",
+    "marker": [
+      -128.4781917492843,
+      -24.413610971342077
+    ],
+    "microstate": true
+  },
+  {
+    "id": "PER",
+    "kind": "iso",
+    "alpha2": "PE",
+    "name": "Peru",
+    "continent": "South America",
+    "marker": [
+      -74.41637697293953,
+      -9.108678618057885
+    ],
+    "microstate": false
+  },
+  {
+    "id": "PHL",
+    "kind": "iso",
+    "alpha2": "PH",
+    "name": "Philippines",
+    "continent": "Asia",
+    "marker": [
+      122.90948207090395,
+      11.716626435300642
+    ],
+    "microstate": false
+  },
+  {
+    "id": "PLW",
+    "kind": "iso",
+    "alpha2": "PW",
+    "name": "Palau",
+    "continent": "Oceania",
+    "marker": [
+      134.34554525288922,
+      7.196665967894579
+    ],
+    "microstate": true
+  },
+  {
+    "id": "PNG",
+    "kind": "iso",
+    "alpha2": "PG",
+    "name": "Papua New Guinea",
+    "continent": "Oceania",
+    "marker": [
+      145.22449126475198,
+      -6.4745636446173
+    ],
+    "microstate": false
+  },
+  {
+    "id": "POL",
+    "kind": "iso",
+    "alpha2": "PL",
+    "name": "Poland",
+    "continent": "Europe",
+    "marker": [
+      19.423712813120567,
+      52.10900572133133
+    ],
+    "microstate": false
+  },
+  {
+    "id": "PRI",
+    "kind": "iso",
+    "alpha2": "PR",
+    "name": "Puerto Rico",
+    "continent": "North America",
+    "marker": [
+      -66.46758976759445,
+      18.22423830820423
+    ],
+    "microstate": false
+  },
+  {
+    "id": "PRK",
+    "kind": "iso",
+    "alpha2": "KP",
+    "name": "North Korea",
+    "continent": "Asia",
+    "marker": [
+      127.14747072261963,
+      40.154674450961146
+    ],
+    "microstate": false
+  },
+  {
+    "id": "PRT",
+    "kind": "iso",
+    "alpha2": "PT",
+    "name": "Portugal",
+    "continent": "Europe",
+    "marker": [
+      -8.620203823381622,
+      39.60444158872939
+    ],
+    "microstate": false
+  },
+  {
+    "id": "PRY",
+    "kind": "iso",
+    "alpha2": "PY",
+    "name": "Paraguay",
+    "continent": "South America",
+    "marker": [
+      -58.44174720136605,
+      -23.20817262789295
+    ],
+    "microstate": false
+  },
+  {
+    "id": "PSE",
+    "kind": "iso",
+    "alpha2": "PS",
+    "name": "Palestine",
+    "continent": "Asia",
+    "marker": [
+      35.19985378442324,
+      31.91653594756887
+    ],
+    "microstate": false
+  },
+  {
+    "id": "PYF",
+    "kind": "iso",
+    "alpha2": "PF",
+    "name": "French Polynesia",
+    "continent": "Oceania",
+    "marker": [
+      -144.94413680335808,
+      -15.157885682963764
+    ],
+    "microstate": false
+  },
+  {
+    "id": "QAT",
+    "kind": "iso",
+    "alpha2": "QA",
+    "name": "Qatar",
+    "continent": "Asia",
+    "marker": [
+      51.18667404570636,
+      25.31190338449806
+    ],
+    "microstate": false
+  },
+  {
+    "id": "REU",
+    "kind": "iso",
+    "alpha2": "RE",
+    "name": "Réunion",
+    "continent": "Africa",
+    "marker": [
+      55.541602236533585,
+      -21.119428266552877
+    ],
+    "microstate": true
+  },
+  {
+    "id": "ROU",
+    "kind": "iso",
+    "alpha2": "RO",
+    "name": "Romania",
+    "continent": "Europe",
+    "marker": [
+      24.9831389095293,
+      45.8494189270457
+    ],
+    "microstate": false
+  },
+  {
+    "id": "RUS",
+    "kind": "iso",
+    "alpha2": "RU",
+    "name": "Russia",
+    "continent": "Europe",
+    "marker": [
+      95.65302423990738,
+      66.03571660966088
+    ],
+    "microstate": false
+  },
+  {
+    "id": "RWA",
+    "kind": "iso",
+    "alpha2": "RW",
+    "name": "Rwanda",
+    "continent": "Africa",
+    "marker": [
+      29.919157737106712,
+      -1.9927360682798307
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SAU",
+    "kind": "iso",
+    "alpha2": "SA",
+    "name": "Saudi Arabia",
+    "continent": "Asia",
+    "marker": [
+      44.66319141702014,
+      24.086399203013766
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SDN",
+    "kind": "iso",
+    "alpha2": "SD",
+    "name": "Sudan",
+    "continent": "Africa",
+    "marker": [
+      29.902578699995082,
+      15.95793064413785
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SEN",
+    "kind": "iso",
+    "alpha2": "SN",
+    "name": "Senegal",
+    "continent": "Africa",
+    "marker": [
+      -14.46723266148981,
+      14.366337504651577
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SGP",
+    "kind": "iso",
+    "alpha2": "SG",
+    "name": "Singapore",
+    "continent": "Asia",
+    "marker": [
+      103.81346754321596,
+      1.3589218429557801
+    ],
+    "microstate": true
+  },
+  {
+    "id": "SGS",
+    "kind": "iso",
+    "alpha2": "GS",
+    "name": "South Georgia",
+    "continent": "South America",
+    "marker": [
+      -36.02751026776942,
+      -54.67494843358759
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SHN",
+    "kind": "iso",
+    "alpha2": "SH",
+    "name": "Saint Helena, Ascension and Tristan da Cunha",
+    "continent": "Africa",
+    "marker": [
+      -10.035376153801444,
+      -23.461474865339405
+    ],
+    "microstate": true
+  },
+  {
+    "id": "SJM",
+    "kind": "iso",
+    "alpha2": "SJ",
+    "name": "Svalbard and Jan Mayen",
+    "continent": "Europe",
+    "marker": [
+      18.309531123528362,
+      78.81580217559244
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SLB",
+    "kind": "iso",
+    "alpha2": "SB",
+    "name": "Solomon Islands",
+    "continent": "Oceania",
+    "marker": [
+      159.62645766828138,
+      -8.911440986317514
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SLE",
+    "kind": "iso",
+    "alpha2": "SL",
+    "name": "Sierra Leone",
+    "continent": "Africa",
+    "marker": [
+      -11.794914983813133,
+      8.562288995590572
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SLV",
+    "kind": "iso",
+    "alpha2": "SV",
+    "name": "El Salvador",
+    "continent": "North America",
+    "marker": [
+      -88.8703425011849,
+      13.736262421862278
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SMR",
+    "kind": "iso",
+    "alpha2": "SM",
+    "name": "San Marino",
+    "continent": "Europe",
+    "marker": [
+      12.442216243181779,
+      43.93646180900458
+    ],
+    "microstate": true
+  },
+  {
+    "id": "SOM",
+    "kind": "iso",
+    "alpha2": "SO",
+    "name": "Somalia",
+    "continent": "Africa",
+    "marker": [
+      45.678277003379364,
+      4.737571880657832
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SPM",
+    "kind": "iso",
+    "alpha2": "PM",
+    "name": "Saint Pierre and Miquelon",
+    "continent": "North America",
+    "marker": [
+      -56.30769729363578,
+      46.930237760005326
+    ],
+    "microstate": true
+  },
+  {
+    "id": "SRB",
+    "kind": "iso",
+    "alpha2": "RS",
+    "name": "Serbia",
+    "continent": "Europe",
+    "marker": [
+      20.806315658074,
+      44.21193734883585
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SSD",
+    "kind": "iso",
+    "alpha2": "SS",
+    "name": "South Sudan",
+    "continent": "Africa",
+    "marker": [
+      30.304953534444177,
+      7.2835795943924255
+    ],
+    "microstate": false
+  },
+  {
+    "id": "STP",
+    "kind": "iso",
+    "alpha2": "ST",
+    "name": "São Tomé and Príncipe",
+    "continent": "Africa",
+    "marker": [
+      6.726361148601681,
+      0.4441833040454145
+    ],
+    "microstate": true
+  },
+  {
+    "id": "SUR",
+    "kind": "iso",
+    "alpha2": "SR",
+    "name": "Suriname",
+    "continent": "South America",
+    "marker": [
+      -55.91115882526633,
+      4.130529387750372
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SVK",
+    "kind": "iso",
+    "alpha2": "SK",
+    "name": "Slovakia",
+    "continent": "Europe",
+    "marker": [
+      19.47027202570795,
+      48.71073022282796
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SVN",
+    "kind": "iso",
+    "alpha2": "SI",
+    "name": "Slovenia",
+    "continent": "Europe",
+    "marker": [
+      14.804157346766194,
+      46.11643350926937
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SWE",
+    "kind": "iso",
+    "alpha2": "SE",
+    "name": "Sweden",
+    "continent": "Europe",
+    "marker": [
+      16.277225027563464,
+      62.38119406237001
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SWZ",
+    "kind": "iso",
+    "alpha2": "SZ",
+    "name": "Eswatini",
+    "continent": "Africa",
+    "marker": [
+      31.479965878042936,
+      -26.56098315921754
+    ],
+    "microstate": false
+  },
+  {
+    "id": "SXM",
+    "kind": "iso",
+    "alpha2": "SX",
+    "name": "Sint Maarten",
+    "continent": "North America",
+    "marker": [
+      -63.070129901604275,
+      18.04063290240282
+    ],
+    "microstate": true
+  },
+  {
+    "id": "SYC",
+    "kind": "iso",
+    "alpha2": "SC",
+    "name": "Seychelles",
+    "continent": "Africa",
+    "marker": [
+      52.10807127799083,
+      -6.497427150411433
+    ],
+    "microstate": true
+  },
+  {
+    "id": "SYR",
+    "kind": "iso",
+    "alpha2": "SY",
+    "name": "Syria",
+    "continent": "Asia",
+    "marker": [
+      38.48437313643397,
+      35.01655397403396
+    ],
+    "microstate": false
+  },
+  {
+    "id": "TCA",
+    "kind": "iso",
+    "alpha2": "TC",
+    "name": "Turks and Caicos Islands",
+    "continent": "North America",
+    "marker": [
+      -71.87304985509938,
+      21.780237169981323
+    ],
+    "microstate": true
+  },
+  {
+    "id": "TCD",
+    "kind": "iso",
+    "alpha2": "TD",
+    "name": "Chad",
+    "continent": "Africa",
+    "marker": [
+      18.636332586031127,
+      15.274996642488004
+    ],
+    "microstate": false
+  },
+  {
+    "id": "TGO",
+    "kind": "iso",
+    "alpha2": "TG",
+    "name": "Togo",
+    "continent": "Africa",
+    "marker": [
+      0.9638099179623636,
+      8.522228554297566
+    ],
+    "microstate": false
+  },
+  {
+    "id": "THA",
+    "kind": "iso",
+    "alpha2": "TH",
+    "name": "Thailand",
+    "continent": "Asia",
+    "marker": [
+      101.00096870490341,
+      15.07876078922354
+    ],
+    "microstate": false
+  },
+  {
+    "id": "TJK",
+    "kind": "iso",
+    "alpha2": "TJ",
+    "name": "Tajikistan",
+    "continent": "Asia",
+    "marker": [
+      71.02907821709427,
+      38.5359936039879
+    ],
+    "microstate": false
+  },
+  {
+    "id": "TKL",
+    "kind": "iso",
+    "alpha2": "TK",
+    "name": "Tokelau",
+    "continent": "Oceania",
+    "marker": [
+      -171.8176418818358,
+      -8.970105146196518
+    ],
+    "microstate": true
+  },
+  {
+    "id": "TKM",
+    "kind": "iso",
+    "alpha2": "TM",
+    "name": "Turkmenistan",
+    "continent": "Asia",
+    "marker": [
+      59.451601968717455,
+      39.12576542661046
+    ],
+    "microstate": false
+  },
+  {
+    "id": "TLS",
+    "kind": "iso",
+    "alpha2": "TL",
+    "name": "Timor-Leste",
+    "continent": "Asia",
+    "marker": [
+      125.85180580589683,
+      -8.824213953991908
+    ],
+    "microstate": false
+  },
+  {
+    "id": "TON",
+    "kind": "iso",
+    "alpha2": "TO",
+    "name": "Tonga",
+    "continent": "Oceania",
+    "marker": [
+      -174.86549924583915,
+      -20.05220102343261
+    ],
+    "microstate": true
+  },
+  {
+    "id": "TTO",
+    "kind": "iso",
+    "alpha2": "TT",
+    "name": "Trinidad and Tobago",
+    "continent": "North America",
+    "marker": [
+      -61.25871700541078,
+      10.468637399117043
+    ],
+    "microstate": false
+  },
+  {
+    "id": "TUN",
+    "kind": "iso",
+    "alpha2": "TN",
+    "name": "Tunisia",
+    "continent": "Africa",
+    "marker": [
+      9.557782965305368,
+      34.08882037239582
+    ],
+    "microstate": false
+  },
+  {
+    "id": "TUR",
+    "kind": "iso",
+    "alpha2": "TR",
+    "name": "Türkiye",
+    "continent": "Asia",
+    "marker": [
+      35.171337522591905,
+      39.13649987715833
+    ],
+    "microstate": false
+  },
+  {
+    "id": "TUV",
+    "kind": "iso",
+    "alpha2": "TV",
+    "name": "Tuvalu",
+    "continent": "Oceania",
+    "marker": [
+      178.51603182838494,
+      -7.75798261603885
+    ],
+    "microstate": true
+  },
+  {
+    "id": "TWN",
+    "kind": "iso",
+    "alpha2": "TW",
+    "name": "Taiwan",
+    "continent": "Asia",
+    "marker": [
+      120.94718053602193,
+      23.749160752084446
+    ],
+    "microstate": false
+  },
+  {
+    "id": "TZA",
+    "kind": "iso",
+    "alpha2": "TZ",
+    "name": "Tanzania",
+    "continent": "Africa",
+    "marker": [
+      34.80228779907778,
+      -6.2676945110649855
+    ],
+    "microstate": false
+  },
+  {
+    "id": "UGA",
+    "kind": "iso",
+    "alpha2": "UG",
+    "name": "Uganda",
+    "continent": "Africa",
+    "marker": [
+      32.366626017636385,
+      1.2752290929958288
+    ],
+    "microstate": false
+  },
+  {
+    "id": "UKR",
+    "kind": "iso",
+    "alpha2": "UA",
+    "name": "Ukraine",
+    "continent": "Europe",
+    "marker": [
+      31.317923075424606,
+      49.196980973015954
+    ],
+    "microstate": false
+  },
+  {
+    "id": "UMI",
+    "kind": "iso",
+    "alpha2": "UM",
+    "name": "United States Minor Outlying Islands",
+    "continent": "North America",
+    "marker": [
+      -158.6598262476396,
+      15.77234980173912
+    ],
+    "microstate": true
+  },
+  {
+    "id": "URY",
+    "kind": "iso",
+    "alpha2": "UY",
+    "name": "Uruguay",
+    "continent": "South America",
+    "marker": [
+      -56.02431708983577,
+      -32.79002156111276
+    ],
+    "microstate": false
+  },
+  {
+    "id": "USA",
+    "kind": "iso",
+    "alpha2": "US",
+    "name": "United States",
+    "continent": "North America",
+    "marker": [
+      -103.65266253510212,
+      44.75794185091969
+    ],
+    "microstate": false
+  },
+  {
+    "id": "UZB",
+    "kind": "iso",
+    "alpha2": "UZ",
+    "name": "Uzbekistan",
+    "continent": "Asia",
+    "marker": [
+      63.302996600251554,
+      41.77584844101958
+    ],
+    "microstate": false
+  },
+  {
+    "id": "VAT",
+    "kind": "iso",
+    "alpha2": "VA",
+    "name": "Vatican City",
+    "continent": "Europe",
+    "marker": [
+      12.453419354646451,
+      41.90331134251304
+    ],
+    "microstate": true
+  },
+  {
+    "id": "VCT",
+    "kind": "iso",
+    "alpha2": "VC",
+    "name": "Saint Vincent and the Grenadines",
+    "continent": "North America",
+    "marker": [
+      -61.20339476109219,
+      13.216140531794437
+    ],
+    "microstate": true
+  },
+  {
+    "id": "VEN",
+    "kind": "iso",
+    "alpha2": "VE",
+    "name": "Venezuela",
+    "continent": "South America",
+    "marker": [
+      -66.15764053827453,
+      7.125802003224886
+    ],
+    "microstate": false
+  },
+  {
+    "id": "VGB",
+    "kind": "iso",
+    "alpha2": "VG",
+    "name": "British Virgin Islands",
+    "continent": "North America",
+    "marker": [
+      -64.50302544902875,
+      18.50984692708322
+    ],
+    "microstate": true
+  },
+  {
+    "id": "VIR",
+    "kind": "iso",
+    "alpha2": "VI",
+    "name": "United States Virgin Islands",
+    "continent": "North America",
+    "marker": [
+      -64.79751402032538,
+      17.98010704632731
+    ],
+    "microstate": true
+  },
+  {
+    "id": "VNM",
+    "kind": "iso",
+    "alpha2": "VN",
+    "name": "Vietnam",
+    "continent": "Asia",
+    "marker": [
+      106.34805961393592,
+      16.540305168031246
+    ],
+    "microstate": false
+  },
+  {
+    "id": "VUT",
+    "kind": "iso",
+    "alpha2": "VU",
+    "name": "Vanuatu",
+    "continent": "Oceania",
+    "marker": [
+      167.68967783773857,
+      -16.19132317616114
+    ],
+    "microstate": false
+  },
+  {
+    "id": "WLF",
+    "kind": "iso",
+    "alpha2": "WF",
+    "name": "Wallis and Futuna",
+    "continent": "Oceania",
+    "marker": [
+      -177.0548000571784,
+      -13.738965970946591
+    ],
+    "microstate": true
+  },
+  {
+    "id": "WSM",
+    "kind": "iso",
+    "alpha2": "WS",
+    "name": "Samoa",
+    "continent": "Oceania",
+    "marker": [
+      -172.16171141392257,
+      -13.754741656646956
+    ],
+    "microstate": true
+  },
+  {
+    "id": "YEM",
+    "kind": "iso",
+    "alpha2": "YE",
+    "name": "Yemen",
+    "continent": "Asia",
+    "marker": [
+      47.57174088001066,
+      15.913404378622623
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ZAF",
+    "kind": "iso",
+    "alpha2": "ZA",
+    "name": "South Africa",
+    "continent": "Africa",
+    "marker": [
+      25.196470688109766,
+      -28.97446763111135
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ZMB",
+    "kind": "iso",
+    "alpha2": "ZM",
+    "name": "Zambia",
+    "continent": "Africa",
+    "marker": [
+      27.80810464291146,
+      -13.45742048925855
+    ],
+    "microstate": false
+  },
+  {
+    "id": "ZWE",
+    "kind": "iso",
+    "alpha2": "ZW",
+    "name": "Zimbabwe",
+    "continent": "Africa",
+    "marker": [
+      29.85144879442163,
+      -18.995348898941437
+    ],
+    "microstate": false
+  },
+  {
+    "id": "custom:KOS",
+    "kind": "custom",
+    "name": "Kosovo",
+    "continent": "Europe",
+    "marker": [
+      20.873844118235684,
+      42.572272460153435
+    ],
+    "microstate": false
+  },
+  {
+    "id": "custom:CYN",
+    "kind": "custom",
+    "name": "Northern Cyprus",
+    "continent": "Europe",
+    "marker": [
+      33.59703101911158,
+      35.276906157605616
+    ],
+    "microstate": false
+  },
+  {
+    "id": "custom:SOL",
+    "kind": "custom",
+    "name": "Somaliland",
+    "continent": "Africa",
+    "marker": [
+      46.25585065449852,
+      9.733238763734514
+    ],
+    "microstate": false
+  },
+  {
+    "id": "custom:WSB",
+    "kind": "custom",
+    "name": "Akrotiri",
+    "continent": "Europe",
+    "marker": [
+      32.934038070594404,
+      34.631817975770886
+    ],
+    "microstate": true
+  },
+  {
+    "id": "custom:ESB",
+    "kind": "custom",
+    "name": "Dhekelia",
+    "continent": "Europe",
+    "marker": [
+      33.792986469643616,
+      35.01779375695024
+    ],
+    "microstate": true
+  },
+  {
+    "id": "custom:CNM",
+    "kind": "custom",
+    "name": "Cyprus UN Buffer Zone",
+    "continent": "Europe",
+    "marker": [
+      33.25772807029283,
+      35.10238985871927
+    ],
+    "microstate": true
+  },
+  {
+    "id": "custom:KNX",
+    "kind": "custom",
+    "name": "Korean DMZ (south)",
+    "continent": "Asia",
+    "marker": [
+      127.51541154397347,
+      38.2467485543347
+    ],
+    "microstate": true
+  },
+  {
+    "id": "custom:KNZ",
+    "kind": "custom",
+    "name": "Korean DMZ (north)",
+    "continent": "Asia",
+    "marker": [
+      127.46178544033471,
+      38.284715001961665
+    ],
+    "microstate": true
+  },
+  {
+    "id": "custom:USG",
+    "kind": "custom",
+    "name": "Guantanamo Bay Naval Base",
+    "continent": "North America",
+    "marker": [
+      -75.15467303644928,
+      19.92925663054424
+    ],
+    "microstate": true
+  },
+  {
+    "id": "custom:KAS",
+    "kind": "custom",
+    "name": "Siachen Glacier",
+    "continent": "Asia",
+    "marker": [
+      77.17992605097763,
+      35.39116862932069
+    ],
+    "microstate": true
+  },
+  {
+    "id": "custom:SPI",
+    "kind": "custom",
+    "name": "Southern Patagonian Ice Field",
+    "continent": "South America",
+    "marker": [
+      -73.31870128996609,
+      -49.51219653430359
+    ],
+    "microstate": true
+  },
+  {
+    "id": "custom:BRT",
+    "kind": "custom",
+    "name": "Bir Tawil",
+    "continent": "Africa",
+    "marker": [
+      33.682046060569945,
+      21.879981054928894
+    ],
+    "microstate": true
+  },
+  {
+    "id": "custom:PFA",
+    "kind": "custom",
+    "name": "Paracel Islands",
+    "continent": "Asia",
+    "marker": [
+      111.87135903409477,
+      16.36796534300657
+    ],
+    "microstate": true
+  },
+  {
+    "id": "custom:PGA",
+    "kind": "custom",
+    "name": "Spratly Islands",
+    "continent": "Asia",
+    "marker": [
+      114.92605064249436,
+      10.545222382245386
+    ],
+    "microstate": true
+  },
+  {
+    "id": "custom:BJN",
+    "kind": "custom",
+    "name": "Bajo Nuevo Bank",
+    "continent": "North America",
+    "marker": [
+      -79.98786666781683,
+      15.795010213962422
+    ],
+    "microstate": true
+  },
+  {
+    "id": "custom:SER",
+    "kind": "custom",
+    "name": "Serranilla Bank",
+    "continent": "North America",
+    "marker": [
+      -78.63811845362505,
+      15.864461187230742
+    ],
+    "microstate": true
+  },
+  {
+    "id": "custom:SCR",
+    "kind": "custom",
+    "name": "Scarborough Reef",
+    "continent": "Asia",
+    "marker": [
+      117.75381211786791,
+      15.152112626823877
+    ],
+    "microstate": true
+  }
+]

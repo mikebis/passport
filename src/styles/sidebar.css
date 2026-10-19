@@ -1,0 +1,59 @@
+.sidebar { background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; height: 100dvh; min-height: 620px; }
+.sidebar-heading { display: flex; align-items: center; justify-content: space-between; padding: 32px 26px 0; }
+.sidebar-heading .eyebrow { font-size: 9px; letter-spacing: 1.7px; margin: 0 0 9px; }
+.sidebar-heading h2 { font-size: 28px; font-weight: 600; letter-spacing: -1px; margin: 0; }
+.sidebar-heading h2 span { color: #87ad96; }
+.globe-icon { font-size: 42px; color: #a8bba9; line-height: 1; }
+.travel-stats { display: grid; grid-template-columns: repeat(3, 1fr); padding: 26px 26px 20px; gap: 8px; }
+.travel-stats > div { display: flex; flex-direction: column; gap: 8px; }
+.travel-stats strong { font-size: 29px; font-weight: 500; line-height: 1; letter-spacing: -1px; }
+.travel-stats span { font-size: 10px; color: #64736f; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
+.travel-stats .status-dot { width: 7px; height: 7px; }
+.journey-progress { margin: 0 26px 24px; }
+.journey-progress > div:first-child { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 9px; color: #66786e; }
+.journey-progress strong { font-weight: 500; font-variant-numeric: tabular-nums; }
+.progress-track { height: 4px; border-radius: 8px; background: #e8ede5; overflow: hidden; }
+.progress-track > span { display: block; height: 100%; background: #84b49a; border-radius: inherit; transition: width .2s; }
+.sidebar-content { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+.search-box { display: flex; gap: 8px; align-items: center; border: 1px solid #dfe5db; background: #f7f9f4; padding: 0 11px; margin: 0 22px; border-radius: 8px; }
+.search-box > span:first-child { font-size: 25px; line-height: 1; color: #738479; }
+.search-box input { border: 0; background: transparent; min-width: 0; width: 100%; height: 40px; color: var(--ink); font-size: 11px; }
+.search-box input::placeholder { color: #738078; }
+.search-box input:focus { outline-offset: -3px; }
+.sidebar-meta { font-size: 10px; color: #7a857c; margin: 14px 26px 16px; }
+.country-groups { overflow: auto; min-height: 0; padding: 0 12px 18px; scrollbar-width: thin; scrollbar-color: #d1daca transparent; }
+.continent { margin-bottom: 3px; }
+.continent summary { list-style: none; display: flex; align-items: center; min-height: 44px; padding: 0 14px; cursor: pointer; font-size: 12px; font-weight: 650; }
+.continent summary::-webkit-details-marker { display: none; }
+.continent summary::before { content: '\203A'; color: #8b998e; font-size: 17px; margin-right: 10px; transform: rotate(0); }
+.continent[open] summary::before { transform: rotate(90deg); }
+.continent-count { font-size: 10px; font-weight: 400; color: #879084; margin-left: auto; }
+.country-row { display: flex; align-items: center; gap: 9px; width: 100%; padding: 10px 14px; border: 0; border-radius: 7px; background: transparent; text-align: left; min-height: 42px; }
+.country-row:hover { background: #eef3e9; }
+.country-row[data-status="visited"] { background: #a8e6cf18; }
+.country-row[data-status="lived"] { background: #ffd3b618; }
+.country-row[data-status="want_to_visit"] { background: #c3b1e118; }
+.country-flag { font-size: 17px; width: 24px; flex-shrink: 0; }
+.country-name { font-size: 11px; line-height: 1.5; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.territory-kind { display: block; font-size: 9px; color: #64736f; font-weight: 400; margin-top: 2px; }
+.country-code { color: #859186; font-size: 8px; letter-spacing: .5px; flex-shrink: 0; }
+.country-row > .status-dot { width: 8px; height: 8px; margin-left: 3px; }
+.antarctica { border-top: 1px solid var(--border); margin: 14px 0 0; padding-top: 14px; }
+.antarctica h3 { color: #7b897c; font-size: 9px; font-weight: 500; padding: 0 14px; letter-spacing: .4px; }
+.empty-state { color: var(--muted); line-height: 1.7; padding: 14px; font-size: 12px; }
+.sidebar-footer { border-top: 1px solid var(--border); padding: 16px 24px 14px; margin-top: auto; }
+.sidebar-footer > p:first-child { color: #71816f; font-size: 10px; margin: 0 0 12px; display: flex; gap: 6px; align-items: center; }
+.save-indicator { width: 5px; height: 5px; display: inline-block; border-radius: 50%; background: #87ad96; }
+.data-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.data-actions .button { padding: 10px 12px; }
+.data-license { color: #7b857a; font-size: 8px; line-height: 1.5; margin: 12px 0 0; }
+.data-license a { text-decoration-color: #c5ccc0; text-underline-offset: 2px; }
+@media (max-width: 1000px) { .sidebar-heading { padding-inline: 22px; } .sidebar-footer { padding-inline: 20px; } .data-actions { gap: 6px; } .data-actions .button { padding-inline: 10px; } }
+@media (max-width: 720px) {
+  .sidebar { height: auto; min-height: 0; border-left: 0; border-top: 1px solid #d7e0d5; }
+  .sidebar-heading { padding-top: 26px; }
+  .sidebar-content { flex: none; }
+  .country-groups { max-height: 430px; }
+  .travel-stats { padding-top: 24px; }
+  .sidebar-footer { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+}

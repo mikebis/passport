@@ -1,0 +1,131 @@
+import type { TravelStore } from './store';
+import { CONTINENTS, NON_ISO_LABEL, territorySymbol, STATUS_LABELS, type SelectTerritory, type Territory } from './types';
+
+export function filterTerritories(registry: readonly Territory[], query: string): Territory[] {
+  const needle = query.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('en');
+  return registry.filter((country) =>
+    `${country.name} ${country.id} ${country.alpha2 ?? ''}`.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('en').includes(needle),
+  ).sort((a, b) => a.name.localeCompare(b.name, 'en'));
+}
+
+export function createSidebar(
+  container: HTMLElement,
+  registry: readonly Territory[],
+  store: TravelStore,
+  select: SelectTerritory,
+): { focusSearch: () => void } {
+  const label = document.createElement('label');
+  label.className = 'search-box';
+  label.innerHTML = '<span aria-hidden="true">\u2315</span><span class="sr-only">Search places or codes</span>';
+  const input = document.createElement('input');
+  input.type = 'search';
+  input.placeholder = 'Find a place or territory';
+  input.autocomplete = 'off';
+  input.setAttribute('aria-controls', 'country-groups');
+  label.append(input);
+  const meta = document.createElement('p');
+  meta.className = 'sidebar-meta';
+  meta.setAttribute('aria-live', 'polite');
+  const groups = document.createElement('div');
+  groups.id = 'country-groups';
+  groups.className = 'country-groups';
+  container.append(label, meta, groups);
+  const expanded = new Map<string, boolean>(CONTINENTS.map((name) => [name, name === 'Europe']));
+  const rows = new Map<string, { button: HTMLButtonElement; badge: HTMLElement; country: Territory }>();
+
+  function render(): void {
+    groups.replaceChildren();
+    rows.clear();
+    const filtered = filterTerritories(registry, input.value);
+    const searching = input.value.trim().length > 0;
+    meta.textContent = searching ? `${filtered.length} matching places` : `${registry.length} places. A world of possibilities.`;
+    if (!filtered.length) {
+      const empty = document.createElement('p');
+      empty.className = 'empty-state';
+      empty.textContent = 'No places found. Try a name or an ISO code.';
+      groups.append(empty);
+      return;
+    }
+
+    function addRow(country: Territory, parent: HTMLElement): void {
+      const button = document.createElement('button');
+      button.className = 'country-row';
+      button.dataset.country = country.id;
+      button.dataset.kind = country.kind;
+      button.setAttribute('aria-haspopup', 'dialog');
+      const icon = document.createElement('span');
+      icon.className = 'country-flag';
+      icon.textContent = territorySymbol(country);
+      icon.setAttribute('aria-hidden', 'true');
+      const name = document.createElement('span');
+      name.className = 'country-name';
+      name.textContent = country.name;
+      if (country.kind === 'custom') {
+        const kind = document.createElement('small');
+        kind.className = 'territory-kind';
+        kind.textContent = NON_ISO_LABEL;
+        name.append(kind);
+      }
+      const code = document.createElement('span');
+      code.className = 'country-code';
+      code.textContent = country.id;
+      const badge = document.createElement('span');
+      badge.className = 'status-dot';
+      badge.setAttribute('aria-hidden', 'true');
+      button.append(icon, name, code, badge);
+      button.addEventListener('click', () => {
+        const rect = button.getBoundingClientRect();
+        select(country.id, { x: rect.left, y: rect.top, trigger: button });
+      });
+      rows.set(country.id, { button, badge, country });
+      parent.append(button);
+    }
+
+    for (const continent of CONTINENTS) {
+      const countries = filtered.filter((country) => country.continent === continent);
+      if (!countries.length) continue;
+      const details = document.createElement('details');
+      details.className = 'continent';
+      details.open = searching || (expanded.get(continent) ?? false);
+      const summary = document.createElement('summary');
+      const name = document.createElement('span');
+      name.textContent = continent;
+      const count = document.createElement('span');
+      count.className = 'continent-count';
+      count.textContent = String(countries.length);
+      summary.append(name, count);
+      details.append(summary);
+      countries.forEach((country) => addRow(country, details));
+      details.addEventListener('toggle', () => {
+        if (!searching) expanded.set(continent, details.open);
+      });
+      groups.append(details);
+    }
+    const antarctica = filtered.find((country) => country.id === 'ATA');
+    if (antarctica) {
+      const separate = document.createElement('section');
+      separate.className = 'antarctica';
+      const heading = document.createElement('h3');
+      heading.textContent = 'Beyond the continents';
+      separate.append(heading);
+      addRow(antarctica, separate);
+      groups.append(separate);
+    }
+    updateStatuses();
+  }
+
+  function updateStatuses(): void {
+    for (const [id, { button, badge, country }] of rows) {
+      const status = store.status(id);
+      badge.className = `status-dot ${status}`;
+      button.dataset.status = status;
+      const kind = country.kind === 'custom' ? `${NON_ISO_LABEL} \u00b7 ` : '';
+      button.setAttribute('aria-label', `${country.name} (${country.id}), ${kind}${STATUS_LABELS[status]}. Change status`);
+      button.title = `${country.name} \u00b7 ${kind}${STATUS_LABELS[status]}`;
+    }
+  }
+  input.addEventListener('input', render);
+  store.subscribe(updateStatuses);
+  render();
+  return { focusSearch: () => input.focus() };
+}

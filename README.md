@@ -22,8 +22,9 @@ introduction. On desktop they sit side by side at full viewport height; on narro
 screens the map appears above the sidebar.
 
 The sidebar's **Theme** picker changes the entire application:
-**Classic** retains the original pastel map, **Dark** uses a navy ocean and dark
-surfaces, and **Medieval** is a parchment atlas with sepia borders, serif headings,
+**Classic** retains the original pastel map, **Dark** uses a charcoal ocean,
+warm-gray land, near-black borders, indigo surfaces, and blue/red/gold travel
+colors, and **Medieval** is a parchment atlas with sepia borders, serif headings,
 sailing ships, birds, and ink-style clouds. Status colors adapt with each skin;
 their meanings and legend remain consistent.
 

@@ -8,7 +8,7 @@ declare global {
 
 const skins = [
   { id: 'classic', ocean: 'rgb(208, 232, 242)', land: 'rgb(218, 218, 218)', border: 'rgb(0, 0, 0)', surface: 'rgb(252, 253, 249)', scheme: 'light' },
-  { id: 'dark', ocean: 'rgb(16, 30, 48)', land: 'rgb(55, 73, 94)', border: 'rgb(176, 196, 213)', surface: 'rgb(26, 36, 48)', scheme: 'dark' },
+  { id: 'dark', ocean: 'rgb(32, 32, 32)', land: 'rgb(65, 60, 57)', border: 'rgb(12, 12, 12)', surface: 'rgb(32, 38, 62)', scheme: 'dark' },
   { id: 'medieval', ocean: 'rgb(217, 196, 155)', land: 'rgb(239, 223, 187)', border: 'rgb(89, 70, 46)', surface: 'rgb(240, 227, 199)', scheme: 'light' },
 ];
 const pageErrors = new WeakMap<Page, string[]>();
@@ -111,6 +111,15 @@ for (const skin of skins) {
       await expect(page.getByRole('dialog', { name: 'Change travel status' })).toHaveCSS('background-color', skin.surface);
       await page.locator(`.status-choice[data-status="${status}"]`).click();
       const color = await page.locator(`.map-legend .status-dot.${status}`).evaluate(node => getComputedStyle(node).backgroundColor);
+      if (skin.id === 'dark') {
+        const referenceColors: Record<string, string> = {
+          visited: 'rgb(34, 76, 187)',
+          lived: 'rgb(251, 231, 105)',
+          want_to_visit: 'rgb(236, 101, 104)',
+          unvisited: skin.land,
+        };
+        expect(color).toBe(referenceColors[status]);
+      }
       await expect(page.locator('path[data-country="VAT"]')).toHaveCSS('fill', color);
       await expect(page.locator('.microstate-marker[data-country="VAT"] .marker-dot')).toHaveCSS('fill', color);
       await expect(page.locator('.country-row[data-country="VAT"] .status-dot')).toHaveCSS('background-color', color);

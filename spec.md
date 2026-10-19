@@ -96,8 +96,10 @@ export interface LocationEntry {
 
 ### Editable full-application themes
 
-* **Skins:** Classic (the existing pastels), Dark (navy ocean, dark surfaces,
-  high-contrast text), and Medieval (parchment, sepia ink, serif headings,
+* **Skins:** Classic (the existing pastels), Dark (charcoal ocean `#202020`,
+  warm-gray land `#413C39`, near-black borders `#0C0C0C`, indigo surfaces
+  `#20263E`, high-contrast text, blue Visited `#224CBB`, gold Lived / Living
+  `#FBE769`, coral Want to Visit `#EC6568`), and Medieval (parchment, sepia ink, serif headings,
   sailing ships, birds instead of airplanes, and ink-style clouds).
 * **Scope:** Skin the map, markers, sidebar, legend, native controls, tooltips,
   body-level status popovers/dialogs, warnings/toasts, and loading/fatal screens.

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ThemePreference, THEME_STORAGE_KEY, type ThemeStorage } from '../src/theme';
 import { findTheme, THEMES } from '../src/themes';
+import paperGrain from '../src/themes/medieval/paper-grain.svg?raw';
 
 function storage(saved?: string): ThemeStorage & { values: Map<string, string>; writes: string[] } {
   const values = new Map(saved === undefined ? [] : [[THEME_STORAGE_KEY, saved]]);
@@ -9,6 +10,15 @@ function storage(saved?: string): ThemeStorage & { values: Map<string, string>; 
 }
 
 describe('theme packages', () => {
+  it('provides original dragon/galleon models and a small static paper texture', () => {
+    const medieval = findTheme('medieval')!;
+    expect(medieval.sceneryDescription).toContain('dragons');
+    expect(medieval.artwork).toContain('data-model="galleon"');
+    expect(medieval.artwork).toContain('data-model="dragon"');
+    expect(paperGrain.length).toBeLessThan(4096);
+    expect(paperGrain).not.toMatch(/<(filter|script|image|animate)\b/);
+  });
+
   it('has unique registered IDs, Classic as default, and complete local artwork', () => {
     expect(THEMES.map(theme => theme.id)).toEqual(['classic', 'dark', 'medieval']);
     expect(new Set(THEMES.map(theme => theme.id)).size).toBe(THEMES.length);

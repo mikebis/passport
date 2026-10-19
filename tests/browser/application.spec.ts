@@ -36,41 +36,41 @@ test('loads complete geometry, legend, six continent groups and Antarctica', asy
   }
 });
 
-test('black country borders and darker defaults preserve status colors and marker halos', async ({ page }) => {
+test('Classic reference palette preserves white boundaries, status colors and marker halos', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await ready(page);
   await page.mouse.move(0, 0);
   const brazil = page.locator('path[data-country="BRA"]');
-  await expect(brazil).toHaveCSS('fill', 'rgb(218, 218, 218)');
-  await expect(brazil).toHaveCSS('stroke', 'rgb(0, 0, 0)');
+  await expect(brazil).toHaveCSS('fill', 'rgb(198, 206, 214)');
+  await expect(brazil).toHaveCSS('stroke', 'rgb(255, 255, 255)');
   await expect(brazil).toHaveCSS('stroke-width', '1px');
   await expect(brazil).toHaveAttribute('vector-effect', 'non-scaling-stroke');
-  await expect(page.locator('.map-legend .unvisited')).toHaveCSS('background-color', 'rgb(218, 218, 218)');
-  await expect(page.locator('.map-hint')).toHaveCSS('background-color', 'rgb(208, 232, 242)');
+  await expect(page.locator('.map-legend .unvisited')).toHaveCSS('background-color', 'rgb(198, 206, 214)');
+  await expect(page.locator('.map-hint')).toHaveCSS('background-color', 'rgb(24, 147, 217)');
   const marker = page.locator('.microstate-marker[data-country="NRU"] .marker-dot');
-  await expect(marker).toHaveCSS('fill', 'rgb(218, 218, 218)');
+  await expect(marker).toHaveCSS('fill', 'rgb(198, 206, 214)');
   await expect(marker).toHaveCSS('stroke', 'rgb(255, 255, 255)');
   await expect(marker).toHaveCSS('stroke-width', '1px');
   await brazil.hover();
-  await expect(brazil).toHaveCSS('stroke', 'rgb(0, 0, 0)');
+  await expect(brazil).toHaveCSS('stroke', 'rgb(255, 255, 255)');
   await expect(brazil).toHaveCSS('stroke-width', '1.5px');
   await findCountry(page, 'EST');
   await expect(page.locator('path[data-country="EST"]')).toHaveClass(/is-selected/);
-  await expect(page.locator('path[data-country="EST"]')).toHaveCSS('stroke', 'rgb(0, 0, 0)');
+  await expect(page.locator('path[data-country="EST"]')).toHaveCSS('stroke', 'rgb(255, 255, 255)');
   await expect(page.locator('path[data-country="EST"]')).toHaveCSS('stroke-width', '1.5px');
   await page.keyboard.press('Escape');
   for (const [status, color] of [
-    ['visited', 'rgb(168, 230, 207)'], ['lived', 'rgb(255, 211, 182)'],
-    ['want_to_visit', 'rgb(195, 177, 225)'], ['unvisited', 'rgb(218, 218, 218)'],
+    ['visited', 'rgb(65, 161, 43)'], ['lived', 'rgb(242, 191, 5)'],
+    ['want_to_visit', 'rgb(146, 84, 212)'], ['unvisited', 'rgb(198, 206, 214)'],
   ]) {
     await findCountry(page, 'VAT');
     await page.locator(`.status-choice[data-status="${status}"]`).click();
     await expect(page.locator('path[data-country="VAT"]')).toHaveCSS('fill', color!);
-    await expect(page.locator('path[data-country="VAT"]')).toHaveCSS('stroke', 'rgb(0, 0, 0)');
+    await expect(page.locator('path[data-country="VAT"]')).toHaveCSS('stroke', 'rgb(255, 255, 255)');
     await expect(page.locator('.microstate-marker[data-country="VAT"] .marker-dot')).toHaveCSS('fill', color!);
   }
   await page.getByRole('button', { name: 'Zoom in', exact: true }).click();
-  await expect(brazil).toHaveCSS('stroke', 'rgb(0, 0, 0)');
+  await expect(brazil).toHaveCSS('stroke', 'rgb(255, 255, 255)');
   await expect(brazil).toHaveCSS('stroke-width', '1px');
 });
 

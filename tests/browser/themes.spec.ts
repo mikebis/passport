@@ -7,9 +7,9 @@ declare global {
 }
 
 const skins = [
-  { id: 'classic', ocean: 'rgb(208, 232, 242)', land: 'rgb(218, 218, 218)', border: 'rgb(0, 0, 0)', surface: 'rgb(252, 253, 249)', scheme: 'light' },
+  { id: 'classic', ocean: 'rgb(24, 147, 217)', land: 'rgb(198, 206, 214)', border: 'rgb(255, 255, 255)', surface: 'rgb(248, 249, 251)', scheme: 'light' },
   { id: 'dark', ocean: 'rgb(32, 32, 32)', land: 'rgb(65, 60, 57)', border: 'rgb(12, 12, 12)', surface: 'rgb(32, 38, 62)', scheme: 'dark' },
-  { id: 'medieval', ocean: 'rgb(217, 196, 155)', land: 'rgb(239, 223, 187)', border: 'rgb(89, 70, 46)', surface: 'rgb(240, 227, 199)', scheme: 'light' },
+  { id: 'medieval', ocean: 'rgb(155, 165, 139)', land: 'rgb(220, 198, 153)', border: 'rgb(107, 81, 44)', surface: 'rgb(228, 204, 164)', scheme: 'light' },
 ];
 const pageErrors = new WeakMap<Page, string[]>();
 
@@ -104,15 +104,28 @@ for (const skin of skins) {
     if (skin.id === 'medieval') {
       await expect(page.locator('#places-heading')).toHaveCSS('font-family', /Georgia/);
       await expect(page.locator('.map-section')).not.toHaveCSS('background-image', 'none');
-      await expect(page.locator('#scenery-description')).toContainText('birds');
+      await expect(page.locator('#scenery-description')).toContainText('dragons');
+      await expect(page.locator('symbol[id$="-ship"] [data-model="galleon"]')).toHaveCount(1);
+      await expect(page.locator('symbol[id$="-plane"] [data-model="dragon"]')).toHaveCount(1);
+      const grain = await page.locator('.map-canvas').evaluate(node => {
+        const style = getComputedStyle(node, '::after');
+        return { image: style.backgroundImage, pointerEvents: style.pointerEvents };
+      });
+      expect(grain.image).toContain('url(');
+      expect(grain.pointerEvents).toBe('none');
     }
     for (const status of ['visited', 'lived', 'want_to_visit', 'unvisited']) {
       await selectCountry(page, 'VAT');
       await expect(page.getByRole('dialog', { name: 'Change travel status' })).toHaveCSS('background-color', skin.surface);
       await page.locator(`.status-choice[data-status="${status}"]`).click();
       const color = await page.locator(`.map-legend .status-dot.${status}`).evaluate(node => getComputedStyle(node).backgroundColor);
-      if (skin.id === 'dark') {
-        const referenceColors: Record<string, string> = {
+      if (skin.id !== 'medieval') {
+        const referenceColors: Record<string, string> = skin.id === 'classic' ? {
+          visited: 'rgb(65, 161, 43)',
+          lived: 'rgb(242, 191, 5)',
+          want_to_visit: 'rgb(146, 84, 212)',
+          unvisited: skin.land,
+        } : {
           visited: 'rgb(34, 76, 187)',
           lived: 'rgb(251, 231, 105)',
           want_to_visit: 'rgb(236, 101, 104)',
@@ -207,7 +220,7 @@ test('running and hidden scenery retain their animation choice and theme artwork
   const picker = page.getByRole('combobox', { name: 'Theme' });
   await picker.selectOption('medieval');
   await expect.poll(() => page.evaluate(() => window.animationProbe.pending.size)).toBe(1);
-  await expect(page.locator('#scenery-description')).toContainText('birds');
+  await expect(page.locator('#scenery-description')).toContainText('dragons');
   await page.getByRole('button', { name: 'Hide map scenery', exact: true }).click();
   const poses = await page.locator('.scenery-object').evaluateAll(nodes => nodes.map(node => node.getAttribute('transform')));
   await picker.selectOption('dark');
@@ -290,7 +303,7 @@ test('saved Medieval skin covers travel-data recovery and fatal errors', async (
   await page.goto('./');
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
-  await expect(dialog).toHaveCSS('background-color', 'rgb(240, 227, 199)');
+  await expect(dialog).toHaveCSS('background-color', 'rgb(228, 204, 164)');
   await page.getByRole('button', { name: 'Cancel', exact: true }).click();
   await expect(page.locator('.error-screen')).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'medieval');
@@ -314,7 +327,7 @@ test('theme choice survives legacy travel migration and confirmed replacement im
     mimeType: 'application/json',
     buffer: Buffer.from(JSON.stringify([{ id: 'BRA', name: 'Brazil', continent: 'South America', status: 'lived' }])),
   });
-  await expect(page.locator('.confirmation-dialog')).toHaveCSS('background-color', 'rgb(240, 227, 199)');
+  await expect(page.locator('.confirmation-dialog')).toHaveCSS('background-color', 'rgb(228, 204, 164)');
   await page.getByRole('button', { name: 'Replace data', exact: true }).click();
   await expect(page.locator('#visited-count')).toHaveText('0');
   await expect(page.locator('#lived-count')).toHaveText('1');
@@ -336,4 +349,34 @@ test('unavailable browser storage reports theme and travel failures separately',
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(page.locator('#theme-message')).toContainText('could not be remembered');
   await expect(page.locator('#warning')).toContainText('Browser storage is unavailable');
+});
+
+test('Medieval grain and dragons are click-through and disappear when changing skins', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await ready(page);
+  const picker = page.getByRole('combobox', { name: 'Theme' });
+  await picker.selectOption('medieval');
+  const svg = (await page.locator('.world-map').boundingBox())!;
+  const brazil = (await page.locator('path[data-country="BRA"]').boundingBox())!;
+  const point = { x: brazil.x + brazil.width / 2, y: brazil.y + brazil.height / 2 };
+  await page.locator('.scenery-plane').first().evaluate((dragon, position) => {
+    dragon.setAttribute('transform', `translate(${position.x},${position.y})`);
+  }, { x: point.x - svg.x, y: point.y - svg.y });
+  await page.mouse.click(point.x, point.y);
+  await expect(page.locator('.popover-heading')).toContainText('Brazil');
+  await page.keyboard.press('Escape');
+  await page.locator('.microstate-marker[data-country="NRU"] .marker-target').click({ force: true });
+  await expect(page.locator('.popover-heading')).toContainText('Nauru');
+  await page.keyboard.press('Escape');
+  const art = page.locator('.scenery-plane use').first();
+  await expect(art).toHaveCSS('transform', 'matrix(1.35, 0, 0, 1.35, 0, 0)');
+  for (const id of ['classic', 'dark']) {
+    await picker.selectOption(id);
+    await expect(art).toHaveCSS('transform', 'none');
+    const layers = await page.locator('.map-canvas').evaluate(node => ({
+      texture: getComputedStyle(node, '::after').content,
+      frame: getComputedStyle(node.parentElement!, '::before').content,
+    }));
+    expect(layers).toEqual({ texture: 'none', frame: 'none' });
+  }
 });

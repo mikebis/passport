@@ -1,65 +1,66 @@
 :root[data-theme="medieval"] {
   --font-heading: Georgia, "Palatino Linotype", Palatino, serif;
-  --page: #e9d9b8;
-  --surface: #f0e3c7;
-  --ink: #3d2d1e;
-  --muted: #65503a;
-  --subtle: #715b42;
-  --border: #b49b72;
-  --accent: #775028;
-  --accent-soft: #896737;
-  --on-accent: #fff4d9;
-  --button: #684523;
-  --button-hover: #4f321a;
-  --hover: #e3d2af;
-  --selected: #deca9f;
-  --input: #f5e9d0;
-  --input-border: #a98d61;
-  --track: #d7c39d;
-  --progress: #788452;
-  --scrollbar: #a78a5b;
-  --ocean: #d9c49b;
-  --unvisited: #efdfbb;
-  --visited: #96aa77;
-  --lived: #ce9c72;
-  --want-to-visit: #b09bb6;
-  --visited-tint: #96aa7730;
-  --lived-tint: #ce9c7230;
-  --wishlist-tint: #b09bb630;
-  --country-border: #59462e;
-  --background-land: #d4bd91;
-  --marker-halo: #fff0ce;
-  --marker-active: #67421f;
-  --map-ink: #513b23;
-  --map-hint-ink: #59442b;
-  --map-attribution-ink: #5e472c;
-  --map-panel: #f0e0bfee;
-  --map-panel-border: #a98d61;
-  --tooltip: #f8ebd0fa;
-  --toast: #51391f;
+  --page: #cfb383;
+  --surface: #e4cca4;
+  --ink: #38260f;
+  --muted: #5b472e;
+  --subtle: #644f34;
+  --border: #a48654;
+  --accent: #68451e;
+  --accent-soft: #84602c;
+  --on-accent: #fff1d2;
+  --button: #64451e;
+  --button-hover: #493016;
+  --hover: #d6bd8b;
+  --selected: #d0b47d;
+  --input: #ecd9b7;
+  --input-border: #997943;
+  --track: #c6aa75;
+  --progress: #748044;
+  --scrollbar: #9a7b48;
+  --ocean: #9ba58b;
+  --unvisited: #dcc699;
+  --visited: #748044;
+  --lived: #708e99;
+  --want-to-visit: #a87a2c;
+  --visited-tint: #74804430;
+  --lived-tint: #708e9930;
+  --wishlist-tint: #a87a2c30;
+  --country-border: #6b512c;
+  --background-land: #d1b783;
+  --marker-halo: #eddbb3;
+  --marker-active: #533718;
+  --map-ink: #3b2b17;
+  --map-hint-ink: #382b18;
+  --map-attribution-ink: #382b18;
+  --map-panel: #e4cca4f2;
+  --map-panel-border: #81602f;
+  --tooltip: #efdbb6fa;
+  --toast: #442e16;
   --toast-ink: #fff0cc;
   --warning: #edcf91;
   --warning-ink: #4c3418;
   --warning-border: #99702d;
-  --backdrop: #49351d80;
-  --shadow: 0 4px 16px #51391f28;
-  --shadow-dialog: 0 16px 70px #51391f50;
-  --dot-outline: #51391f38;
+  --backdrop: #38260f80;
+  --shadow: 0 4px 16px #51391f38;
+  --shadow-dialog: 0 16px 70px #51391f60;
+  --dot-outline: #51391f60;
   --radius-small: 3px;
   --radius-panel: 5px;
   --radius-dialog: 6px;
-  --paper: radial-gradient(ellipse at 15% 10%, #fff6dd30, transparent 60%), repeating-linear-gradient(18deg, #63441b05 0 1px, transparent 1px 7px);
-  --ship-wake: #937a52;
-  --ship-hull: #8f6039;
-  --ship-outline: #50381f;
-  --ship-cabin: #d1b37d;
-  --ship-rigging: #634728;
-  --ship-sail: #f5e7c5;
-  --plane-body: #8a6a42;
-  --plane-outline: #50381f;
-  --plane-accent: #dcc597;
-  --cloud: #eadab7;
-  --cloud-detail: #806641;
+  --paper-grain: url('./paper-grain.svg');
+  --paper: var(--paper-grain), radial-gradient(ellipse at 30% 15%, #fff1cd24, transparent 65%);
+  --ship-wake: #5f684d;
+  --ship-hull: #79522a;
+  --ship-outline: #493116;
+  --ship-cabin: #bd9b60;
+  --ship-rigging: #624521;
+  --ship-sail: #e8d3a2;
+  --plane-body: #72532e;
+  --plane-outline: #442d16;
+  --plane-accent: #b39a60;
+  --cloud: #d8c99f;
+  --cloud-detail: #756342;
 }
 
 :root[data-theme="medieval"] .sidebar-heading h2,
@@ -72,4 +73,38 @@
 :root[data-theme="medieval"] .map-legend {
   border-style: double;
   border-width: 3px;
+  background-image: var(--paper-grain);
+}
+
+:root[data-theme="medieval"] .map-section::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 3px double var(--map-panel-border);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px #eddbb366;
+  pointer-events: none;
+  z-index: 1;
+}
+
+:root[data-theme="medieval"] .map-canvas::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--paper-grain), radial-gradient(ellipse at center, transparent 50%, #61431930);
+  pointer-events: none;
+}
+
+:root[data-theme="medieval"] .sidebar {
+  box-shadow: inset 0 0 45px #6e48192e;
+}
+
+:root[data-theme="medieval"] .status-popover,
+:root[data-theme="medieval"] .confirmation-dialog {
+  background-image: var(--paper-grain);
+}
+
+:root[data-theme="medieval"] .scenery-ship .scenery-art,
+:root[data-theme="medieval"] .scenery-plane .scenery-art {
+  transform: scale(1.35);
 }

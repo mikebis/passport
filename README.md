@@ -22,10 +22,13 @@ introduction. On desktop they sit side by side at full viewport height; on narro
 screens the map appears above the sidebar.
 
 The sidebar's **Theme** picker changes the entire application:
-**Classic** retains the original pastel map, **Dark** uses a charcoal ocean,
+**Classic** uses a bright blue ocean, silver-gray land, white borders, green
+Visited, yellow Lived / Living, violet Want to Visit, and cool blue UI accents.
+**Dark** uses a charcoal ocean,
 warm-gray land, near-black borders, indigo surfaces, and blue/red/gold travel
-colors, and **Medieval** is a parchment atlas with sepia borders, serif headings,
-sailing ships, birds, and ink-style clouds. Status colors adapt with each skin;
+colors, and **Medieval** is an aged fantasy atlas with grainy parchment, muted
+sea-green water, olive land colors, sepia borders, serif headings, sailing
+galleons, dragons, and ink-style clouds. Status colors adapt with each skin;
 their meanings and legend remain consistent.
 
 Classic is the default, regardless of your system color scheme. An explicit
@@ -58,12 +61,14 @@ an invented national flag or ISO code.
 
 ### A little life on the map
 
-Tiny ships, airplanes (birds in Medieval), and clouds follow illustrative geographic routes.
+Tiny ships, airplanes (dragons in Medieval), and clouds follow illustrative geographic routes.
 The original SVG artwork stays small as you zoom, moves with the map, and never
 blocks selecting a place. Desktop has three ships, two airplanes, and four clouds;
 narrow screens show two ships, one airplane, and three clouds.
 Their screen-space illustration viewports are 37.5px for ships, 34.5px for
 airplanes, and 69px for clouds.
+Medieval gives its galleons and dragons a modest 1.35x visual scale for readable
+sails, rigging, wings, and curled tails; routes and animation timing stay the same.
 
 Use the **pause/play** toolbar button to freeze or resume the visible scene.
 The separate **eye** button hides or shows the entire scenery layer. Hiding stops
@@ -91,8 +96,9 @@ src/themes/
   classic/theme.css     Complete semantic token defaults
   classic/scenery.svg   Default ship/plane/cloud symbols
   dark/theme.css        Scoped dark overrides; reuses default artwork
-  medieval/theme.css    Scoped parchment overrides and decorative rules
-  medieval/scenery.svg  Sailing ship/bird/ink-cloud symbols
+  medieval/theme.css    Aged parchment, sea-green/olive palette and decorative rules
+  medieval/scenery.svg  Original galleon/dragon/ink-cloud symbols
+  medieval/paper-grain.svg  Small original repeating paper-fiber texture
 ```
 
 Edit a skin's `theme.css` to change its palette. Classic supplies inherited
@@ -116,7 +122,7 @@ To add a skin:
    come from this registry. Use `DEFAULT_ARTWORK` when no custom SVG is needed.
 3. For custom artwork, import a local SVG with `?raw`. Include the three
    `symbol` IDs `ship`, `plane`, and `cloud`, each with a `viewBox`. The airborne
-   symbol keeps the ID `plane` even when drawn as a bird. Point vehicles toward
+   symbol keeps the ID `plane` even when drawn as a dragon. Point vehicles toward
    positive X and keep the existing centered viewBoxes for consistent sizing.
    Use inherited semantic paint variables. Do not add internal IDs/references,
    scripts, external resources, filters, or animations; the controller prefixes
@@ -127,6 +133,12 @@ To add a skin:
    desktop/mobile layouts, body-level dialogs/tooltips, and reduced-motion
    scenery. Run `npm run check` and `npm run test:e2e`. Keep paper effects static
    and lightweight; never alter geographic geometry to implement a skin.
+
+Medieval's original `paper-grain.svg` is a small, static repeating texture with
+paper fibers and fine ink flecks. `--paper-grain` and `--paper` control its
+surfaces; a pointer-transparent map overlay also gives land an aged finish.
+The map frame, edge shading, and texture are scoped to Medieval and disappear
+when switching skins. No SVG filters or additional animation loops are used.
 
 ### Additional territories
 

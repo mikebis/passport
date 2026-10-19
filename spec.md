@@ -21,7 +21,7 @@ The goal is to build a minimal, modern, and aesthetic interactive world map SPA 
 * **Boundary and Status Independence:** Preserve existing ISO polygons and use the additional areas' real source geometry. Render custom overlays above ISO polygons where necessary. Each entry has an independent status; changing an additional area does not change a related country's status. Inclusion is a travel-tracking convention, not a political recognition claim or a comprehensive worldwide dispute list.
 * **Balanced Boundary Detail:** Generate one simplified, quantized TopoJSON asset from the pinned 1:10m source. Simplify shared arcs together, retaining recognizable shapes and every territory, polygon component, and hole. Protect collapsed/inverted rings and excessive area changes; derive marker metadata from original geometry. Require at least 70% fewer stored vertices and reference SVG characters than the detailed source topology, with a geographic asset under 1.5 MB. High zoom intentionally shows less coastal detail; no runtime detail switching is required.
 * **Microstate Visualization (Dual-Layer):**
-* Microstates are rendered as both standard **boundary polygons** AND **subtle pastel dots/pins** overlaying their geographic centroids when zoomed out.
+* Microstates are rendered as both standard **boundary polygons** AND **status-colored dots/pins** overlaying their geographic centroids when zoomed out.
 * Dot markers maintain a consistent radius or scale dynamically as the user zooms in, ensuring ultra-small states remain easy to click without zooming to extreme levels.
 
 * **Map Interactivity & Context Popover:**
@@ -37,7 +37,7 @@ The goal is to build a minimal, modern, and aesthetic interactive world map SPA 
 
 #### Decorative scenery
 
-* **Artwork and density:** Original small pastel SVG ships, airplanes, and clouds, not emoji or external images. Use 37.5px ship, 34.5px airplane, and 69px cloud illustration viewports, constant in screen space. Use three ships, two airplanes, and four clouds on desktop; two ships, one airplane, and three clouds at the existing 720px mobile breakpoint.
+* **Artwork and density:** Original small theme-colored SVG ships, airplanes, and clouds, not emoji or external images. Use 37.5px ship, 34.5px airplane, and 69px cloud illustration viewports, constant in screen space. Use three ships, two airplanes, and four clouds on desktop; two ships, one airplane, and three clouds at the existing 720px mobile breakpoint.
 * **Geographic positioning:** Follow deterministic illustrative geographic routes, with ships restricted to open water. Preserve small screen-space illustration sizes during pan, zoom, and resize. Use gentle ship bobbing, slow cloud drift, vehicle headings, and endpoint fades rather than abrupt visible resets.
 * **Layering:** Draw above land but below microstate markers and all map UI. Clouds may cover the other scenery. Decorations are clipped to the map viewport, hidden from assistive technology, unfocusable, and pointer-transparent, including their descendants.
 * **Separate controls:** A keyboard-accessible pause/resume button freezes all visible motion. A separate hide/show button removes the entire scenery layer and stops its animation work, while remaining reachable to show it again. Showing preserves the animation phase and prior pause choice and uses the current map position. Disable the pause control while hidden and explain why.
@@ -86,21 +86,26 @@ export interface LocationEntry {
 
 ### Classic Color Palette (default)
 
-* **Water / Ocean:** Light Pastel Blue (`#D0E8F2` / `hsl(198, 55%, 88%)`)
-* **Unvisited / Base Boundary:** Soft Neutral Gray (`#DADADA` / `hsl(0, 0%, 85.5%)`)
-* **Visited:** Pastel Emerald Green (`#A8E6CF` / `hsl(156, 58%, 78%)`)
-* **Lived / Living:** Pastel Warm Yellow (`#FFD3B6` / `hsl(24, 100%, 86%)`)
-* **Want to Visit:** Pastel Lavender (`#C3B1E1` / `hsl(262, 47%, 79%)`)
-* **Country Borders / Outlines:** Black stroke (`#000000`, `1px`), increasing to `1.5px` on hover/selection while remaining black. Keep country strokes non-scaling during zoom.
-* **Microstate Dots:** Pastel fill corresponding to status with a crisp 1px `#FFFFFF` halo border.
+* **Water / Ocean:** Bright Blue (`#1893D9`)
+* **Unvisited / Base Boundary:** Silver Gray (`#C6CED6`)
+* **Visited:** Leaf Green (`#41A12B`)
+* **Lived / Living:** Sunflower Yellow (`#F2BF05`)
+* **Want to Visit:** Violet (`#9254D4`)
+* **Country Borders / Outlines:** White stroke (`#FFFFFF`, `1px`), increasing to `1.5px` on hover/selection while remaining white. Keep country strokes non-scaling during zoom.
+* **Microstate Dots:** Fill corresponding to status with a crisp 1px `#FFFFFF` halo border.
+* **Surrounding UI:** Cool white surfaces (`#F8F9FB`), navy text, blue controls,
+  white/blue ships and airplanes, and white clouds.
 
 ### Editable full-application themes
 
-* **Skins:** Classic (the existing pastels), Dark (charcoal ocean `#202020`,
+* **Skins:** Classic (bright blue ocean, green/yellow/violet travel colors, white borders), Dark (charcoal ocean `#202020`,
   warm-gray land `#413C39`, near-black borders `#0C0C0C`, indigo surfaces
   `#20263E`, high-contrast text, blue Visited `#224CBB`, gold Lived / Living
-  `#FBE769`, coral Want to Visit `#EC6568`), and Medieval (parchment, sepia ink, serif headings,
-  sailing ships, birds instead of airplanes, and ink-style clouds).
+  `#FBE769`, coral Want to Visit `#EC6568`), and Medieval (aged parchment,
+  sea-green ocean `#9BA58B`, land `#DCC699`, olive Visited `#748044`,
+  slate-blue Lived / Living `#708E99`, ochre Want to Visit `#A87A2C`,
+  sepia ink, serif headings, sailing galleons, dragons instead of airplanes,
+  and ink-style clouds).
 * **Scope:** Skin the map, markers, sidebar, legend, native controls, tooltips,
   body-level status popovers/dialogs, warnings/toasts, and loading/fatal screens.
   Status colors adapt but meanings, labels, and cross-surface consistency do not.
@@ -123,9 +128,11 @@ export interface LocationEntry {
 * **Artwork contract:** Trusted bundled SVG supplies `ship`, `plane`, `cloud`
   symbols with centered viewBoxes and theme-variable paints, no internal
   IDs/references or external/animated resources. `plane` is the route-kind slot
-  for Medieval birds. Validate symbols and prefix their IDs per scene.
+  for Medieval dragons. Validate symbols and prefix their IDs per scene.
   Swap only definitions in place; retain object nodes, routes, density,
   illustration sizes, clock/phase, and the single frame-loop lifecycle.
+  Medieval artwork uses a scoped 1.35x visual scale for recognizable sails,
+  rigging and dragon wings without changing route-object/viewports or culling.
 * **State preservation:** Theme changes preserve geometry/path nodes,
   pan/zoom, active territory, travel data/totals, search/accordion state,
   keyboard focus, scenery pause/hide/reduced-motion choices, and background
@@ -135,6 +142,10 @@ export interface LocationEntry {
   alongside status colors, unchanged responsive layout and pointer-transparent
   decorations. Use static lightweight parchment treatment, no SVG filters,
   geography redrawing, extra loops, or geographic asset changes.
+  Medieval uses an original bundled paper-fiber/ink-fleck SVG tile, static
+  edge shading, and a double-line frame. The texture overlay covers land and sea
+  but remains pointer-transparent. No filters, moving textures, or additional
+  geographic paths are introduced; switching skins removes the treatment.
 
 ---
 
@@ -154,7 +165,7 @@ export interface LocationEntry {
 │   │   ├── styles.css    # Theme stylesheet entry point
 │   │   ├── classic/      # Complete token defaults and original scenery.svg
 │   │   ├── dark/         # Dark token overrides; default scenery
-│   │   └── medieval/     # Parchment tokens/styles and sailing/bird/cloud SVG
+│   │   └── medieval/     # Fantasy-atlas tokens, galleon/dragon/cloud SVG, paper-grain.svg
 │   ├── popover.ts        # 4-button contextual selection popover
 │   ├── sidebar.ts        # Sidebar list, search filtering, continent accordion
 │   ├── store.ts          # State management, localStorage, JSON sync/export

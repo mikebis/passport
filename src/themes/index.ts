@@ -6,7 +6,7 @@ export const DEFAULT_ARTWORK = classicArtwork;
 export const THEMES = [
   { id: 'classic', label: 'Classic', artwork: classicArtwork, sceneryDescription: 'Decorative ships, airplanes, and clouds.' },
   { id: 'dark', label: 'Dark', artwork: classicArtwork, sceneryDescription: 'Decorative ships, airplanes, and clouds.' },
-  { id: 'medieval', label: 'Medieval', artwork: medievalArtwork, sceneryDescription: 'Decorative sailing ships, birds, and ink-style clouds.' },
+  { id: 'medieval', label: 'Medieval', artwork: medievalArtwork, sceneryDescription: 'Decorative sailing galleons, dragons, and ink-style clouds.' },
 ] as const;
 
 export type Theme = typeof THEMES[number];

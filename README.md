@@ -21,6 +21,24 @@ The map and sidebar start at the top of the page, without a logo header or map
 introduction. On desktop they sit side by side at full viewport height; on narrow
 screens the map appears above the sidebar.
 
+The sidebar's **Theme** picker changes the entire application:
+**Classic** retains the original pastel map, **Dark** uses a navy ocean and dark
+surfaces, and **Medieval** is a parchment atlas with sepia borders, serif headings,
+sailing ships, birds, and ink-style clouds. Status colors adapt with each skin;
+their meanings and legend remain consistent.
+
+Classic is the default, regardless of your system color scheme. An explicit
+choice is remembered in `passport:theme:v1`, separately from travel data, and
+restored before loading/recovery screens appear. No preference is written merely
+by opening the app. An unavailable saved skin falls back to Classic with an
+explanation, without overwriting the old choice. Storage failures show a separate
+theme warning; a theme that cannot be saved still works for the current session.
+The preference is browser-local and is not included in travel JSON exports.
+
+Switching skins preserves pan/zoom, selected territory, search/continent state,
+travel data, and scenery pause/visibility/phase. It dismisses open status popovers
+and map tooltips, without moving keyboard focus away from the picker.
+
 Click a polygon, small-territory dot, or place in the sidebar to select
 **Visited**, **Lived / Living**, **Want to Visit**, or **Reset (Unvisited)**.
 Scroll/double-click to zoom, drag to pan, or use the zoom and reset-view buttons.
@@ -39,7 +57,7 @@ an invented national flag or ISO code.
 
 ### A little life on the map
 
-Tiny pastel ships, airplanes, and clouds follow illustrative geographic routes.
+Tiny ships, airplanes (birds in Medieval), and clouds follow illustrative geographic routes.
 The original SVG artwork stays small as you zoom, moves with the map, and never
 blocks selecting a place. Desktop has three ships, two airplanes, and four clouds;
 narrow screens show two ships, one airplane, and three clouds.
@@ -58,6 +76,56 @@ page only; they do not change saved travel data or exports.
 
 Everything is drawn locally, with no new requests or external assets. Routes and
 clouds are decorative, **not live ship traffic, flights, or weather**.
+
+### Editing or adding a skin
+
+The design is a local package under `src/themes`, not an npm dependency. All
+styles and original SVG art are bundled with the application: no remote fonts,
+CDNs, runtime skin downloads, or additional animation loops.
+
+```text
+src/themes/
+  index.ts              Typed registry: IDs, labels, artwork, descriptions
+  styles.css            Stylesheet imports, Classic first
+  classic/theme.css     Complete semantic token defaults
+  classic/scenery.svg   Default ship/plane/cloud symbols
+  dark/theme.css        Scoped dark overrides; reuses default artwork
+  medieval/theme.css    Scoped parchment overrides and decorative rules
+  medieval/scenery.svg  Sailing ship/bird/ink-cloud symbols
+```
+
+Edit a skin's `theme.css` to change its palette. Classic supplies inherited
+defaults, so other skins only need to override the properties they change.
+Component layout/behavior stays in `src/styles`; preferences live in `src/theme.ts`.
+
+| Token group | Examples |
+| --- | --- |
+| Typography and surfaces | `--font-body`, `--font-heading`, `--page`, `--surface`, `--ink`, `--muted`, `--subtle` |
+| Controls and states | `--accent`, `--button`, `--on-accent`, `--hover`, `--input`, `--border`, `--selected` |
+| Map and travel colors | `--ocean`, `--unvisited`, `--visited`, `--lived`, `--want-to-visit`, status tints, `--country-border`, marker colors |
+| Overlays and decoration | Map-panel/tooltip/toast/warning colors, `--backdrop`, shadows, `--radius-*`, `--paper` |
+| Scenery paints | `--ship-*`, `--plane-*`, `--cloud`, `--cloud-detail` |
+
+To add a skin:
+
+1. Copy a theme folder and scope every override/decorative rule with
+   `:root[data-theme="your-id"]`. Register its stylesheet in `src/themes/styles.css`.
+2. Add one entry to `THEMES` in `src/themes/index.ts`: unique `id`, `label`,
+   `artwork`, and accurate `sceneryDescription`. Allowed IDs and picker options
+   come from this registry. Use `DEFAULT_ARTWORK` when no custom SVG is needed.
+3. For custom artwork, import a local SVG with `?raw`. Include the three
+   `symbol` IDs `ship`, `plane`, and `cloud`, each with a `viewBox`. The airborne
+   symbol keeps the ID `plane` even when drawn as a bird. Point vehicles toward
+   positive X and keep the existing centered viewBoxes for consistent sizing.
+   Use inherited semantic paint variables. Do not add internal IDs/references,
+   scripts, external resources, filters, or animations; the controller prefixes
+   symbol IDs and swaps definitions without recreating objects or the clock.
+   Malformed SVG or missing symbols fail explicitly, rather than silently falling
+   back to unrelated art.
+4. Check text/focus contrast, all four status colors across map/markers/legend/UI,
+   desktop/mobile layouts, body-level dialogs/tooltips, and reduced-motion
+   scenery. Run `npm run check` and `npm run test:e2e`. Keep paper effects static
+   and lightweight; never alter geographic geometry to implement a skin.
 
 ### Additional territories
 

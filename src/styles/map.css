@@ -1,39 +1,39 @@
-.map-section { position: relative; min-width: 0; overflow: hidden; background: var(--ocean); min-height: 620px; height: 100dvh; }
+.map-section { position: relative; min-width: 0; overflow: hidden; background: var(--ocean); background-image: var(--paper); min-height: 620px; height: 100dvh; }
 .map-canvas { position: absolute; inset: 0 0 100px; }
 .world-map { display: block; width: 100%; height: 100%; overflow: hidden; cursor: grab; touch-action: none; }
 .world-map:active { cursor: grabbing; }
 .map-scenery, .map-scenery * { pointer-events: none; }
 .scenery-object { will-change: transform; }
 .scenery-art { overflow: visible; }
-.country-boundary { stroke: #000; stroke-width: 1px; stroke-linejoin: round; cursor: pointer; fill: var(--unvisited); transition: fill .15s; }
+.country-boundary { stroke: var(--country-border); stroke-width: var(--country-border-width); stroke-linejoin: round; cursor: pointer; fill: var(--unvisited); transition: fill .15s; }
 .country-boundary[data-status="visited"] { fill: var(--visited); }
 .country-boundary[data-status="lived"] { fill: var(--lived); }
 .country-boundary[data-status="want_to_visit"] { fill: var(--want-to-visit); }
-.country-boundary:hover, .country-boundary.is-selected { stroke: #000; stroke-width: 1.5px; }
-.background-layer { fill: #d9e1df; stroke: #000; stroke-width: 1px; pointer-events: none; }
+.country-boundary:hover, .country-boundary.is-selected { stroke: var(--country-border); stroke-width: var(--country-active-width); }
+.background-layer { fill: var(--background-land); stroke: var(--country-border); stroke-width: var(--country-border-width); pointer-events: none; }
 .microstate-marker { cursor: pointer; }
 .marker-target { fill: transparent; }
-.marker-dot { fill: var(--unvisited); stroke: white; stroke-width: 1px; pointer-events: none; }
+.marker-dot { fill: var(--unvisited); stroke: var(--marker-halo); stroke-width: 1px; pointer-events: none; }
 .microstate-marker[data-status="visited"] .marker-dot { fill: var(--visited); }
 .microstate-marker[data-status="lived"] .marker-dot { fill: var(--lived); }
 .microstate-marker[data-status="want_to_visit"] .marker-dot { fill: var(--want-to-visit); }
-.microstate-marker:hover .marker-dot, .microstate-marker.is-selected .marker-dot { stroke: #4a7565; stroke-width: 1.5px; r: 6; }
-.map-toolbar { position: absolute; left: 28px; bottom: 102px; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px; border: 1px solid #ffffffb3; border-radius: 12px; background: #fafffcdb; box-shadow: 0 3px 15px #48646f0d; }
-.map-toolbar .icon-button { font-size: 21px; min-height: 34px; min-width: 32px; color: #51706a; }
+.microstate-marker:hover .marker-dot, .microstate-marker.is-selected .marker-dot { stroke: var(--marker-active); stroke-width: 1.5px; r: 6; }
+.map-toolbar { position: absolute; left: 28px; bottom: 102px; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px; border: 1px solid var(--map-panel-border); border-radius: var(--radius-panel); background: var(--map-panel); box-shadow: var(--shadow); }
+.map-toolbar .icon-button { font-size: 21px; min-height: 34px; min-width: 32px; color: var(--map-ink); }
 .map-toolbar .reset-map { font-size: 24px; }
 .map-toolbar .scenery-control svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5px; stroke-linecap: round; stroke-linejoin: round; }
 .map-toolbar .scenery-control:disabled { cursor: default; opacity: .45; }
-.toolbar-divider { width: 20px; height: 1px; background: #dbe6df; margin-block: 3px; }
-.map-hint { position: absolute; bottom: 91px; left: 86px; font-size: 10px; color: #547985; background: var(--ocean); pointer-events: none; }
+.toolbar-divider { width: 20px; height: 1px; background: var(--border); margin-block: 3px; }
+.map-hint { position: absolute; bottom: 91px; left: 86px; font-size: 10px; color: var(--map-hint-ink); background: var(--ocean); pointer-events: none; }
 .map-hint span { padding: 0 5px; }
-.map-legend { position: absolute; left: 50%; bottom: 42px; transform: translateX(-50%); display: flex; gap: 23px; white-space: nowrap; font-size: 10px; padding: 14px 23px; border: 1px solid #ffffffad; border-radius: 10px; background: #fafffcdd; color: #54716c; box-shadow: 0 4px 18px #37546008; }
+.map-legend { position: absolute; left: 50%; bottom: 42px; transform: translateX(-50%); display: flex; gap: 23px; white-space: nowrap; font-size: 10px; padding: 14px 23px; border: 1px solid var(--map-panel-border); border-radius: var(--radius-panel); background: var(--map-panel); color: var(--map-ink); box-shadow: var(--shadow); }
 .map-legend > span { display: inline-flex; align-items: center; gap: 7px; }
 .map-legend .status-dot { width: 9px; height: 9px; }
-.map-attribution { position: absolute; bottom: 13px; right: 18px; color: #517482; font-size: 8px; }
+.map-attribution { position: absolute; bottom: 13px; right: 18px; color: var(--map-attribution-ink); font-size: 8px; }
 .map-attribution a { text-underline-offset: 2px; }
-.map-tooltip { position: fixed; pointer-events: none; z-index: 8; background: #fbfdf9f5; border: 1px solid #e1e8de; padding: 11px 14px; border-radius: 10px; box-shadow: 0 5px 24px #2345351c; width: max-content; max-width: min(290px, calc(100vw - 16px)); }
+.map-tooltip { position: fixed; pointer-events: none; z-index: 8; background: var(--tooltip); border: 1px solid var(--border); padding: 11px 14px; border-radius: var(--radius-panel); box-shadow: var(--shadow); width: max-content; max-width: min(290px, calc(100vw - 16px)); }
 .map-tooltip strong { display: block; font-size: 12px; font-weight: 600; }
-.map-tooltip > span { font-size: 10px; color: #6c8074; display: block; margin-top: 5px; }
+.map-tooltip > span { font-size: 10px; color: var(--muted); display: block; margin-top: 5px; }
 @media (max-width: 1000px) { .map-legend { gap: 12px; padding-inline: 16px; font-size: 9px; } .map-hint { font-size: 9px; left: 76px; } }
 @media (max-width: 720px) {
   .map-section { height: 560px; min-height: 0; }

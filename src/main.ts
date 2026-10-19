@@ -8,8 +8,12 @@ import { createSidebar } from './sidebar';
 import { loadInitialState, parseData, TravelStore, type StorageAccess } from './store';
 import { errorMessage, type LocationEntry, type SelectTerritory } from './types';
 import type { SceneryState } from './scenery';
+import { applyTheme, ThemePreference } from './theme';
+import { THEMES } from './themes';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
+const themePreference = new ThemePreference(() => window.localStorage);
+applyTheme(themePreference.current);
 app.innerHTML = `
   <main class="loading-screen" aria-live="polite">
     <span class="brand-mark" aria-hidden="true">\u2713</span>
@@ -114,6 +118,8 @@ async function boot(): Promise<void> {
         </section>
         <aside class="sidebar" aria-labelledby="places-heading">
           <div class="sidebar-heading"><div><p class="eyebrow">THE WORLD, YOUR WAY</p><h2 id="places-heading">Your places<span>.</span></h2></div><span class="globe-icon" aria-hidden="true">\u25ce</span></div>
+          <label class="theme-picker" for="theme-picker">Theme<select id="theme-picker" aria-describedby="theme-message"></select></label>
+          <p id="theme-message" class="theme-message" role="status" hidden></p>
           <div class="travel-stats" aria-label="Your travel totals">
             <div><strong id="visited-count">0</strong><span><i class="status-dot visited"></i>visited</span></div>
             <div><strong id="lived-count">0</strong><span><i class="status-dot lived"></i>called home</span></div>
@@ -164,7 +170,9 @@ async function boot(): Promise<void> {
   };
   const pauseScenery = element<HTMLButtonElement>('#pause-scenery');
   const toggleScenery = element<HTMLButtonElement>('#toggle-scenery');
+  let sceneryState: SceneryState | undefined;
   function syncSceneryControls(state: SceneryState): void {
+    sceneryState = state;
     const label = !state.visible ? 'Show scenery to enable animation controls'
       : state.reducedMotion ? 'Map animations disabled for reduced motion'
         : state.paused ? 'Resume map animations' : 'Pause map animations';
@@ -180,12 +188,35 @@ async function boot(): Promise<void> {
     toggleScenery.setAttribute('aria-pressed', String(state.visible));
     toggleScenery.title = visibilityLabel;
     toggleScenery.innerHTML = `<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M2 10s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5Z"/><circle cx="10" cy="10" r="2.3"/>${state.visible ? '' : '<path d="m3 3 14 14"/>'}</svg>`;
-    element('#scenery-description').textContent = !state.visible
+    const explanation = !state.visible
       ? 'All map decorations are hidden. Show map scenery to use the animation control.'
       : state.reducedMotion ? 'Your system requests reduced motion. Decorations remain static; you can still hide them.'
-        : 'Decorative ships, airplanes, and clouds. Pause freezes them; hide removes them completely.';
+        : 'Pause freezes them; hide removes them completely.';
+    element('#scenery-description').textContent = `${themePreference.current.sceneryDescription} ${explanation}`;
   }
-  const map = createMap(element('#map-canvas'), world.countries, world.background, registry, store, selectCountry, () => popover.close(false), syncSceneryControls);
+  const map = createMap(element('#map-canvas'), world.countries, world.background, registry, store, selectCountry, () => popover.close(false), syncSceneryControls, themePreference.current.artwork);
+  const themePicker = element<HTMLSelectElement>('#theme-picker');
+  for (const theme of THEMES) {
+    const option = document.createElement('option');
+    option.value = theme.id;
+    option.textContent = theme.label;
+    themePicker.append(option);
+  }
+  themePicker.value = themePreference.current.id;
+  const themeMessage = element('#theme-message');
+  function showThemeWarning(): void {
+    themeMessage.textContent = themePreference.warning ?? '';
+    themeMessage.hidden = !themePreference.warning;
+  }
+  showThemeWarning();
+  themePicker.addEventListener('change', () => {
+    themePreference.choose(themePicker.value);
+    applyTheme(themePreference.current);
+    popover.close(false);
+    map.setThemeArtwork(themePreference.current.artwork);
+    if (sceneryState) syncSceneryControls(sceneryState);
+    showThemeWarning();
+  });
   createSidebar(element('#country-sidebar'), registry, store, selectCountry);
   element('#zoom-in').addEventListener('click', map.zoomIn);
   element('#zoom-out').addEventListener('click', map.zoomOut);

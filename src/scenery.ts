@@ -1,4 +1,5 @@
 import { geoDistance, geoInterpolate, type GeoProjection, type ZoomTransform } from 'd3';
+import { DEFAULT_ARTWORK } from './themes';
 
 export type MapPoint = [number, number];
 export type SceneryKind = 'ship' | 'plane' | 'cloud';
@@ -93,36 +94,41 @@ export interface SceneryController {
   updateView: (view: SceneryView) => void;
   togglePaused: () => void;
   toggleVisible: () => void;
+  setArtwork: (artwork: string) => void;
   destroy: () => void;
 }
 
 const namespace = 'http://www.w3.org/2000/svg';
 let sceneId = 0;
 
-export function createScenery(svg: SVGSVGElement, onState: (state: SceneryState) => void): SceneryController {
+export function createScenery(svg: SVGSVGElement, onState: (state: SceneryState) => void, artwork = DEFAULT_ARTWORK): SceneryController {
   const id = `map-scenery-${sceneId++}`;
   const layer = document.createElementNS(namespace, 'g');
   layer.id = id;
   layer.classList.add('map-scenery');
   layer.setAttribute('aria-hidden', 'true');
   layer.setAttribute('pointer-events', 'none');
-  layer.innerHTML = `
-    <defs>
-      <symbol id="${id}-ship" viewBox="-20 -16 40 32">
-        <path d="M-18-3h5m-6 6h6" fill="none" stroke="#83a9b3" stroke-width="1.3" stroke-linecap="round"/>
-        <path d="M-11-4Q-14 0-11 4L4 5Q10 4 14 0Q10-4 4-5Z" fill="#b6ddcd" stroke="#638b83" stroke-width="1.1" stroke-linejoin="round"/>
-        <rect x="-6" y="-3" width="10" height="6" rx="2" fill="#fff9e9" stroke="#7d998b" stroke-width=".8"/>
-        <path d="M1-9V7M2-8 9-1H2Z" fill="#fffdf4" stroke="#7d998b" stroke-width=".8" stroke-linejoin="round"/>
-      </symbol>
-      <symbol id="${id}-plane" viewBox="-20 -16 40 32">
-        <path d="M16 0 2-3-2-12h-4l1 9-7 1-3-3h-3l4 5-4 5h3l3-3 7 1-1 9h4L2 3Z" fill="#fffdf3" stroke="#7b919c" stroke-width="1.1" stroke-linejoin="round"/>
-        <path d="M6-1h4M-4-10l1 6M-4 10l1-6" fill="none" stroke="#b8a6d0" stroke-width="1.2" stroke-linecap="round"/>
-      </symbol>
-      <symbol id="${id}-cloud" viewBox="-28 -18 56 36">
-        <path d="M-18 10C-30 10-29-5-18-5C-17-19 3-21 8-8C20-12 29-3 23 5C29 13 14 16 6 11Z" fill="#fffefa" stroke="#fffefa" stroke-width="1.4" stroke-linejoin="round"/>
-        <path d="M-17 6h7m16 1h9" fill="none" stroke="#dceaf0" stroke-width="1" stroke-linecap="round"/>
-      </symbol>
-    </defs>`;
+  const definitions = document.createElementNS(namespace, 'defs');
+  layer.append(definitions);
+  let currentArtwork: string | undefined;
+  function setArtwork(next: string): void {
+    if (next === currentArtwork) return;
+    const parsed = new DOMParser().parseFromString(next, 'image/svg+xml');
+    if (parsed.querySelector('parsererror') || parsed.documentElement.localName !== 'svg'
+      || parsed.documentElement.namespaceURI !== namespace || parsed.querySelectorAll('symbol').length !== 3) {
+      throw new Error('Theme scenery must be a valid SVG with exactly three symbols.');
+    }
+    const symbols = ['ship', 'plane', 'cloud'].map((kind) => {
+      const symbol = parsed.querySelector(`symbol[id="${kind}"]`);
+      if (!symbol || !symbol.getAttribute('viewBox')) throw new Error(`Theme scenery is missing the ${kind} symbol or viewBox.`);
+      const copy = document.importNode(symbol, true);
+      copy.id = `${id}-${kind}`;
+      return copy;
+    });
+    definitions.replaceChildren(...symbols);
+    currentArtwork = next;
+  }
+  setArtwork(artwork);
   svg.append(layer);
   const objects = [...SCENERY_ROUTES].sort((a, b) => Number(a.kind === 'cloud') - Number(b.kind === 'cloud')).map((route) => {
     const group = document.createElementNS(namespace, 'g');
@@ -243,6 +249,7 @@ export function createScenery(svg: SVGSVGElement, onState: (state: SceneryState)
       visible = !visible;
       reconcile();
     },
+    setArtwork,
     destroy,
   };
 }

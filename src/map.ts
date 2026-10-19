@@ -11,6 +11,7 @@ export interface MapControls {
   focusCountry: (id: string) => void;
   toggleSceneryMotion: () => void;
   toggleSceneryVisibility: () => void;
+  setThemeArtwork: (artwork: string) => void;
 }
 
 export function createMap(
@@ -22,6 +23,7 @@ export function createMap(
   onSelect: SelectTerritory,
   onNavigate: () => void,
   onSceneryState: (state: SceneryState) => void,
+  artwork?: string,
 ): MapControls {
   const territories = new Map(registry.map((country) => [country.id, country]));
   function getTerritory(id: string): Territory {
@@ -40,7 +42,7 @@ export function createMap(
     .attr('data-country', (boundary) => String(boundary.id))
     .attr('data-kind', (boundary) => getTerritory(String(boundary.id)).kind)
     .attr('vector-effect', 'non-scaling-stroke');
-  const scenery = createScenery(svg.node()!, onSceneryState);
+  const scenery = createScenery(svg.node()!, onSceneryState, artwork);
   const markers = svg.append('g').attr('class', 'marker-layer').selectAll('g')
     .data(registry.filter((country) => country.microstate)).join('g')
     .attr('class', 'microstate-marker').attr('data-country', (country) => country.id);
@@ -192,6 +194,10 @@ export function createMap(
     reset: () => svg.call(behavior.transform, zoomIdentity),
     toggleSceneryMotion: scenery.togglePaused,
     toggleSceneryVisibility: scenery.toggleVisible,
+    setThemeArtwork: (next) => {
+      hideTooltip();
+      scenery.setArtwork(next);
+    },
     focusCountry: (id: string) => {
       activeId = id;
       update();

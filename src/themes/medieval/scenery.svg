@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="ship" viewBox="-20 -16 40 32">
+    <path d="M-19 7h7m-5 4h9m17-1h7" fill="none" stroke="var(--ship-wake)" stroke-width="1" stroke-linecap="round"/>
+    <path d="M-15 4Q-8 8 14 3L9 10H-8Z" fill="var(--ship-hull)" stroke="var(--ship-outline)" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M-2-13V7M-2-12-12 1h10Zm2 0L12 0H0Z" fill="var(--ship-sail)" stroke="var(--ship-rigging)" stroke-width="1" stroke-linejoin="round"/>
+    <path d="M-2-13 5-12-2-9" fill="var(--ship-cabin)" stroke="var(--ship-rigging)" stroke-width=".8"/>
+  </symbol>
+  <symbol id="plane" viewBox="-20 -16 40 32">
+    <path d="M13 0Q2-1-9-12L-3-2-16-5-5 1-15 6-2 3-7 12Q3 3 13 0Z" fill="var(--plane-body)" stroke="var(--plane-outline)" stroke-width="1" stroke-linejoin="round"/>
+    <path d="m12-1 5 1-5 1M-4-4 3 0-3 4" fill="none" stroke="var(--plane-accent)" stroke-width=".9" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="cloud" viewBox="-28 -18 56 36">
+    <path d="M-22 9Q-29-3-16-5Q-13-17-2-13Q7-18 14-6Q27-7 25 5Q28 12 15 12H-16Z" fill="var(--cloud)" stroke="var(--cloud-detail)" stroke-width="1" stroke-linejoin="round"/>
+    <path d="M-22 4q-1-7 6-6m0 10q-3-7 4-8m9-8q9-2 11 6m7 1q8 0 6 6M-18 15H8m5 0h8" fill="none" stroke="var(--cloud-detail)" stroke-width=".8" stroke-linecap="round"/>
+  </symbol>
+</svg>

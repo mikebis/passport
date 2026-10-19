@@ -84,7 +84,7 @@ export interface LocationEntry {
 
 ## 3. Aesthetic & UI Design System
 
-### Color Palette (Pastels)
+### Classic Color Palette (default)
 
 * **Water / Ocean:** Light Pastel Blue (`#D0E8F2` / `hsl(198, 55%, 88%)`)
 * **Unvisited / Base Boundary:** Soft Neutral Gray (`#DADADA` / `hsl(0, 0%, 85.5%)`)
@@ -93,6 +93,46 @@ export interface LocationEntry {
 * **Want to Visit:** Pastel Lavender (`#C3B1E1` / `hsl(262, 47%, 79%)`)
 * **Country Borders / Outlines:** Black stroke (`#000000`, `1px`), increasing to `1.5px` on hover/selection while remaining black. Keep country strokes non-scaling during zoom.
 * **Microstate Dots:** Pastel fill corresponding to status with a crisp 1px `#FFFFFF` halo border.
+
+### Editable full-application themes
+
+* **Skins:** Classic (the existing pastels), Dark (navy ocean, dark surfaces,
+  high-contrast text), and Medieval (parchment, sepia ink, serif headings,
+  sailing ships, birds instead of airplanes, and ink-style clouds).
+* **Scope:** Skin the map, markers, sidebar, legend, native controls, tooltips,
+  body-level status popovers/dialogs, warnings/toasts, and loading/fatal screens.
+  Status colors adapt but meanings, labels, and cross-surface consistency do not.
+* **Selection:** A labeled keyboard-accessible native select in the sidebar.
+  Do not restore a global header. Classic remains default, independent of system
+  light/dark settings. Apply the root skin before rendering loading UI and update
+  native `color-scheme` and browser `theme-color`.
+* **Persistence:** Store only an explicit selection in `passport:theme:v1`.
+  Recognized IDs restore without a startup write. Unknown IDs fall back to
+  Classic with a visible explanation and leave the stored value untouched.
+  Read/write failures have an independent non-blocking theme warning; failed
+  writes retain the requested session appearance. Never mark travel data unsaved
+  because a theme preference failed. Travel storage, migration, recovery,
+  import/export schema, and subdivision preservation remain independent.
+* **Package:** Editable local `src/themes` folders with semantic CSS tokens,
+  scoped decorative rules, optional original SVG artwork, one typed registry,
+  and a stylesheet entry point. Classic supplies defaults; other skins inherit
+  unchanged tokens and may reuse Classic art. No remote fonts/CDNs, runtime
+  theme requests, styling framework, or published npm package.
+* **Artwork contract:** Trusted bundled SVG supplies `ship`, `plane`, `cloud`
+  symbols with centered viewBoxes and theme-variable paints, no internal
+  IDs/references or external/animated resources. `plane` is the route-kind slot
+  for Medieval birds. Validate symbols and prefix their IDs per scene.
+  Swap only definitions in place; retain object nodes, routes, density,
+  illustration sizes, clock/phase, and the single frame-loop lifecycle.
+* **State preservation:** Theme changes preserve geometry/path nodes,
+  pan/zoom, active territory, travel data/totals, search/accordion state,
+  keyboard focus, scenery pause/hide/reduced-motion choices, and background
+  suspension. Dismiss cached tooltips and status popovers without stealing
+  picker focus. Use accurate scenery descriptions for each skin.
+* **Accessibility/performance:** Readable text and focus contrast, text labels
+  alongside status colors, unchanged responsive layout and pointer-transparent
+  decorations. Use static lightweight parchment treatment, no SVG filters,
+  geography redrawing, extra loops, or geographic asset changes.
 
 ---
 
@@ -105,12 +145,20 @@ export interface LocationEntry {
 │   ├── main.ts           # App initialization & event wiring
 │   ├── types.ts          # TypeScript interfaces (LocationEntry, TravelStatus)
 │   ├── map.ts            # D3.js Mercator map, TopoJSON loader, Microstate dots
-│   ├── scenery.ts        # Original SVG illustrations, geographic routes, motion lifecycle
+│   ├── scenery.ts        # Theme artwork installation, geographic routes, motion lifecycle
+│   ├── theme.ts          # Independent theme preference and root skin application
+│   ├── themes/           # Editable local design packages
+│   │   ├── index.ts      # Typed registry, artwork and descriptions
+│   │   ├── styles.css    # Theme stylesheet entry point
+│   │   ├── classic/      # Complete token defaults and original scenery.svg
+│   │   ├── dark/         # Dark token overrides; default scenery
+│   │   └── medieval/     # Parchment tokens/styles and sailing/bird/cloud SVG
 │   ├── popover.ts        # 4-button contextual selection popover
 │   ├── sidebar.ts        # Sidebar list, search filtering, continent accordion
 │   ├── store.ts          # State management, localStorage, JSON sync/export
 │   └── styles/
-│       ├── main.css      # CSS variables, layout reset, typography
+│       ├── main.css      # Theme imports, layout reset, token-based typography
+│       ├── sidebar.css   # Sidebar layout and theme picker
 │       ├── map.css       # SVG map layer styles, tooltips, microstate dots
 │       └── popover.css   # Context popover floating panel styles
 ├── data/

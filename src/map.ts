@@ -59,6 +59,8 @@ export function createMap(
   let width = 0;
   let height = 0;
   let hoveredId: string | undefined;
+  let tooltipWidth = 0;
+  let tooltipHeight = 0;
   let navigationActive = false;
   let activeId: string | undefined;
   const markerPositions = new Map<string, [number, number]>();
@@ -86,18 +88,22 @@ export function createMap(
 
   function showTooltip(event: MouseEvent, id: string): void {
     if (navigationActive) return;
-    const country = getTerritory(id);
-    hoveredId = id;
-    tooltip.replaceChildren();
-    const title = document.createElement('strong');
-    title.textContent = `${territorySymbol(country)} ${country.name}`;
-    const status = document.createElement('span');
-    status.textContent = `${id} \u00b7 ${country.kind === 'custom' ? `${NON_ISO_LABEL} \u00b7 ` : ''}${STATUS_LABELS[store.status(id)]}`;
-    tooltip.append(title, status);
-    tooltip.hidden = false;
-    const rect = tooltip.getBoundingClientRect();
-    tooltip.style.left = `${Math.max(8, Math.min(event.clientX + 16, window.innerWidth - rect.width - 8))}px`;
-    tooltip.style.top = `${Math.max(8, Math.min(event.clientY + 16, window.innerHeight - rect.height - 8))}px`;
+    if (hoveredId !== id || tooltip.hidden) {
+      const country = getTerritory(id);
+      hoveredId = id;
+      tooltip.replaceChildren();
+      const title = document.createElement('strong');
+      title.textContent = `${territorySymbol(country)} ${country.name}`;
+      const status = document.createElement('span');
+      status.textContent = `${id} \u00b7 ${country.kind === 'custom' ? `${NON_ISO_LABEL} \u00b7 ` : ''}${STATUS_LABELS[store.status(id)]}`;
+      tooltip.append(title, status);
+      tooltip.hidden = false;
+      const rect = tooltip.getBoundingClientRect();
+      tooltipWidth = rect.width;
+      tooltipHeight = rect.height;
+    }
+    tooltip.style.left = `${Math.max(8, Math.min(event.clientX + 16, window.innerWidth - tooltipWidth - 8))}px`;
+    tooltip.style.top = `${Math.max(8, Math.min(event.clientY + 16, window.innerHeight - tooltipHeight - 8))}px`;
   }
 
   function activate(event: MouseEvent, id: string): void {
@@ -150,6 +156,7 @@ export function createMap(
     const nextWidth = Math.max(bounds.width, 1);
     const nextHeight = Math.max(bounds.height, 1);
     if (nextWidth === width && nextHeight === height) return;
+    hideTooltip();
     const previousCenter = width && height ? projection.invert?.(transform.invert([width / 2, height / 2])) : null;
     width = nextWidth;
     height = nextHeight;

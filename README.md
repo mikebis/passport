@@ -173,14 +173,41 @@ Empty arrays are preserved, and ISO-country subdivision handling is unchanged.
 
 `data/world-10m.json` uses Natural Earth's **1:10m admin-0 map units**, not a
 110m dataset: the latter would omit required microstates. Source polygons are
-grouped by ISO code and quantized without simplifying away tiny rings. Natural
-Earth's nine US Minor Outlying Islands map units are assigned to UMI instead of
-USA. The 17 cataloged non-ISO map units are matched by their source `GU_A3` IDs
+grouped by ISO code, simplified once per shared boundary arc, and quantized.
+Natural Earth's nine US Minor Outlying Islands map units are assigned to UMI
+instead of USA. The 17 cataloged non-ISO map units are matched by their source `GU_A3` IDs
 and promoted into independently interactive features, with `custom:` IDs.
 Custom polygons render after ISO polygons so source overlays remain selectable.
 No parent geometry is subtracted or merged, and no new polygons are fabricated.
 Boundaries reflect the source's cartographic conventions, not a political claim
 or a legal/boundary-survey reference.
+
+### Balanced map detail
+
+The generated map retains all **266 places, 4,292 polygon components, and 4,312
+rings**, including tiny islands and holes. Shared-arc spherical Visvalingam
+simplification reduces stored vertices from 482,164 to 124,809 (about **74% fewer**)
+and reference SVG path characters by about **76%**. The geographic asset shrinks
+from 4.52 MB to 1.31 MB, or roughly 1.50 MB to 0.48 MB gzip.
+
+Small or sensitive shapes are protected by restoring their original shared arcs
+if simplification collapses a ring, changes its winding, or changes its area by
+more than 10%. Whole-feature area changes are limited to 1%. Markers and
+microstate eligibility still use the original source geometry.
+The 10% base retention setting applies before these safeguards; the final
+protected map retains about 26% of its original vertices.
+
+This is one balanced-detail asset at every zoom level, not a detail toggle or
+runtime simplification. Coastlines are intentionally less precise at high zoom,
+but territory IDs, travel data, marker sizes, and map controls are unchanged.
+Pan/zoom transforms the existing land paths; it does not regenerate them.
+Tooltips reuse their content and measured size while hovering within one place.
+
+Generation is deterministic. Coverage checks verify the original shared-arc
+connections and polygon/ring structure, require at least 70% fewer stored points
+and reference SVG characters, and enforce a 1.5 MB geometry budget.
+
+### Licensing and provenance
 
 Boundary data is **public domain**, from
 [Natural Earth](https://www.naturalearthdata.com/about/terms-of-use/).

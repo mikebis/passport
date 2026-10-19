@@ -31,7 +31,7 @@
 .map-legend .status-dot { width: 9px; height: 9px; }
 .map-attribution { position: absolute; bottom: 13px; right: 18px; color: #517482; font-size: 8px; }
 .map-attribution a { text-underline-offset: 2px; }
-.map-tooltip { position: fixed; pointer-events: none; z-index: 8; background: #fbfdf9f5; border: 1px solid #e1e8de; padding: 11px 14px; border-radius: 10px; box-shadow: 0 5px 24px #2345351c; max-width: min(290px, calc(100vw - 16px)); }
+.map-tooltip { position: fixed; pointer-events: none; z-index: 8; background: #fbfdf9f5; border: 1px solid #e1e8de; padding: 11px 14px; border-radius: 10px; box-shadow: 0 5px 24px #2345351c; width: max-content; max-width: min(290px, calc(100vw - 16px)); }
 .map-tooltip strong { display: block; font-size: 12px; font-weight: 600; }
 .map-tooltip > span { font-size: 10px; color: #6c8074; display: block; margin-top: 5px; }
 @media (max-width: 1000px) { .map-legend { gap: 12px; padding-inline: 16px; font-size: 9px; } .map-hint { font-size: 9px; left: 76px; } }

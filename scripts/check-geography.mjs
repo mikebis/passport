@@ -3,10 +3,21 @@ import assert from 'node:assert/strict';
 import { feature } from 'topojson-client';
 import { geoArea, geoMercator, geoPath } from 'd3';
 import iso from 'i18n-iso-countries';
+import { geographyMetrics, geometrySignature } from './simplify-geography.mjs';
 
 const registry = JSON.parse(await readFile('data/registry.json', 'utf8'));
 const world = JSON.parse(await readFile('data/world-10m.json', 'utf8'));
 const additional = JSON.parse(await readFile('data/additional-territories.json', 'utf8'));
+const provenance = JSON.parse(await readFile('data/provenance.json', 'utf8'));
+const { simplification } = provenance;
+const complexity = geographyMetrics(world);
+assert.deepEqual(complexity, simplification.after, 'Simplification metrics are stale.');
+assert.equal(geometrySignature(world), simplification.geometrySignature, 'Polygon/ring structure or shared borders changed.');
+assert.equal(complexity.polygons, simplification.before.polygons, 'Simplification removed polygon components.');
+assert.equal(complexity.rings, simplification.before.rings, 'Simplification removed rings.');
+assert(complexity.vertices <= simplification.before.vertices * .3, 'Map must have at least 70% fewer stored vertices.');
+assert(complexity.pathCharacters <= simplification.before.pathCharacters * .3, 'Map must have at least 70% fewer SVG path characters.');
+assert(complexity.bytes < 1_500_000, 'Simplified map exceeds its 1.5 MB budget.');
 const features = feature(world, world.objects.countries).features;
 const expected = Object.entries(iso.getAlpha2Codes()).filter(([code]) => code !== 'XK').map(([, code]) => code).sort();
 const customIds = additional.map((entry) => entry.id).sort();
@@ -50,7 +61,7 @@ for (const entry of registry) {
   assert(area > 0 && area < 2 * Math.PI, `${entry.id}: empty or inverted polygon`);
   const rendered = path(boundary);
   assert(rendered && !/NaN|Infinity/.test(rendered), `${entry.id}: invalid Mercator path`);
-  report.push({ id: entry.id, kind: entry.kind, polygons: polygons.length, areaSteradians: area, marker: entry.microstate });
+  report.push({ id: entry.id, kind: entry.kind, polygons: polygons.length, rings: polygons.reduce((sum, polygon) => sum + polygon.length, 0), areaSteradians: area, marker: entry.microstate });
 }
 for (const id of ['VAT', 'MCO', 'SMR', 'LIE', 'AND', 'NRU', 'TUV', 'UMI', 'BVT', 'TKL']) {
   assert(report.some((entry) => entry.id === id && entry.areaSteradians > 0));
@@ -58,6 +69,7 @@ for (const id of ['VAT', 'MCO', 'SMR', 'LIE', 'AND', 'NRU', 'TUV', 'UMI', 'BVT',
 const output = {
   isoCount: expected.length, additionalCount: additional.length, totalCount: allIds.length,
   polygonCount: features.length, missing: [], territories: report,
+  complexity,
 };
 if (process.argv.includes('--write')) {
   await writeFile('data/coverage-report.json', JSON.stringify(output, null, 2) + '\n');

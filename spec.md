@@ -19,12 +19,14 @@ The goal is to build a minimal, modern, and aesthetic interactive world map SPA 
 * **Global Coverage:** Complete ISO 3166-1 alpha-3 coverage, including all UN member states, dependencies, microstates (e.g., Vatican City, Monaco, San Marino, Liechtenstein, Andorra, Nauru, Tuvalu), and island territories.
 * **Additional Non-ISO Areas:** Independently track all 17 non-ISO map units already present in the bundled Natural Earth source, for 266 total places. The explicit catalog in `data/additional-territories.json` includes Kosovo, Northern Cyprus, Somaliland, Akrotiri, Dhekelia, the Cyprus UN Buffer Zone, both Korean DMZ areas, Guantanamo Bay Naval Base, Siachen Glacier, the Southern Patagonian Ice Field, Bir Tawil, the Paracel and Spratly Islands, Bajo Nuevo Bank, Serranilla Bank, and Scarborough Reef. Use stable `custom:` identifiers derived from source map-unit IDs, not invented official ISO codes.
 * **Boundary and Status Independence:** Preserve existing ISO polygons and use the additional areas' real source geometry. Render custom overlays above ISO polygons where necessary. Each entry has an independent status; changing an additional area does not change a related country's status. Inclusion is a travel-tracking convention, not a political recognition claim or a comprehensive worldwide dispute list.
+* **Balanced Boundary Detail:** Generate one simplified, quantized TopoJSON asset from the pinned 1:10m source. Simplify shared arcs together, retaining recognizable shapes and every territory, polygon component, and hole. Protect collapsed/inverted rings and excessive area changes; derive marker metadata from original geometry. Require at least 70% fewer stored vertices and reference SVG characters than the detailed source topology, with a geographic asset under 1.5 MB. High zoom intentionally shows less coastal detail; no runtime detail switching is required.
 * **Microstate Visualization (Dual-Layer):**
 * Microstates are rendered as both standard **boundary polygons** AND **subtle pastel dots/pins** overlaying their geographic centroids when zoomed out.
 * Dot markers maintain a consistent radius or scale dynamically as the user zooms in, ensuring ultra-small states remain easy to click without zooming to extreme levels.
 
 * **Map Interactivity & Context Popover:**
 * **Hover:** Displays a sleek floating tooltip with the territory's full name, country flag/code, and current status. Non-ISO entries show a generic symbol, their full custom ID, and an explicit "Additional territory / non-ISO" label instead of an invented national flag.
+* **Interaction Work:** Reuse tooltip content and dimensions while the hovered territory is unchanged, retaining viewport clamping and refreshing after status/viewport changes. Pan/zoom transforms existing country paths rather than regenerating their geometry.
 * **Click (Map / Dot / Polygon):** Opens a small, modern 4-button context popover adjacent to the clicked location or cursor with choices:
 1. 🟩 **Visited**
 2. 🟨 **Lived / Living**
@@ -112,7 +114,7 @@ export interface LocationEntry {
 │       ├── map.css       # SVG map layer styles, tooltips, microstate dots
 │       └── popover.css   # Context popover floating panel styles
 ├── data/
-│   ├── world-10m.json    # Detailed TopoJSON retaining all ISO and additional polygons
+│   ├── world-10m.json    # Simplified 1:10m-derived TopoJSON retaining every polygon and ring
 │   ├── additional-territories.json # Explicit non-ISO catalog and source map-unit IDs
 │   ├── registry.json    # ISO/custom metadata, grouping, and marker coordinates
 │   └── user-data.json    # Committed user status file

@@ -13,11 +13,34 @@
   },
   "transformations": [
     "Group ISO_A3_EH features; override ADM0_A3=UMI to UMI.",
-    "Promote exactly the 17 GU_A3 map units in additional-territories.json with custom: source IDs; keep their source polygons unchanged.",
+    "Promote exactly the 17 GU_A3 map units in additional-territories.json with custom: source IDs.",
     "Render custom polygons after ISO polygons to preserve selectable source overlays; statuses are independent.",
     "Additional Cypriot areas use Europe to match the existing CYP registry entry. All additions are non-ISO travel entries, not recognition claims.",
-    "Quantize topology at 1e6; do not simplify or synthesize polygons.",
+    "Simplify shared arcs with spherical Visvalingam weights, targeting 10% retained detail; quantize at 1e6.",
+    "Preserve every polygon and hole. Restore shared arcs if a ring collapses, changes winding or exceeds 10% area change; protect features exceeding 1% area change.",
+    "Compute markers and microstate eligibility from original source geometry. Never synthesize polygons.",
     "Use one continent per territory; Americas split by subregion; BVT Africa, SGS South America, other southern dependencies Oceania.",
     "Clamp marker latitude to [-78,80]; Antarctica marker at [18,-76]."
-  ]
+  ],
+  "simplification": {
+    "method": "Shared-arc spherical Visvalingam simplification",
+    "retainedDetail": 0.1,
+    "threshold": 7.794625422568159e-7,
+    "protectedArcs": 3487,
+    "geometrySignature": "fa33ff6fad08d75c0ff5f94ea1c8965803a1a2424a4652b2777140e471b7f299",
+    "before": {
+      "vertices": 482164,
+      "polygons": 4292,
+      "rings": 4312,
+      "pathCharacters": 8588325,
+      "bytes": 4523996
+    },
+    "after": {
+      "vertices": 124809,
+      "polygons": 4292,
+      "rings": 4312,
+      "pathCharacters": 2070166,
+      "bytes": 1314489
+    }
+  }
 }

@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { topology } from 'topojson-server';
 import { geoArea, geoCentroid } from 'd3';
 import iso from 'i18n-iso-countries';
+import { RETAINED_DETAIL, simplifyGeography } from './simplify-geography.mjs';
 
 const earthRevision = 'ca96624a56bd078437bca8184e78163e5039ad19';
 const countriesRevision = 'c2ac0049c14edcf2436c7aa1b2493222a020b462';
@@ -108,11 +109,11 @@ for (const entry of additional) {
   });
 }
 
-// Quantization compresses shared boundaries without dropping small polygon rings.
-const result = topology({
+const detailed = topology({
   countries: { type: 'FeatureCollection', features },
   background: { type: 'FeatureCollection', features: background },
 }, 1e6);
+const { world: result, simplification } = simplifyGeography(detailed);
 await writeFile('data/world-10m.json', JSON.stringify(result));
 await writeFile('data/registry.json', JSON.stringify(registry, null, 2) + '\n');
 
@@ -132,12 +133,16 @@ await writeFile('data/provenance.json', JSON.stringify({
   registry: { source: registryUrl, revision: countriesRevision, license: 'ODbL-1.0', attribution: 'Country metadata derived from mledoze/countries; derived registry available under ODbL-1.0.' },
   transformations: [
     'Group ISO_A3_EH features; override ADM0_A3=UMI to UMI.',
-    'Promote exactly the 17 GU_A3 map units in additional-territories.json with custom: source IDs; keep their source polygons unchanged.',
+    'Promote exactly the 17 GU_A3 map units in additional-territories.json with custom: source IDs.',
     'Render custom polygons after ISO polygons to preserve selectable source overlays; statuses are independent.',
     'Additional Cypriot areas use Europe to match the existing CYP registry entry. All additions are non-ISO travel entries, not recognition claims.',
-    'Quantize topology at 1e6; do not simplify or synthesize polygons.',
+    `Simplify shared arcs with spherical Visvalingam weights, targeting ${RETAINED_DETAIL * 100}% retained detail; quantize at 1e6.`,
+    'Preserve every polygon and hole. Restore shared arcs if a ring collapses, changes winding or exceeds 10% area change; protect features exceeding 1% area change.',
+    'Compute markers and microstate eligibility from original source geometry. Never synthesize polygons.',
     'Use one continent per territory; Americas split by subregion; BVT Africa, SGS South America, other southern dependencies Oceania.',
     'Clamp marker latitude to [-78,80]; Antarctica marker at [18,-76].',
   ],
+  simplification,
 }, null, 2) + '\n');
+console.log(JSON.stringify(simplification, null, 2));
 console.log(`Generated ${countryMetadata.length} ISO and ${additional.length} additional polygon features (${features.length} total).`);

@@ -33,5 +33,5 @@ export default defineConfig({
   base: process.env.BASE_PATH || '/',
   plugins: [localData()],
   build: { target: 'es2022' },
-  test: { include: ['tests/**/*.test.ts'] },
+  test: { include: ['tests/**/*.test.{ts,mjs}'] },
 });

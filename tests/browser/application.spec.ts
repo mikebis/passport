@@ -113,6 +113,47 @@ test('map tooltip includes name, code and current status', async ({ page }) => {
   await expect(page.getByRole('tooltip')).toContainText('Unvisited');
 });
 
+test('tooltip reuses content and dimensions within one territory and refreshes after changes', async ({ page }) => {
+  await ready(page);
+  const result = await page.evaluate(() => {
+    const tooltip = document.querySelector<HTMLElement>('.map-tooltip')!;
+    const country = document.querySelector('path[data-country="BRA"]')!;
+    country.dispatchEvent(new MouseEvent('pointermove', { clientX: 300, clientY: 200 }));
+    const title = tooltip.firstElementChild;
+    const measure = tooltip.getBoundingClientRect.bind(tooltip);
+    let measurements = 0;
+    tooltip.getBoundingClientRect = () => { measurements++; return measure(); };
+    for (let index = 0; index < 40; index++) {
+      country.dispatchEvent(new MouseEvent('pointermove', { clientX: 300 + index, clientY: 200 }));
+    }
+    return { sameTitle: tooltip.firstElementChild === title, measurements, left: tooltip.style.left };
+  });
+  expect(result).toEqual({ sameTitle: true, measurements: 0, left: '355px' });
+  await page.locator('.microstate-marker[data-country="NRU"] .marker-target').hover({ force: true });
+  await expect(page.getByRole('tooltip')).toContainText('Nauru');
+  await findCountry(page, 'BRA');
+  await page.locator('.status-choice[data-status="visited"]').click();
+  await page.locator('path[data-country="BRA"]').dispatchEvent('pointermove', { clientX: 400, clientY: 300 });
+  await expect(page.getByRole('tooltip')).toContainText('Visited');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole('tooltip')).toBeHidden();
+  await page.locator('path[data-country="custom:CNM"]').dispatchEvent('pointermove', { clientX: 389, clientY: 843 });
+  await expect(page.getByRole('tooltip')).toContainText('Cyprus UN Buffer Zone');
+  const box = await page.getByRole('tooltip').boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(8);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(382);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(836);
+});
+
+test('country geometry stays fixed during map navigation', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await ready(page);
+  const paths = await page.locator('.country-boundary').evaluateAll(nodes => nodes.map(node => node.getAttribute('d')));
+  await page.getByRole('button', { name: 'Zoom in', exact: true }).click();
+  await expect(page.locator('.land-layer')).not.toHaveAttribute('transform', 'translate(0,0) scale(1)');
+  expect(await page.locator('.country-boundary').evaluateAll(nodes => nodes.map(node => node.getAttribute('d')))).toEqual(paths);
+});
+
 test('clustered microstates select the dot nearest the cursor', async ({ page }) => {
   await ready(page);
   for (const [id, name] of [['SMR', 'San Marino'], ['VAT', 'Vatican City'], ['LIE', 'Liechtenstein'], ['MCO', 'Monaco']]) {

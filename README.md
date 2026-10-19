@@ -242,7 +242,7 @@ npm run test:e2e
 Remove-Item Env:TEST_PRODUCTION
 ```
 
-## Static hosting and GitHub Pages
+## Static hosting and Azure Static Web Apps
 
 Publish **the contents of `dist`**, not the source directory. Root hosting needs
 no extra configuration. For project-subpath hosting, build with a trailing-slash
@@ -268,12 +268,41 @@ npm run test:e2e
 Remove-Item Env:BASE_PATH, Env:TEST_PRODUCTION, Env:TEST_BASE_PATH
 ```
 
-`.github/workflows/pages.yml` checks the application and exercises production
-builds at root and project subpaths. On `main` pushes or manual dispatches, it
-then builds for the Pages-provided base path and deploys. Pull requests validate
-without deploying. In a GitHub repository, select **GitHub Actions** under
-Settings > Pages > Build and deployment; adjust the workflow's branch if needed.
-No repository or live deployment has been created automatically.
+### Azure deployment
+
+`.github/workflows/azure-static-web-apps.yml` checks the application and exercises
+production builds at root and project subpaths. After all checks pass, pushes to
+`main` deploy to your existing **Azure Static Web Apps** resource. You can also
+run the workflow manually from the Actions tab with `main` selected. Pull
+requests and manual runs on other branches validate without deploying; no
+pull-request preview environments are created.
+
+The workflow reuses the deployment-token secret created by Azure when the
+resource was connected to this repository. If you need to add or replace it:
+
+1. In the Azure portal, open your Static Web App and select **Manage deployment
+   token** to copy its deployment token. The resource must allow deployment-token
+   authentication.
+2. In the GitHub repository, open **Settings > Secrets and variables > Actions**
+   and set the repository secret
+   `AZURE_STATIC_WEB_APPS_API_TOKEN_GREEN_MEADOW_0F3FFA603` to that token.
+   Do not commit the token or paste it into an issue.
+3. Push to `main`, or manually run the workflow on `main`. A deployment fails
+   with an explicit setup error if the secret is missing.
+
+The token identifies the existing Azure resource; the workflow does not create
+resources or change Azure settings. It explicitly rebuilds with `BASE_PATH=/`
+after the subpath checks, then uploads only the prebuilt `dist` directory using
+`Azure/static-web-apps-deploy`. Azure does not rebuild the app, and no API backend
+is deployed. GitHub Pages actions and permissions are not needed.
+This is the only deployment workflow; remove Azure-generated duplicate workflows
+if reconnecting the resource creates another one.
+
+**Moving your map:** browser storage belongs to its origin. Export your data
+from the old localhost/hosted address and import it at the Azure address to keep
+your places; deploying the application does not transfer browser-local data.
+Verify the workflow's deployment result and the Azure site's URL after publishing;
+local builds alone do not confirm a live deployment.
 
 ## Structure
 

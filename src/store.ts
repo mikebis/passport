@@ -146,7 +146,7 @@ export async function loadInitialState(
 
 export class TravelStore {
   private entries: LocationEntry[];
-  private listeners = new Set<() => void>();
+  private listeners = new Set<(origin: 'local' | 'remote') => void>();
   private byId: Map<string, LocationEntry>;
 
   constructor(
@@ -170,7 +170,7 @@ export class TravelStore {
     return entry.status;
   }
 
-  subscribe(listener: () => void): () => void {
+  subscribe(listener: (origin: 'local' | 'remote') => void): () => void {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
   }
@@ -183,15 +183,15 @@ export class TravelStore {
     entry.status = status;
     entry.updatedAt = new Date().toISOString();
     this.persist();
-    this.listeners.forEach((listener) => listener());
+    this.listeners.forEach((listener) => listener('local'));
   }
 
-  replace(entries: LocationEntry[]): void {
+  replace(entries: LocationEntry[], origin: 'local' | 'remote' = 'local'): void {
     const normalized = normalizeData(entries, this.registry);
     this.entries = normalized;
     this.byId = new Map(normalized.map((entry) => [entry.id, entry]));
     this.persist();
-    this.listeners.forEach((listener) => listener());
+    this.listeners.forEach((listener) => listener(origin));
   }
 
   persist(): void {

@@ -1,7 +1,8 @@
 # passport
 
 A small, local-first travel atlas. Color the places you have visited, called home,
-or want to visit. No account, backend, API key, analytics, or external map service.
+or want to visit. No required account, backend, API key, analytics, or external map
+service. Optional Google sign-in backs up your map to your private Drive app-data.
 
 ## Run
 
@@ -20,6 +21,99 @@ Open the local URL printed by Vite. To build static files, run `npm run build`;
 The map and sidebar start at the top of the page, without a logo header or map
 introduction. On desktop they sit side by side at full viewport height; on narrow
 screens the map appears above the sidebar.
+
+### Optional Google sign-in and Drive sync
+
+Open **Google Drive sync** in the sidebar footer and choose **Connect Google
+Drive**, then **Continue with Google**. Google resources are loaded only after
+this opt-in; local map use never contacts Google. The connection requires a
+configured public OAuth client ID (setup below).
+
+The first connection asks before backing up or replacing a map. If Drive and
+this device differ, choose **Use this device** or a **Google Drive version**,
+or cancel to pause synchronization. Each version can be downloaded in the normal
+import-compatible JSON format. Timestamps and subdivisions are compared and
+preserved, not just country colors. New remote changes require a choice even if
+this device has no pending edits; there is no automatic newest-wins merge.
+
+After linking, edits and imports save locally immediately and automatically sync
+after a short debounce. Cloud status, **Sync now**, retry and the last successful
+sync time are separate from browser-save warnings. Drive is checked before
+saving, on returning to the app, coming online and manual sync. It is not a
+real-time service. Offline edits remain local; return and reconnect to reconcile.
+
+This is a static browser-only integration: access tokens live only in memory.
+After reload or token expiry, click to reconnect. There is no refresh token,
+backend session, unattended sign-in, or secret bundled with the app.
+**Sign out** disconnects passport but **keeps the map on this device**. It does
+not sign out your Google account globally, revoke permissions or delete Drive
+data. Linking to a different Google account always requires confirmation.
+This is not a shared-device privacy vault: retained local travel data and pending
+backups remain readable in the browser.
+
+Drive access is limited to the non-sensitive `drive.appdata` scope, plus
+`openid email` to identify the selected account. The app cannot browse your other
+Drive files. App-data is private and hidden from normal Drive listings, not
+end-to-end encrypted. Revoke access in your Google Account's third-party
+connections; manage/delete stored app data through Google Drive's app settings.
+Deleting cloud history requires an explicit new backup decision in passport.
+
+Saves are **immutable versioned JSON snapshots**, not overwrites of one file.
+Concurrent device edits remain separate branches until you choose a version;
+resolving creates a new snapshot without deleting earlier copies. Snapshots use
+your Drive storage and are not automatically pruned. Rapid edits are grouped;
+large histories cost additional metadata-listing time. The app currently limits
+each snapshot to 5 MB and history to 10,000 files, and reports unsupported,
+incomplete or corrupt history without replacing it. Export backups before
+managing/removing app data. Normal exports remain `LocationEntry[]`; only hidden
+cloud files add a versioned synchronization envelope.
+
+Pending cloud operations and account-specific baselines use separate
+`passport:drive:*` browser keys. They never contain access tokens. Pending
+operations are associated with Google's stable account ID and cannot be replayed
+to another account. Conflicting changes in another tab pause synchronization
+until comparison; signing out stops synchronization in other open tabs too.
+If browser storage prevents notifying other tabs, passport warns you to sign out
+in those tabs manually.
+
+### Configure Google (optional)
+
+1. Create/select a project in [Google Cloud Console](https://console.cloud.google.com/).
+   Enable **Google Drive API** under APIs & Services.
+2. Configure **Google Auth Platform** branding, audience and data access.
+   Request only `openid`, `email` and
+   `https://www.googleapis.com/auth/drive.appdata`. For an External app in Testing,
+   add the Google accounts that will test it as test users. Google Workspace
+   policies can restrict access even when consent is granted.
+3. Create an OAuth client of type **Web application**. Add authorized JavaScript
+   origins `http://localhost`, `http://localhost:5173` and
+   `https://green-meadow-0f3ffa603.4.azurestaticapps.net` (plus any actual custom
+   production origin). Origins contain scheme, hostname and port, not paths:
+   `/passport-test/` is not part of an origin. Use localhost for OAuth testing;
+   Google can reject raw-IP origins such as `127.0.0.1`.
+4. Copy `.env.example` to ignored `.env.local` and set `VITE_GOOGLE_CLIENT_ID`
+   to the public client ID. **Never supply a client secret** to this frontend.
+   Start your own localhost server with
+   `npm run dev -- --host localhost --port 5174`, authorizing
+   `http://localhost:5174` too if your existing port 5173 server must stay running.
+   Environment changes require restarting only your own relevant Vite process.
+5. For Azure builds, set the public repository Actions variable
+   **GOOGLE_CLIENT_ID** under Settings > Secrets and variables > Actions >
+   Variables. It is not the Azure deployment-token secret. The workflow injects
+   it into the final Vite production rebuild. Without it, deployment remains
+   usable locally but explains that Google sync is unconfigured.
+6. Before opening access to general users, review Google's publishing,
+   branding/domain-verification and privacy-policy requirements for your app.
+   Testing restrictions and organizational policies are distinct from the
+   app-data scope's non-sensitive classification.
+
+Test real consent and a backup using your configured client, reconnect, sign out,
+and verify the map on a second device. Automated tests mock Google SDK and REST
+responses and do not prove live OAuth/Drive setup. CI uses a synthetic client ID
+only in mocked validation builds; it is never a production fallback.
+
+See [Google's browser token model](https://developers.google.com/identity/oauth2/web/guides/use-token-model)
+and [Drive app-data guide](https://developers.google.com/workspace/drive/api/guides/appdata).
 
 The sidebar's **Theme** picker changes the entire application:
 **Classic** uses a bright blue ocean, silver-gray land, white borders, green
@@ -272,14 +366,25 @@ Natural Earth's nine US Minor Outlying Islands map units are assigned to UMI
 instead of USA. The 17 cataloged non-ISO map units are matched by their source `GU_A3` IDs
 and promoted into independently interactive features, with `custom:` IDs.
 Custom polygons render after ISO polygons so source overlays remain selectable.
-No parent geometry is subtracted or merged, and no new polygons are fabricated.
-Boundaries reflect the source's cartographic conventions, not a political claim
-or a legal/boundary-survey reference.
+Additional areas do not subtract from or merge their parent geometry, and no new
+polygons are fabricated.
+
+**Crimea, including Sevastopol, is part of Ukraine on this map.** Generation
+reassigns the source's Crimean polygon from Russia to Ukraine and joins its
+existing arcs with mainland Ukraine, removing the internal dividing line without
+redrawing the coast. This targeted source override leaves every other boundary
+assignment unchanged. Crimea follows Ukraine's saved status, tooltip, clicks,
+and sidebar highlight; existing Ukraine/Russia statuses and country totals are
+not migrated or changed.
+Other boundaries retain the source's cartographic conventions; this map is not
+a legal/boundary-survey reference.
 
 ### Balanced map detail
 
-The generated map retains all **266 places, 4,292 polygon components, and 4,312
-rings**, including tiny islands and holes. Shared-arc spherical Visvalingam
+The normalized map retains all **266 places, 4,291 polygon components, and 4,311
+rings**, including tiny islands and holes. Joining Crimea to mainland Ukraine
+accounts for one fewer component/ring than the original source grouping, without
+losing land. Shared-arc spherical Visvalingam
 simplification reduces stored vertices from 482,164 to 124,809 (about **74% fewer**)
 and reference SVG path characters by about **76%**. The geographic asset shrinks
 from 4.52 MB to 1.31 MB, or roughly 1.50 MB to 0.48 MB gzip.
@@ -287,7 +392,7 @@ from 4.52 MB to 1.31 MB, or roughly 1.50 MB to 0.48 MB gzip.
 Small or sensitive shapes are protected by restoring their original shared arcs
 if simplification collapses a ring, changes its winding, or changes its area by
 more than 10%. Whole-feature area changes are limited to 1%. Markers and
-microstate eligibility still use the original source geometry.
+microstate eligibility use unsimplified geometry, including the Crimea correction.
 The 10% base retention setting applies before these safeguards; the final
 protected map retains about 26% of its original vertices.
 
@@ -429,6 +534,9 @@ local builds alone do not confirm a live deployment.
 
 `src/main.ts` wires the shell, recovery, import/export, and counters;
 `store.ts` owns validation and persistence; `geography.ts` loads bundled data;
+`google-auth.ts` handles optional Google authorization, `google-drive.ts` the
+immutable private snapshot protocol, and `sync.ts` / `sync-ui.ts` cloud
+coordination and sidebar controls;
 `map.ts` owns D3 rendering/navigation; `sidebar.ts` handles search/grouping;
 `popover.ts` provides shared accessible status actions. CSS lives in
 `src/styles`, reproducible geography scripts in `scripts`, and tests in `tests`.

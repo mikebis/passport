@@ -1,8 +1,10 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { topology } from 'topojson-server';
+import { feature as decodeFeature } from 'topojson-client';
 import { geoArea, geoCentroid } from 'd3';
 import iso from 'i18n-iso-countries';
 import { RETAINED_DETAIL, simplifyGeography } from './simplify-geography.mjs';
+import { correctCrimea } from './correct-crimea.mjs';
 
 const earthRevision = 'ca96624a56bd078437bca8184e78163e5039ad19';
 const countriesRevision = 'c2ac0049c14edcf2436c7aa1b2493222a020b462';
@@ -66,6 +68,15 @@ for (const source of world.features) {
 
 const features = [];
 const registry = [];
+function geographicMetadata(boundary) {
+  const centroid = geoCentroid(boundary);
+  const marker = [centroid[0], Math.max(-78, Math.min(80, centroid[1]))];
+  if (boundary.id === 'ATA') marker.splice(0, 2, 18, -76);
+  return {
+    marker,
+    microstate: geoArea(boundary) < 0.00008 || ['VAT', 'MCO', 'SMR', 'LIE', 'AND', 'NRU', 'TUV', 'ATA'].includes(boundary.id),
+  };
+}
 for (const country of countryMetadata.sort((a, b) => a.cca3.localeCompare(b.cca3))) {
   const id = country.cca3;
   const polygons = grouped.get(id);
@@ -84,12 +95,9 @@ for (const country of countryMetadata.sort((a, b) => a.cca3.localeCompare(b.cca3
   // supported group rather than introducing a seventh accordion.
   if (id === 'BVT') continent = 'Africa';
   if (id === 'SGS') continent = 'South America';
-  const centroid = geoCentroid(feature);
-  const marker = [centroid[0], Math.max(-78, Math.min(80, centroid[1]))];
-  if (id === 'ATA') marker.splice(0, 2, 18, -76);
   registry.push({
     id, kind: 'iso', alpha2: country.cca2, name: country.name.common, continent,
-    marker, microstate: geoArea(feature) < 0.00008 || ['VAT', 'MCO', 'SMR', 'LIE', 'AND', 'NRU', 'TUV', 'ATA'].includes(id),
+    ...geographicMetadata(feature),
   });
 }
 
@@ -101,18 +109,20 @@ for (const entry of additional) {
     geometry: source.geometry,
   };
   features.push(boundary);
-  const centroid = geoCentroid(boundary);
   registry.push({
     id: entry.id, kind: 'custom', name: entry.name, continent: entry.continent,
-    marker: [centroid[0], Math.max(-78, Math.min(80, centroid[1]))],
-    microstate: geoArea(boundary) < 0.00008,
+    ...geographicMetadata(boundary),
   });
 }
 
-const detailed = topology({
+const detailed = correctCrimea(topology({
   countries: { type: 'FeatureCollection', features },
   background: { type: 'FeatureCollection', features: background },
-}, 1e6);
+}, 1e6));
+for (const id of ['UKR', 'RUS']) {
+  const geometry = detailed.objects.countries.geometries.find((entry) => entry.id === id);
+  Object.assign(registry.find((entry) => entry.id === id), geographicMetadata(decodeFeature(detailed, geometry)));
+}
 const { world: result, simplification } = simplifyGeography(detailed);
 await writeFile('data/world-10m.json', JSON.stringify(result));
 await writeFile('data/registry.json', JSON.stringify(registry, null, 2) + '\n');
@@ -133,12 +143,13 @@ await writeFile('data/provenance.json', JSON.stringify({
   registry: { source: registryUrl, revision: countriesRevision, license: 'ODbL-1.0', attribution: 'Country metadata derived from mledoze/countries; derived registry available under ODbL-1.0.' },
   transformations: [
     'Group ISO_A3_EH features; override ADM0_A3=UMI to UMI.',
+    'Assign the Crimean peninsula, including Sevastopol, to UKR instead of RUS; merge its existing arcs with mainland Ukraine before simplification to remove the internal border. Preserve all other boundary assignments.',
     'Promote exactly the 17 GU_A3 map units in additional-territories.json with custom: source IDs.',
     'Render custom polygons after ISO polygons to preserve selectable source overlays; statuses are independent.',
     'Additional Cypriot areas use Europe to match the existing CYP registry entry. All additions are non-ISO travel entries, not recognition claims.',
     `Simplify shared arcs with spherical Visvalingam weights, targeting ${RETAINED_DETAIL * 100}% retained detail; quantize at 1e6.`,
     'Preserve every polygon and hole. Restore shared arcs if a ring collapses, changes winding or exceeds 10% area change; protect features exceeding 1% area change.',
-    'Compute markers and microstate eligibility from original source geometry. Never synthesize polygons.',
+    'Compute markers and microstate eligibility from unsimplified geometry, using the corrected UKR/RUS boundaries. Never synthesize polygons.',
     'Use one continent per territory; Americas split by subregion; BVT Africa, SGS South America, other southern dependencies Oceania.',
     'Clamp marker latitude to [-78,80]; Antarctica marker at [18,-76].',
   ],

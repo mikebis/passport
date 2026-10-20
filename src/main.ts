@@ -5,11 +5,12 @@ import { decodeWorld, loadJson, validateRegistry } from './geography';
 import { createMap } from './map';
 import { StatusPopover } from './popover';
 import { createSidebar } from './sidebar';
-import { loadInitialState, parseData, TravelStore, type StorageAccess } from './store';
+import { loadInitialState, parseData, TravelStore } from './store';
 import { errorMessage, type LocationEntry, type SelectTerritory } from './types';
 import type { SceneryState } from './scenery';
 import { applyTheme, ThemePreference } from './theme';
 import { THEMES } from './themes';
+import { createGoogleSync } from './sync-ui';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const themePreference = new ThemePreference(() => window.localStorage);
@@ -82,7 +83,7 @@ async function boot(): Promise<void> {
   const [rawRegistry, rawWorld] = await Promise.all([loadJson('registry.json'), loadJson('world-10m.json')]);
   const registry = validateRegistry(rawRegistry);
   const world = decodeWorld(rawWorld, registry);
-  let storage: StorageAccess | undefined;
+  let storage: Storage | undefined;
   let storageWarning: string | undefined;
   try {
     storage = window.localStorage;
@@ -127,7 +128,7 @@ async function boot(): Promise<void> {
           </div>
           <div class="journey-progress"><div><span>Your world in color</span><strong id="colored-count">0 / ${registry.length}</strong></div><div class="progress-track"><span id="progress-fill"></span></div></div>
           <div id="country-sidebar" class="sidebar-content"></div>
-          <footer class="sidebar-footer"><p id="save-status"><span class="save-indicator"></span> Changes stay in your browser</p><div class="data-actions"><button id="export-data" class="button primary">Export data <span aria-hidden="true">\u2197</span></button><button id="copy-data" class="button secondary">Copy JSON</button><button id="import-data" class="text-button">Import</button></div><input id="import-file" type="file" accept=".json,application/json" hidden /><p class="data-license">Country metadata: <a href="https://github.com/mledoze/countries" target="_blank" rel="noopener">mledoze/countries</a> \u00b7 <a href="${import.meta.env.BASE_URL}data/COUNTRIES-LICENSE.txt" target="_blank" rel="noopener">ODbL</a></p></footer>
+          <footer class="sidebar-footer"><p id="save-status"><span class="save-indicator"></span> Changes stay in your browser</p><div id="google-sync"></div><div class="data-actions"><button id="export-data" class="button primary">Export data <span aria-hidden="true">\u2197</span></button><button id="copy-data" class="button secondary">Copy JSON</button><button id="import-data" class="text-button">Import</button></div><input id="import-file" type="file" accept=".json,application/json" hidden /><p class="data-license">Country metadata: <a href="https://github.com/mledoze/countries" target="_blank" rel="noopener">mledoze/countries</a> \u00b7 <a href="${import.meta.env.BASE_URL}data/COUNTRIES-LICENSE.txt" target="_blank" rel="noopener">ODbL</a></p></footer>
         </aside>
       </main>
       <div id="warning" class="warning-banner" role="alert" hidden></div>
@@ -240,6 +241,7 @@ async function boot(): Promise<void> {
   if (initial.recovery) store.persist();
   else if (initial.warning || storageWarning) warn(initial.warning || storageWarning!);
   else if (initial.cleanupWarning) warn(initial.cleanupWarning, true);
+  createGoogleSync(element('#google-sync'), store, registry, storage, () => popover.close(false));
 
   element('#export-data').addEventListener('click', () => {
     download(store.exportJson(), 'passport-data.json');

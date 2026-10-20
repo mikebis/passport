@@ -16,6 +16,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # Used only with mocked provider requests in validation builds.
+      VITE_GOOGLE_CLIENT_ID: passport-validation.apps.googleusercontent.com
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -52,6 +55,7 @@ jobs:
         run: npm run build
         env:
           BASE_PATH: /
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
       - name: Deploy to Azure Static Web Apps
         if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: Azure/static-web-apps-deploy@v1

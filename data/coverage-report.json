@@ -1520,9 +1520,9 @@
     {
       "id": "RUS",
       "kind": "iso",
-      "polygons": 214,
-      "rings": 214,
-      "areaSteradians": 0.4161291537939861,
+      "polygons": 213,
+      "rings": 213,
+      "areaSteradians": 0.41545931232968203,
       "marker": false
     },
     {
@@ -1858,7 +1858,7 @@
       "kind": "iso",
       "polygons": 4,
       "rings": 4,
-      "areaSteradians": 0.014039571737596044,
+      "areaSteradians": 0.0147094132019001,
       "marker": false
     },
     {
@@ -2136,9 +2136,9 @@
   ],
   "complexity": {
     "vertices": 124809,
-    "polygons": 4292,
-    "rings": 4312,
-    "pathCharacters": 2070166,
-    "bytes": 1314489
+    "polygons": 4291,
+    "rings": 4311,
+    "pathCharacters": 2069879,
+    "bytes": 1314474
   }
 }

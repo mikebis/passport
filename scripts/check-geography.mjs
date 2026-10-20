@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { feature } from 'topojson-client';
-import { geoArea, geoMercator, geoPath } from 'd3';
+import { geoArea, geoContains, geoMercator, geoPath } from 'd3';
 import iso from 'i18n-iso-countries';
 import { geographyMetrics, geometrySignature } from './simplify-geography.mjs';
 
@@ -30,6 +30,21 @@ assert.deepEqual(registry.filter((entry) => entry.kind === 'custom').map((entry)
 assert.deepEqual(registry.map((entry) => entry.id).sort(), allIds);
 assert.deepEqual(features.map((entry) => entry.id).sort(), allIds);
 assert.equal(world.objects.background.geometries.length, 0, 'All cataloged background units must be interactive.');
+const ukraine = features.find((entry) => entry.id === 'UKR');
+const russia = features.find((entry) => entry.id === 'RUS');
+for (const [name, point] of [
+  ['Simferopol', [34.1024, 44.9521]], ['Sevastopol', [33.55, 44.6]],
+  ['Yalta', [34.165, 44.495]], ['Kerch', [36.47, 45.356]],
+]) {
+  assert(geoContains(ukraine, point), `${name} must be part of Ukraine.`);
+  assert(!geoContains(russia, point), `${name} must not be part of Russia.`);
+}
+for (const [name, point, owner, other] of [
+  ['Kyiv', [30.52, 50.45], ukraine, russia], ['Kherson', [32.65, 46.68], ukraine, russia],
+  ['Moscow', [37.6173, 55.7558], russia, ukraine], ['Taman', [36.75, 45.2], russia, ukraine],
+]) {
+  assert(geoContains(owner, point) && !geoContains(other, point), `${name}: incorrect mainland boundary assignment.`);
+}
 const groups = new Set(['Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America', 'Antarctica']);
 const path = geoPath(geoMercator().scale(150).translate([500, 350]));
 const report = [];

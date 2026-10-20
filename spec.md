@@ -8,6 +8,10 @@
 **Architecture:** Pure Frontend / Zero Backend / Static File Persistence.
 The goal is to build a minimal, modern, and aesthetic interactive world map SPA where users can track their relationship with countries using four distinct status states (**Visited**, **Lived/Living**, **Want to Visit**, or **Unvisited**).
 
+Google sign-in and Drive synchronization are optional. Without an account or a
+configured public OAuth client ID, the entire local travel-map experience remains
+available. Only explicit Google opt-in loads external Google Identity Services.
+
 ---
 
 ## 2. Updated Functional Specifications
@@ -19,6 +23,7 @@ The goal is to build a minimal, modern, and aesthetic interactive world map SPA 
 * **Global Coverage:** Complete ISO 3166-1 alpha-3 coverage, including all UN member states, dependencies, microstates (e.g., Vatican City, Monaco, San Marino, Liechtenstein, Andorra, Nauru, Tuvalu), and island territories.
 * **Additional Non-ISO Areas:** Independently track all 17 non-ISO map units already present in the bundled Natural Earth source, for 266 total places. The explicit catalog in `data/additional-territories.json` includes Kosovo, Northern Cyprus, Somaliland, Akrotiri, Dhekelia, the Cyprus UN Buffer Zone, both Korean DMZ areas, Guantanamo Bay Naval Base, Siachen Glacier, the Southern Patagonian Ice Field, Bir Tawil, the Paracel and Spratly Islands, Bajo Nuevo Bank, Serranilla Bank, and Scarborough Reef. Use stable `custom:` identifiers derived from source map-unit IDs, not invented official ISO codes.
 * **Boundary and Status Independence:** Preserve existing ISO polygons and use the additional areas' real source geometry. Render custom overlays above ISO polygons where necessary. Each entry has an independent status; changing an additional area does not change a related country's status. Inclusion is a travel-tracking convention, not a political recognition claim or a comprehensive worldwide dispute list.
+* **Crimea Boundary Correction:** Assign the entire Crimean peninsula, including Sevastopol, to Ukraine (`UKR`), overriding the source's Russia grouping. Normalize the existing shared topology before simplification, joining Crimea to mainland Ukraine and removing the internal dividing line without redrawing coastlines or changing other boundary assignments. Crimea follows Ukraine's status, tooltip, click target and sidebar preview. Preserve existing saved Ukraine/Russia statuses, IDs, subdivisions and country/continent totals; do not add a separate Crimea entry or migrate country statuses.
 * **Balanced Boundary Detail:** Generate one simplified, quantized TopoJSON asset from the pinned 1:10m source. Simplify shared arcs together, retaining recognizable shapes and every territory, polygon component, and hole. Protect collapsed/inverted rings and excessive area changes; derive marker metadata from original geometry. Require at least 70% fewer stored vertices and reference SVG characters than the detailed source topology, with a geographic asset under 1.5 MB. High zoom intentionally shows less coastal detail; no runtime detail switching is required.
 * **Microstate Visualization (Dual-Layer):**
 * Microstates are rendered as both standard **boundary polygons** AND **status-colored dots/pins** overlaying their geographic centroids when zoomed out.
@@ -56,6 +61,46 @@ The goal is to build a minimal, modern, and aesthetic interactive world map SPA 
 * **Sidebar Map Preview:** Hovering or keyboard-focusing any sidebar place temporarily adds a contrasting map outline, preserving its status fill; tiny-place markers also receive a stronger ring. Include additional non-ISO territories and Antarctica. Hover takes priority over a different focused row, falling back to that row when hover ends or clearing if neither applies. Clear stale previews when filtering/removing rows or collapsing their group. Previewing does not pan/zoom/scroll the map, open tooltips/popovers, change status/storage, or overwrite clicked selection.
 
 ### 2.3 Data Persistence & Extensible Schema
+
+#### Optional Google authentication and synchronization
+
+* Use the GIS browser token model and authenticated Google UserInfo with
+  `openid email https://www.googleapis.com/auth/drive.appdata`. Associate account
+  state with stable `sub`, not email. Store access tokens only in memory.
+  Require user-driven reconnection after reload/expiry; no backend, client secret
+  or refresh token. Missing configuration must not block local use.
+* Store private hidden app-data JSON snapshots, not ordinary shared Drive files.
+  Use versioned envelopes preserving complete normalized entries, timestamps and
+  subdivisions. Keep imports/exports and committed data as `LocationEntry[]`.
+* Debounce automatic saves, serialize work, persist account-owned pending
+  operations separately from travel data and verify every acknowledged upload.
+  Retrying uses a fixed pre-generated appDataFolder file ID. Never overwrite or
+  automatically delete a snapshot. Discover branches through validated lineage
+  metadata, with complete pagination, then download only current candidate heads.
+* First connection, different-account adoption, missing cloud history and
+  differing remote versions require explicit choices. Ask Use this device,
+  Use Google Drive (or another preserved version), or Cancel; allow downloading
+  versions first. No newest-wins rule or automatic status merge. Concurrent
+  saves preserve both branches; resolution creates a new snapshot referencing
+  the accepted heads. Invalidate choices after intervening edits.
+* Check before saving, on connection, returning to a visible app, coming online
+  and manual Sync now. Suspend unsafe/background work and surface bounded retry,
+  permission, popup, scope, expiry, offline, malformed-data and quota failures.
+  Invalid/denied/incomplete data must not be interpreted as an empty Drive.
+* Show account, independent cloud state, last successful sync, Sync now/retry,
+  reconnect and sign-out controls in the existing sidebar. Use theme tokens,
+  native keyboard controls, accessible modal choices and restrained live status.
+  Local-save and cloud failures must not clear or mask each other.
+* Sign-out drops app credentials but retains this device's map and pending
+  account-owned backups. It neither logs out Google globally nor revokes grants
+  or deletes Drive data. Another account cannot silently adopt that map or replay
+  a previous account's pending operations. Cross-tab changes pause unsafe work;
+  sign-out stops synchronization in other open tabs.
+* Document opt-in networking, retained browser data, non-end-to-end-encrypted
+  private app-data, snapshot storage growth/no pruning, current 5 MB snapshot and
+  10,000-history-file limits, Google setup/origins/test users, public build-time
+  client ID and production configuration. Real provider consent/storage requires
+  a configured client and manual validation; CI mocks must not use personal data.
 
 * **Sub-national Ready JSON Schema:** The data structure supports country-level entries out of the box while allowing sub-national subdivisions (e.g., `US-CA`, `CA-ON`) under a `subdivisions` array in the same JSON object without breaking schema compatibility.
 

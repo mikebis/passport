@@ -44,13 +44,25 @@
 .antarctica { border-top: 1px solid var(--border); margin: 14px 0 0; padding-top: 14px; }
 .antarctica h3 { color: var(--subtle); font-size: 9px; font-weight: 500; padding: 0 14px; letter-spacing: .4px; }
 .empty-state { color: var(--muted); line-height: 1.7; padding: 14px; font-size: 12px; }
-.sidebar-footer { border-top: 1px solid var(--border); padding: 16px 24px 14px; margin-top: auto; }
+.sidebar-footer { border-top: 1px solid var(--border); padding: 16px 24px 14px; margin-top: auto; max-height: 30dvh; overflow: auto; flex-shrink: 0; }
 .sidebar-footer > p:first-child { color: var(--muted); font-size: 10px; margin: 0 0 12px; display: flex; gap: 6px; align-items: center; }
 .save-indicator { width: 5px; height: 5px; display: inline-block; border-radius: 50%; background: var(--accent-soft); }
 .data-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .data-actions .button { padding: 10px 12px; }
 .data-license { color: var(--subtle); font-size: 8px; line-height: 1.5; margin: 12px 0 0; }
 .data-license a { text-decoration-color: var(--border); text-underline-offset: 2px; }
+.google-sync { margin: 0 0 12px; font-size: 11px; color: var(--muted); }
+.google-sync summary { cursor: pointer; padding: 5px 0; color: var(--ink); }
+.google-sync-panel { max-height: 220px; overflow: auto; padding: 4px 2px; }
+.google-sync-panel p { margin: 5px 0 10px; line-height: 1.5; overflow-wrap: anywhere; }
+.google-account { font-weight: 600; color: var(--ink); }
+.google-sync-last { font-size: 10px; }
+.google-sync-warning { color: var(--warning-ink); background: var(--warning); padding: 6px; }
+.sync-conflict { max-height: 85dvh; overflow: auto; }
+.sync-versions { display: grid; gap: 12px; margin: 16px 0; }
+.sync-version { border: 1px solid var(--border); border-radius: var(--radius-small); padding: 12px; }
+.sync-version .button { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.sync-version p { font-size: 12px; }
 @media (max-width: 1000px) { .sidebar-heading { padding-inline: 22px; } .sidebar-footer { padding-inline: 20px; } .data-actions { gap: 6px; } .data-actions .button { padding-inline: 10px; } }
 @media (max-width: 720px) {
   .sidebar { height: auto; min-height: 0; border-left: 0; border-top: 1px solid var(--border); }
@@ -58,5 +70,5 @@
   .sidebar-content { flex: none; }
   .country-groups { max-height: 430px; }
   .travel-stats { padding-top: 24px; }
-  .sidebar-footer { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+  .sidebar-footer { padding-bottom: max(20px, env(safe-area-inset-bottom)); max-height: none; overflow: visible; }
 }

@@ -62,8 +62,9 @@ describe('protected geographic simplification', () => {
     expect(metrics.pathCharacters).toBeLessThanOrEqual(simplification.before.pathCharacters * .3);
     expect(metrics.bytes).toBeLessThan(1_500_000);
     expect(gzipSync(raw).length).toBeLessThan(550_000);
-    expect(metrics.polygons).toBe(4292);
-    expect(metrics.rings).toBe(4312);
+    // Joining Crimea to Ukraine removes one internal border, not source land.
+    expect(metrics.polygons).toBe(4291);
+    expect(metrics.rings).toBe(4311);
     expect(world.objects.countries.geometries).toHaveLength(266);
     expect(geometrySignature(world)).toBe(simplification.geometrySignature);
   });

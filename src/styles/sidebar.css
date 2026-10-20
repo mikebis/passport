@@ -30,7 +30,7 @@
 .continent summary::-webkit-details-marker { display: none; }
 .continent summary::before { content: '\203A'; color: var(--subtle); font-size: 17px; margin-right: 10px; transform: rotate(0); }
 .continent[open] summary::before { transform: rotate(90deg); }
-.continent-count { font-size: 10px; font-weight: 400; color: var(--subtle); margin-left: auto; }
+.continent-count { font-size: 10px; font-weight: 400; color: var(--subtle); margin-left: auto; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .country-row { display: flex; align-items: center; gap: 9px; width: 100%; padding: 10px 14px; border: 0; border-radius: var(--radius-small); background: transparent; text-align: left; min-height: 42px; }
 .country-row:hover { background: var(--hover); }
 .country-row[data-status="visited"] { background: var(--visited-tint); }

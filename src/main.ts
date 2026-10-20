@@ -217,7 +217,7 @@ async function boot(): Promise<void> {
     if (sceneryState) syncSceneryControls(sceneryState);
     showThemeWarning();
   });
-  createSidebar(element('#country-sidebar'), registry, store, selectCountry);
+  createSidebar(element('#country-sidebar'), registry, store, selectCountry, map.previewCountry);
   element('#zoom-in').addEventListener('click', map.zoomIn);
   element('#zoom-out').addEventListener('click', map.zoomOut);
   element('#reset-map').addEventListener('click', map.reset);

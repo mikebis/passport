@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import registryJson from '../data/registry.json';
 import { validateRegistry } from '../src/geography';
-import { filterTerritories } from '../src/sidebar';
+import { continentProgress, filterTerritories } from '../src/sidebar';
 import additional from '../data/additional-territories.json';
-import { territorySymbol } from '../src/types';
+import { CONTINENTS, territorySymbol, type TravelStatus } from '../src/types';
+import { TravelStore } from '../src/store';
 
 const registry = validateRegistry(registryJson);
 
@@ -18,6 +19,57 @@ describe('registry and sidebar organization', () => {
     expect(registry.filter((country) => country.continent === 'Antarctica').map((country) => country.id)).toEqual(['ATA']);
     expect(registry.find((country) => country.id === 'VAT')?.microstate).toBe(true);
     expect(registry.find((country) => country.id === 'UMI')).toBeDefined();
+  });
+
+  describe('continent travel progress', () => {
+    it('derives every ISO denominator from the registry, including separate Antarctica', () => {
+      const progress = continentProgress(registry, () => 'unvisited');
+      for (const continent of [...CONTINENTS, 'Antarctica'] as const) {
+        expect(progress.get(continent)).toEqual({
+          completed: 0,
+          total: registry.filter((country) => country.kind === 'iso' && country.continent === continent).length,
+        });
+      }
+      expect([...progress.values()].reduce((sum, count) => sum + count.total, 0)).toBe(249);
+      expect(progress.get('Antarctica')).toEqual({ completed: 0, total: 1 });
+      const estonia = registry.filter((country) => country.id === 'EST');
+      expect(continentProgress(estonia, () => 'visited').get('Europe')).toEqual({ completed: 1, total: 1 });
+    });
+
+    it('counts visited and lived once, excluding wishlist, unvisited and every custom territory', () => {
+      const statuses = new Map<string, TravelStatus>([
+        ['EST', 'visited'], ['FRA', 'lived'], ['DEU', 'want_to_visit'], ['ATA', 'lived'],
+        ...registry.filter((country) => country.kind === 'custom').map((country): [string, TravelStatus] => [country.id, 'visited']),
+      ]);
+      const requested: string[] = [];
+      const progress = continentProgress(registry, (id) => {
+        requested.push(id);
+        return statuses.get(id) ?? 'unvisited';
+      });
+      expect(progress.get('Europe')?.completed).toBe(2);
+      expect(progress.get('Antarctica')).toEqual({ completed: 1, total: 1 });
+      expect([...progress.values()].reduce((sum, count) => sum + count.completed, 0)).toBe(3);
+      expect(requested).toHaveLength(249);
+      expect(requested.every((id) => !id.startsWith('custom:'))).toBe(true);
+    });
+
+    it('uses current top-level status only, not subdivisions or past visits', () => {
+      const store = new TravelStore([{
+        id: 'USA', name: 'United States', continent: 'North America', status: 'unvisited',
+        subdivisions: [{ id: 'US-CA', name: 'California', continent: 'North America', status: 'lived' }],
+      }], registry, undefined, () => {});
+      const completed = () => continentProgress(registry, (id) => store.status(id)).get('North America')?.completed;
+      expect(completed()).toBe(0);
+      store.setStatus('USA', 'visited');
+      expect(completed()).toBe(1);
+      store.setStatus('USA', 'lived');
+      expect(completed()).toBe(1);
+      store.setStatus('USA', 'want_to_visit');
+      expect(completed()).toBe(0);
+      store.setStatus('USA', 'unvisited');
+      expect(completed()).toBe(0);
+      expect(store.snapshot().find((entry) => entry.id === 'USA')?.subdivisions?.[0]?.status).toBe('lived');
+    });
   });
   it('rejects invalid or incomplete registry data', () => {
     expect(() => validateRegistry([])).toThrow('249');

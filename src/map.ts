@@ -9,6 +9,7 @@ export interface MapControls {
   zoomOut: () => void;
   reset: () => void;
   focusCountry: (id: string) => void;
+  previewCountry: (id: string | undefined) => void;
   toggleSceneryMotion: () => void;
   toggleSceneryVisibility: () => void;
   setThemeArtwork: (artwork: string) => void;
@@ -37,11 +38,16 @@ export function createMap(
   const land = svg.append('g').attr('class', 'land-layer');
   const backgroundPaths = land.append('g').attr('class', 'background-layer').selectAll('path')
     .data(background.features).join('path');
-  const paths = land.append('g').selectAll('path')
+  const paths = land.append('g').selectAll<SVGPathElement, Boundaries['features'][number]>('path')
     .data(countries.features).join('path').attr('class', 'country-boundary')
     .attr('data-country', (boundary) => String(boundary.id))
     .attr('data-kind', (boundary) => getTerritory(String(boundary.id)).kind)
     .attr('vector-effect', 'non-scaling-stroke');
+  const countryPaths = new Map<string, SVGPathElement>();
+  paths.each(function (boundary) { countryPaths.set(String(boundary.id), this); });
+  const preview = land.append('path').attr('class', 'sidebar-country-preview')
+    .attr('vector-effect', 'non-scaling-stroke').attr('aria-hidden', 'true')
+    .style('display', 'none');
   const scenery = createScenery(svg.node()!, onSceneryState, artwork);
   const markers = svg.append('g').attr('class', 'marker-layer').selectAll('g')
     .data(registry.filter((country) => country.microstate)).join('g')
@@ -65,7 +71,19 @@ export function createMap(
   let tooltipHeight = 0;
   let navigationActive = false;
   let activeId: string | undefined;
+  let previewId: string | undefined;
   const markerPositions = new Map<string, [number, number]>();
+
+  function updatePreviewGeometry(): void {
+    if (previewId === undefined) {
+      preview.attr('d', null).attr('data-preview-country', null).style('display', 'none');
+      return;
+    }
+    const countryPath = countryPaths.get(previewId);
+    if (!countryPath) throw new Error(`Missing rendered boundary for ${previewId}`);
+    preview.attr('d', countryPath.getAttribute('d'))
+      .attr('data-preview-country', previewId).style('display', null);
+  }
 
   function nearestMarker(event: MouseEvent, fallback: string): string {
     const rect = svg.node()!.getBoundingClientRect();
@@ -166,6 +184,7 @@ export function createMap(
       .translate([width / 2, height * 0.58]);
     svg.attr('viewBox', `0 0 ${width} ${height}`);
     paths.attr('d', (boundary) => path(boundary));
+    updatePreviewGeometry();
     backgroundPaths.attr('d', (boundary) => path(boundary));
     behavior.extent([[0, 0], [width, height]])
       .translateExtent([[-width * 0.4, -height * 0.5], [width * 1.4, height * 1.5]]);
@@ -201,6 +220,13 @@ export function createMap(
     focusCountry: (id: string) => {
       activeId = id;
       update();
+    },
+    previewCountry: (id: string | undefined) => {
+      if (id !== undefined) getTerritory(id);
+      if (id === previewId) return;
+      previewId = id;
+      updatePreviewGeometry();
+      markers.classed('is-previewed', (country) => country.id === previewId);
     },
   };
 }

@@ -48,11 +48,24 @@ Click a polygon, small-territory dot, or place in the sidebar to select
 Scroll/double-click to zoom, drag to pan, or use the zoom and reset-view buttons.
 The searchable territory list provides the equivalent keyboard-accessible controls.
 Escape closes the status popover and returns focus to its trigger.
+Hover a sidebar place or focus it with the keyboard to temporarily outline it
+on the map, with a stronger marker ring for tiny places. This includes additional
+territories and Antarctica. Hover takes priority over a different focused row;
+leaving restores that row's preview, or clears the preview when no row is focused.
+Previews preserve status colors and clicked selection without moving the map,
+opening status choices, or changing your data.
 
 All 249 official ISO 3166-1 territories and 17 additional non-ISO areas have
 genuine bundled boundary polygons: **266 independently tracked places** in total.
 Tiny territories also have constant-size markers. The six continent groups use
 one assignment per territory; Antarctica has its own separate sidebar entry.
+Each continent shows **(visited or lived / total)** using only official ISO
+countries and territories; Antarctica shows its own **(0/1)** or **(1/1)**.
+Only Visited and Lived / Living contribute to the numerator, once per place.
+ISO wishlist and unvisited places remain in the denominator; additional non-ISO
+areas are excluded entirely. Search filters the list, not the progress values.
+These ISO-only ratios differ from the global counters and world-in-color progress,
+which still include additional areas (and wishlist in world-in-color).
 Mercator cannot show the poles: polar land is clipped by the viewport, with an
 Antarctica marker kept within the initial map extent. Pan/zoom to explore.
 Flags depend on platform emoji support; ISO country codes are always present.

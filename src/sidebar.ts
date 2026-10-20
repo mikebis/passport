@@ -1,5 +1,5 @@
 import type { TravelStore } from './store';
-import { CONTINENTS, NON_ISO_LABEL, territorySymbol, STATUS_LABELS, type SelectTerritory, type Territory } from './types';
+import { CONTINENTS, NON_ISO_LABEL, territorySymbol, STATUS_LABELS, type Continent, type SelectTerritory, type Territory, type TravelStatus } from './types';
 
 export function filterTerritories(registry: readonly Territory[], query: string): Territory[] {
   const needle = query.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('en');
@@ -8,11 +8,29 @@ export function filterTerritories(registry: readonly Territory[], query: string)
   ).sort((a, b) => a.name.localeCompare(b.name, 'en'));
 }
 
+export function continentProgress(
+  registry: readonly Territory[],
+  status: (id: string) => TravelStatus,
+): Map<Continent, { completed: number; total: number }> {
+  const progress = new Map<Continent, { completed: number; total: number }>(
+    ([...CONTINENTS, 'Antarctica'] as const).map((continent) => [continent, { completed: 0, total: 0 }]),
+  );
+  for (const country of registry) {
+    if (country.kind !== 'iso') continue;
+    const count = progress.get(country.continent)!;
+    count.total++;
+    const current = status(country.id);
+    if (current === 'visited' || current === 'lived') count.completed++;
+  }
+  return progress;
+}
+
 export function createSidebar(
   container: HTMLElement,
   registry: readonly Territory[],
   store: TravelStore,
   select: SelectTerritory,
+  preview: (id: string | undefined) => void,
 ): { focusSearch: () => void } {
   const label = document.createElement('label');
   label.className = 'search-box';
@@ -32,10 +50,29 @@ export function createSidebar(
   container.append(label, meta, groups);
   const expanded = new Map<string, boolean>(CONTINENTS.map((name) => [name, name === 'Europe']));
   const rows = new Map<string, { button: HTMLButtonElement; badge: HTMLElement; country: Territory }>();
+  const progressElements = new Map<Continent, { count: HTMLElement; label: HTMLElement }>();
+  let hoveredId: string | undefined;
+  let focusedId: string | undefined;
+
+  function updatePreview(): void {
+    preview(hoveredId ?? focusedId);
+  }
+
+  function addProgress(continent: Continent, parent: HTMLElement, label: HTMLElement): void {
+    const count = document.createElement('span');
+    count.className = 'continent-count';
+    count.setAttribute('aria-hidden', 'true');
+    parent.append(count);
+    progressElements.set(continent, { count, label });
+  }
 
   function render(): void {
+    hoveredId = undefined;
+    focusedId = undefined;
+    updatePreview();
     groups.replaceChildren();
     rows.clear();
+    progressElements.clear();
     const filtered = filterTerritories(registry, input.value);
     const searching = input.value.trim().length > 0;
     meta.textContent = searching ? `${filtered.length} matching places` : `${registry.length} places. A world of possibilities.`;
@@ -60,6 +97,10 @@ export function createSidebar(
       const name = document.createElement('span');
       name.className = 'country-name';
       name.textContent = country.name;
+      if (country.id === 'ATA') {
+        name.append(' ');
+        addProgress('Antarctica', name, button);
+      }
       if (country.kind === 'custom') {
         const kind = document.createElement('small');
         kind.className = 'territory-kind';
@@ -73,6 +114,27 @@ export function createSidebar(
       badge.className = 'status-dot';
       badge.setAttribute('aria-hidden', 'true');
       button.append(icon, name, code, badge);
+      button.addEventListener('pointerenter', (event) => {
+        if (event.pointerType === 'touch') return;
+        hoveredId = country.id;
+        updatePreview();
+      });
+      const leave = (): void => {
+        if (hoveredId !== country.id) return;
+        hoveredId = undefined;
+        updatePreview();
+      };
+      button.addEventListener('pointerleave', leave);
+      button.addEventListener('pointercancel', leave);
+      button.addEventListener('focus', () => {
+        focusedId = country.id;
+        updatePreview();
+      });
+      button.addEventListener('blur', () => {
+        if (focusedId !== country.id) return;
+        focusedId = undefined;
+        updatePreview();
+      });
       button.addEventListener('click', () => {
         const rect = button.getBoundingClientRect();
         select(country.id, { x: rect.left, y: rect.top, trigger: button });
@@ -90,14 +152,18 @@ export function createSidebar(
       const summary = document.createElement('summary');
       const name = document.createElement('span');
       name.textContent = continent;
-      const count = document.createElement('span');
-      count.className = 'continent-count';
-      count.textContent = String(countries.length);
-      summary.append(name, count);
+      summary.append(name);
+      addProgress(continent, summary, summary);
       details.append(summary);
       countries.forEach((country) => addRow(country, details));
       details.addEventListener('toggle', () => {
+        if (!details.isConnected) return;
         if (!searching) expanded.set(continent, details.open);
+        if (!details.open) {
+          if (hoveredId && rows.get(hoveredId)?.country.continent === continent) hoveredId = undefined;
+          if (focusedId && rows.get(focusedId)?.country.continent === continent) focusedId = undefined;
+          updatePreview();
+        }
       });
       groups.append(details);
     }
@@ -115,6 +181,13 @@ export function createSidebar(
   }
 
   function updateStatuses(): void {
+    const progress = continentProgress(registry, (id) => store.status(id));
+    for (const [continent, { count, label }] of progressElements) {
+      const { completed, total } = progress.get(continent)!;
+      count.textContent = `(${completed}/${total})`;
+      count.title = `${completed} of ${total} official ISO countries and territories visited or lived in`;
+      label.setAttribute('aria-description', count.title);
+    }
     for (const [id, { button, badge, country }] of rows) {
       const status = store.status(id);
       badge.className = `status-dot ${status}`;

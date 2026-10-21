@@ -26,9 +26,10 @@ async function findCountry(page: Page, id: string): Promise<void> {
   await expect(page.getByRole('dialog', { name: 'Change travel status' })).toBeVisible();
 }
 
-test('loads complete geometry, legend, six continent groups and Antarctica', async ({ page }) => {
+test('loads complete geometry, legend and seven collapsed continent groups', async ({ page }) => {
   await ready(page);
-  await expect(page.locator('.continent')).toHaveCount(6);
+  await expect(page.locator('.continent')).toHaveCount(7);
+  await expect(page.locator('.continent[open]')).toHaveCount(0);
   await expect(page.locator('.antarctica [data-country="ATA"]')).toHaveCount(1);
   await expect(page.locator('.map-legend')).toContainText('Lived / Living');
   for (const id of ['VAT', 'MCO', 'SMR', 'LIE', 'AND', 'NRU', 'TUV', 'UMI', 'BVT', 'TKL']) {
@@ -46,7 +47,6 @@ test('Classic reference palette preserves white boundaries, status colors and ma
   await expect(brazil).toHaveCSS('stroke-width', '1px');
   await expect(brazil).toHaveAttribute('vector-effect', 'non-scaling-stroke');
   await expect(page.locator('.map-legend .unvisited')).toHaveCSS('background-color', 'rgb(198, 206, 214)');
-  await expect(page.locator('.map-hint')).toHaveCSS('background-color', 'rgb(24, 147, 217)');
   const marker = page.locator('.microstate-marker[data-country="NRU"] .marker-dot');
   await expect(marker).toHaveCSS('fill', 'rgb(198, 206, 214)');
   await expect(marker).toHaveCSS('stroke', 'rgb(255, 255, 255)');
@@ -229,7 +229,7 @@ test('search reveals collapsed continents and restores accordion state', async (
   await expect(page.locator('.empty-state')).toBeVisible();
   await page.getByRole('searchbox').clear();
   await expect(africa).not.toHaveAttribute('open');
-  await expect(page.locator('.continent')).toHaveCount(6);
+  await expect(page.locator('.continent')).toHaveCount(7);
 });
 
 test('download export round-trips all countries and nested subdivisions', async ({ page }) => {
@@ -311,6 +311,12 @@ test('runtime assets and attribution are served locally under the configured bas
   const provenance = await page.request.get(new URL('data/provenance.json', page.url()).toString());
   expect(provenance.ok()).toBe(true);
   expect((await provenance.json()).boundaries.license).toBe('Public domain');
+  const sources = page.getByRole('link', { name: 'Data sources', exact: true });
+  await expect(sources).toHaveCount(1);
+  await expect(page.locator('.sidebar-footer .data-license')).toContainText('Boundaries: Natural Earth');
+  await expect(page.locator('.sidebar-footer').getByRole('link', { name: 'Data sources' })).toHaveAttribute('href', new URL('data/provenance.json', page.url()).pathname);
+  await expect(sources).toHaveAttribute('target', '_blank');
+  await expect(sources).toHaveAttribute('rel', 'noopener');
   const favicon = await page.request.get(new URL('favicon.svg', page.url()).toString());
   expect(await favicon.text()).toContain('<svg');
   expect(remote).toEqual([]);
@@ -353,7 +359,7 @@ test('header-free layout reclaims top space and preserves the map, sidebar and c
     const sidebarBounds = (await sidebar.boundingBox())!;
     expect(mapBounds.x).toBe(0);
     expect(mapBounds.y).toBe(0);
-    expect(canvasBounds.y).toBe(0);
+    expect(canvasBounds).toEqual(mapBounds);
     expect(mapBounds.height).toBe(width === 1280 ? 800 : 560);
     if (width === 1280) {
       expect(sidebarBounds.y).toBe(0);
@@ -368,9 +374,11 @@ test('header-free layout reclaims top space and preserves the map, sidebar and c
     await expect(controls).toHaveCount(5);
     for (const control of await controls.all()) await expect(control).toBeInViewport();
     await expect(page.locator('.map-legend')).toBeInViewport();
-    await expect(page.locator('.map-hint')).toBeInViewport();
+    await expect(page.locator('.map-hint, .map-attribution')).toHaveCount(0);
+    await page.getByRole('link', { name: 'Data sources' }).scrollIntoViewIfNeeded();
     await expect(page.getByRole('link', { name: 'Data sources' })).toBeInViewport();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.evaluate(() => scrollTo(0, 0));
   }
 });
 

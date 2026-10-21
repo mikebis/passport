@@ -20,7 +20,20 @@ Open the local URL printed by Vite. To build static files, run `npm run build`;
 
 The map and sidebar start at the top of the page, without a logo header or map
 introduction. On desktop they sit side by side at full viewport height; on narrow
-screens the map appears above the sidebar.
+screens the map appears above the sidebar. Geography and scenery fill the entire
+map area, with a floating bottom-center status legend and left-hand controls.
+The informational legend lets clicks, drags and zoom gestures reach the map
+underneath. There is no navigation hint or reserved map footer; boundary
+attribution and the Data sources link sit with the sidebar footer's license credits.
+
+On desktop, **Hide sidebar** at the map's upper-right corner gives the full width
+to the map; **Show sidebar** restores the same sidebar. It starts shown unless
+you previously chose to hide it in this browser. This independent
+`passport:sidebar:v1` preference is not part of travel exports or Google Drive
+sync. If it cannot be read, the sidebar stays shown with an explanation; if it
+cannot be saved, your choice still works for the current session.
+Mobile always shows the sidebar below the map, without changing the saved
+desktop choice.
 
 ### Optional Google sign-in and Drive sync
 
@@ -151,10 +164,13 @@ opening status choices, or changing your data.
 
 All 249 official ISO 3166-1 territories and 17 additional non-ISO areas have
 genuine bundled boundary polygons: **266 independently tracked places** in total.
-Tiny territories also have constant-size markers. The six continent groups use
-one assignment per territory; Antarctica has its own separate sidebar entry.
+Tiny territories also have constant-size markers. The seven continent accordions
+use one assignment per territory, with Antarctica as the final group.
+All groups, including Europe and Antarctica, start collapsed on each page load.
+Open any groups independently; search temporarily expands matching groups and
+restores their previous open/closed states when cleared.
 Each continent shows **(visited or lived / total)** using only official ISO
-countries and territories; Antarctica shows its own **(0/1)** or **(1/1)**.
+countries and territories; Antarctica's summary shows **(0/1)** or **(1/1)**.
 Only Visited and Lived / Living contribute to the numerator, once per place.
 ISO wishlist and unvisited places remain in the denominator; additional non-ISO
 areas are excluded entirely. Search filters the list, not the progress values.

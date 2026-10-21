@@ -5,6 +5,7 @@ import { decodeWorld, loadJson, validateRegistry } from './geography';
 import { createMap } from './map';
 import { StatusPopover } from './popover';
 import { createSidebar } from './sidebar';
+import { SidebarPreference } from './sidebar-visibility';
 import { loadInitialState, parseData, TravelStore } from './store';
 import { errorMessage, type LocationEntry, type SelectTerritory } from './types';
 import type { SceneryState } from './scenery';
@@ -14,6 +15,7 @@ import { createGoogleSync } from './sync-ui';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const themePreference = new ThemePreference(() => window.localStorage);
+const sidebarPreference = new SidebarPreference(() => window.localStorage);
 applyTheme(themePreference.current);
 app.innerHTML = `
   <main class="loading-screen" aria-live="polite">
@@ -110,14 +112,14 @@ async function boot(): Promise<void> {
       <main class="workspace">
         <section class="map-section" aria-label="Travel map">
           <div id="map-canvas" class="map-canvas"></div>
+          <button id="toggle-sidebar" class="button sidebar-toggle" aria-controls="places-sidebar" aria-expanded="true" aria-describedby="sidebar-message">Hide sidebar</button>
+          <p id="sidebar-message" class="sidebar-preference-message" role="status" hidden></p>
           <div class="map-toolbar" role="group" aria-label="Map controls"><button id="zoom-in" class="icon-button" aria-label="Zoom in">+</button><button id="zoom-out" class="icon-button" aria-label="Zoom out">\u2212</button><span class="toolbar-divider"></span><button id="reset-map" class="icon-button reset-map" aria-label="Reset map view">\u21ba</button><span class="toolbar-divider"></span><button id="pause-scenery" class="icon-button scenery-control" aria-label="Pause map animations" aria-pressed="false" aria-describedby="scenery-description"></button><button id="toggle-scenery" class="icon-button scenery-control" aria-label="Hide map scenery" aria-pressed="true"></button><span id="scenery-description" class="sr-only">Decorative ships, airplanes, and clouds. Pause freezes them; hide removes them completely.</span></div>
-          <p class="map-hint">Scroll to explore <span aria-hidden="true">\u00b7</span> Click a place to make it yours</p>
           <div class="map-legend" aria-label="Travel status legend">
             <span><i class="status-dot visited"></i>Visited</span><span><i class="status-dot lived"></i>Lived / Living</span><span><i class="status-dot want_to_visit"></i>Want to Visit</span><span><i class="status-dot unvisited"></i>Not yet</span>
           </div>
-          <div class="map-attribution">Boundaries: Natural Earth \u00b7 <a href="${import.meta.env.BASE_URL}data/provenance.json" target="_blank" rel="noopener">Data sources</a></div>
         </section>
-        <aside class="sidebar" aria-labelledby="places-heading">
+        <aside id="places-sidebar" class="sidebar" aria-labelledby="places-heading">
           <div class="sidebar-heading"><div><p class="eyebrow">THE WORLD, YOUR WAY</p><h2 id="places-heading">Your places<span>.</span></h2></div><span class="globe-icon" aria-hidden="true">\u25ce</span></div>
           <label class="theme-picker" for="theme-picker">Theme<select id="theme-picker" aria-describedby="theme-message"></select></label>
           <p id="theme-message" class="theme-message" role="status" hidden></p>
@@ -128,7 +130,7 @@ async function boot(): Promise<void> {
           </div>
           <div class="journey-progress"><div><span>Your world in color</span><strong id="colored-count">0 / ${registry.length}</strong></div><div class="progress-track"><span id="progress-fill"></span></div></div>
           <div id="country-sidebar" class="sidebar-content"></div>
-          <footer class="sidebar-footer"><p id="save-status"><span class="save-indicator"></span> Changes stay in your browser</p><div id="google-sync"></div><div class="data-actions"><button id="export-data" class="button primary">Export data <span aria-hidden="true">\u2197</span></button><button id="copy-data" class="button secondary">Copy JSON</button><button id="import-data" class="text-button">Import</button></div><input id="import-file" type="file" accept=".json,application/json" hidden /><p class="data-license">Country metadata: <a href="https://github.com/mledoze/countries" target="_blank" rel="noopener">mledoze/countries</a> \u00b7 <a href="${import.meta.env.BASE_URL}data/COUNTRIES-LICENSE.txt" target="_blank" rel="noopener">ODbL</a></p></footer>
+          <footer class="sidebar-footer"><p id="save-status"><span class="save-indicator"></span> Changes stay in your browser</p><div id="google-sync"></div><div class="data-actions"><button id="export-data" class="button primary">Export data <span aria-hidden="true">\u2197</span></button><button id="copy-data" class="button secondary">Copy JSON</button><button id="import-data" class="text-button">Import</button></div><input id="import-file" type="file" accept=".json,application/json" hidden /><p class="data-license">Boundaries: Natural Earth \u00b7 <a href="${import.meta.env.BASE_URL}data/provenance.json" target="_blank" rel="noopener">Data sources</a><br />Country metadata: <a href="https://github.com/mledoze/countries" target="_blank" rel="noopener">mledoze/countries</a> \u00b7 <a href="${import.meta.env.BASE_URL}data/COUNTRIES-LICENSE.txt" target="_blank" rel="noopener">ODbL</a></p></footer>
         </aside>
       </main>
       <div id="warning" class="warning-banner" role="alert" hidden></div>
@@ -144,6 +146,23 @@ async function boot(): Promise<void> {
   const warning = element('#warning');
   const toast = element('#toast');
   const announcement = element('#announcement');
+  const workspace = element('.workspace');
+  const sidebarPanel = element('#places-sidebar');
+  const sidebarToggle = element<HTMLButtonElement>('#toggle-sidebar');
+  const sidebarMessage = element('#sidebar-message');
+  const mobileLayout = window.matchMedia('(max-width: 720px)');
+  function renderSidebarVisibility(): void {
+    const visible = mobileLayout.matches || sidebarPreference.visible;
+    workspace.classList.toggle('sidebar-collapsed', !visible);
+    sidebarPanel.hidden = !visible;
+    sidebarToggle.hidden = mobileLayout.matches;
+    sidebarToggle.textContent = visible ? 'Hide sidebar' : 'Show sidebar';
+    sidebarToggle.title = sidebarToggle.textContent;
+    sidebarToggle.setAttribute('aria-expanded', String(visible));
+    sidebarMessage.textContent = sidebarPreference.warning ?? '';
+    sidebarMessage.hidden = !sidebarPreference.warning;
+  }
+  renderSidebarVisibility();
   let toastTimer: ReturnType<typeof setTimeout>;
   const announce = (message: string): void => {
     announcement.textContent = message;
@@ -218,7 +237,27 @@ async function boot(): Promise<void> {
     if (sceneryState) syncSceneryControls(sceneryState);
     showThemeWarning();
   });
-  createSidebar(element('#country-sidebar'), registry, store, selectCountry, map.previewCountry);
+  const sidebar = createSidebar(element('#country-sidebar'), registry, store, selectCountry, map.previewCountry);
+  function updateSidebarVisibility(): void {
+    const active = document.activeElement;
+    const focusHiddenSidebar = !mobileLayout.matches && !sidebarPreference.visible && sidebarPanel.contains(active);
+    const focusHiddenToggle = mobileLayout.matches && active === sidebarToggle;
+    const focusClosedPopover = Boolean(active?.closest('.status-popover'));
+    popover.close(false);
+    sidebar.clearPreview();
+    renderSidebarVisibility();
+    if (focusClosedPopover) {
+      if (mobileLayout.matches) sidebar.focusSearch();
+      else sidebarToggle.focus({ preventScroll: true });
+    } else if (focusHiddenSidebar) sidebarToggle.focus({ preventScroll: true });
+    else if (focusHiddenToggle) sidebar.focusSearch();
+  }
+  sidebarToggle.addEventListener('click', () => {
+    if (mobileLayout.matches) return;
+    sidebarPreference.choose(!sidebarPreference.visible);
+    updateSidebarVisibility();
+  });
+  mobileLayout.addEventListener('change', updateSidebarVisibility);
   element('#zoom-in').addEventListener('click', map.zoomIn);
   element('#zoom-out').addEventListener('click', map.zoomOut);
   element('#reset-map').addEventListener('click', map.reset);

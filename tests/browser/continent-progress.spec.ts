@@ -16,7 +16,7 @@ function summary(page: Page, continent: string) {
 }
 
 function counter(page: Page, continent: Continent) {
-  return continent === 'Antarctica' ? page.locator('.antarctica .continent-count') : summary(page, continent).locator('.continent-count');
+  return summary(page, continent).locator('.continent-count');
 }
 
 async function ready(page: Page, entries: LocationEntry[] = []): Promise<void> {
@@ -30,7 +30,10 @@ async function ready(page: Page, entries: LocationEntry[] = []): Promise<void> {
 }
 
 async function setStatus(page: Page, id: string, status: TravelStatus): Promise<void> {
-  await page.locator(`.country-row[data-country="${id}"]`).click();
+  const row = page.locator(`.country-row[data-country="${id}"]`);
+  const group = row.locator('..');
+  if (await group.getAttribute('open') === null) await group.locator('summary').click();
+  await row.click();
   await page.locator(`.status-choice[data-status="${status}"]`).click();
 }
 
@@ -49,8 +52,7 @@ test('shows full ISO progress separately from combined global totals', async ({ 
   for (const continent of [...CONTINENTS, 'Antarctica'] as const) {
     const completed = continent === 'Europe' ? 2 : continent === 'Oceania' ? 1 : 0;
     await expect(counter(page, continent)).toHaveText(`(${completed}/${isoTotal(continent)})`);
-    const label = continent === 'Antarctica' ? page.locator('.antarctica .country-row') : summary(page, continent);
-    await expect(label).toHaveAccessibleDescription(
+    await expect(summary(page, continent)).toHaveAccessibleDescription(
       `${completed} of ${isoTotal(continent)} official ISO countries and territories visited or lived in`,
     );
   }
@@ -62,6 +64,7 @@ test('shows full ISO progress separately from combined global totals', async ({ 
 test('updates statuses in place without losing focus or accordion state and restores on reload', async ({ page }) => {
   await ready(page);
   const europe = summary(page, 'Europe');
+  await europe.click();
   const africa = summary(page, 'Africa').locator('..');
   const row = page.locator('.country-row[data-country="EST"]');
   const originalRow = await row.elementHandle();
@@ -148,13 +151,13 @@ test('Antarctica has its own live accessible progress through every status', asy
   ] as const) {
     await setStatus(page, 'ATA', status);
     await expect(counter(page, 'Antarctica')).toHaveText(`(${completed}/1)`);
-    await expect(row).toHaveAccessibleDescription(
+    await expect(summary(page, 'Antarctica')).toHaveAccessibleDescription(
       `${completed} of 1 official ISO countries and territories visited or lived in`,
     );
     await expect(row).toBeFocused();
   }
   await page.getByRole('searchbox').clear();
-  await expect(page.locator('.continent')).toHaveCount(CONTINENTS.length);
+  await expect(page.locator('.continent')).toHaveCount(CONTINENTS.length + 1);
 });
 
 test('in-memory progress stays accurate when storage cannot save', async ({ page }) => {

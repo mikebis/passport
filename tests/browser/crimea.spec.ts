@@ -120,7 +120,7 @@ test('Crimea follows Ukraine across status edits, Russia edits, themes and reloa
   await expect(boundary(page, 'UKR')).toHaveAttribute('data-status', 'visited');
   await expect(boundary(page, 'RUS')).toHaveAttribute('data-status', 'unvisited');
   await expect(page.locator('.country-row')).toHaveCount(registry.length);
-  await expect(page.locator('.continent')).toHaveCount(CONTINENTS.length);
+  await expect(page.locator('.continent')).toHaveCount(CONTINENTS.length + 1);
   const europeTotal = registry.filter((country) => country.kind === 'iso' && country.continent === 'Europe').length;
   await expect(page.locator('.continent').filter({ has: page.getByText('Europe', { exact: true }) })
     .locator('.continent-count')).toHaveText(`(1/${europeTotal})`);

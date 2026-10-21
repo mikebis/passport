@@ -31,7 +31,7 @@ export function createSidebar(
   store: TravelStore,
   select: SelectTerritory,
   preview: (id: string | undefined) => void,
-): { focusSearch: () => void } {
+): { focusSearch: () => void; clearPreview: () => void } {
   const label = document.createElement('label');
   label.className = 'search-box';
   label.innerHTML = '<span aria-hidden="true">\u2315</span><span class="sr-only">Search places or codes</span>';
@@ -48,7 +48,8 @@ export function createSidebar(
   groups.id = 'country-groups';
   groups.className = 'country-groups';
   container.append(label, meta, groups);
-  const expanded = new Map<string, boolean>(CONTINENTS.map((name) => [name, name === 'Europe']));
+  const continents = [...CONTINENTS, 'Antarctica'] as const;
+  const expanded = new Map<Continent, boolean>(continents.map((name) => [name, false]));
   const rows = new Map<string, { button: HTMLButtonElement; badge: HTMLElement; country: Territory }>();
   const progressElements = new Map<Continent, { count: HTMLElement; label: HTMLElement }>();
   let hoveredId: string | undefined;
@@ -56,6 +57,12 @@ export function createSidebar(
 
   function updatePreview(): void {
     preview(hoveredId ?? focusedId);
+  }
+
+  function clearPreview(): void {
+    hoveredId = undefined;
+    focusedId = undefined;
+    updatePreview();
   }
 
   function addProgress(continent: Continent, parent: HTMLElement, label: HTMLElement): void {
@@ -67,9 +74,7 @@ export function createSidebar(
   }
 
   function render(): void {
-    hoveredId = undefined;
-    focusedId = undefined;
-    updatePreview();
+    clearPreview();
     groups.replaceChildren();
     rows.clear();
     progressElements.clear();
@@ -97,10 +102,6 @@ export function createSidebar(
       const name = document.createElement('span');
       name.className = 'country-name';
       name.textContent = country.name;
-      if (country.id === 'ATA') {
-        name.append(' ');
-        addProgress('Antarctica', name, button);
-      }
       if (country.kind === 'custom') {
         const kind = document.createElement('small');
         kind.className = 'territory-kind';
@@ -143,11 +144,11 @@ export function createSidebar(
       parent.append(button);
     }
 
-    for (const continent of CONTINENTS) {
+    for (const continent of continents) {
       const countries = filtered.filter((country) => country.continent === continent);
       if (!countries.length) continue;
       const details = document.createElement('details');
-      details.className = 'continent';
+      details.className = continent === 'Antarctica' ? 'continent antarctica' : 'continent';
       details.open = searching || (expanded.get(continent) ?? false);
       const summary = document.createElement('summary');
       const name = document.createElement('span');
@@ -166,16 +167,6 @@ export function createSidebar(
         }
       });
       groups.append(details);
-    }
-    const antarctica = filtered.find((country) => country.id === 'ATA');
-    if (antarctica) {
-      const separate = document.createElement('section');
-      separate.className = 'antarctica';
-      const heading = document.createElement('h3');
-      heading.textContent = 'Beyond the continents';
-      separate.append(heading);
-      addRow(antarctica, separate);
-      groups.append(separate);
     }
     updateStatuses();
   }
@@ -200,5 +191,5 @@ export function createSidebar(
   input.addEventListener('input', render);
   store.subscribe(updateStatuses);
   render();
-  return { focusSearch: () => input.focus() };
+  return { focusSearch: () => input.focus({ preventScroll: true }), clearPreview };
 }

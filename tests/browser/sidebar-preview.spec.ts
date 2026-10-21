@@ -18,6 +18,8 @@ async function ready(page: Page): Promise<void> {
   }, entries);
   await page.goto('./');
   await expect(page.locator('.country-boundary')).toHaveCount(registry.length);
+  await page.locator('.continent summary').filter({ has: page.getByText('Europe', { exact: true }) }).click();
+  await page.mouse.move(0, 0);
 }
 
 test.beforeEach(async ({ page }) => {

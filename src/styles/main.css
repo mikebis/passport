@@ -52,6 +52,7 @@ h1, h2, h3, .continent summary, .popover-heading { font-family: var(--font-headi
 
 @media (min-width: 1600px) { .workspace { grid-template-columns: minmax(0, 1fr) 390px; } }
 @media (max-width: 1000px) { .workspace { grid-template-columns: minmax(0, 1fr) 310px; } }
+.workspace.sidebar-collapsed { grid-template-columns: minmax(0, 1fr); }
 @media (max-width: 720px) {
   .workspace { display: flex; flex-direction: column; min-height: auto; }
   .toast { bottom: 16px; width: calc(100vw - 32px); }

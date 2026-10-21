@@ -42,7 +42,6 @@
 .country-code { color: var(--subtle); font-size: 8px; letter-spacing: .5px; flex-shrink: 0; }
 .country-row > .status-dot { width: 8px; height: 8px; margin-left: 3px; }
 .antarctica { border-top: 1px solid var(--border); margin: 14px 0 0; padding-top: 14px; }
-.antarctica h3 { color: var(--subtle); font-size: 9px; font-weight: 500; padding: 0 14px; letter-spacing: .4px; }
 .empty-state { color: var(--muted); line-height: 1.7; padding: 14px; font-size: 12px; }
 .sidebar-footer { border-top: 1px solid var(--border); padding: 16px 24px 14px; margin-top: auto; max-height: 30dvh; overflow: auto; flex-shrink: 0; }
 .sidebar-footer > p:first-child { color: var(--muted); font-size: 10px; margin: 0 0 12px; display: flex; gap: 6px; align-items: center; }

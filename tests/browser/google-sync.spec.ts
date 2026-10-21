@@ -252,6 +252,21 @@ test('sign-out in another real tab disconnects without overwriting the current m
   await second.close();
 });
 
+test('hiding the sidebar leaves automatic Google synchronization running and its controls intact', async ({ page }) => {
+  const drive = await mockGoogle(page);
+  await ready(page);
+  await backup(page);
+  await status(page, 'EST', 'visited');
+  await page.getByRole('button', { name: 'Hide sidebar', exact: true }).click();
+  await expect(page.locator('.sidebar')).toBeHidden();
+  await expect.poll(() => drive.files.size).toBe(2);
+  await expect(page.locator('#google-sync')).toHaveAttribute('data-sync-phase', 'synced');
+  await page.getByRole('button', { name: 'Show sidebar', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
+  await expect(page.getByRole('searchbox')).toHaveValue('EST');
+  await expect(page.locator('.country-row[data-country="EST"]')).toHaveAttribute('data-status', 'visited');
+});
+
 test('connection controls fit all themes on narrow screens and remain keyboard accessible', async ({ page }, testInfo) => {
   await mockGoogle(page);
   await page.setViewportSize({ width: 360, height: 800 });
@@ -293,6 +308,11 @@ test('expanded Google status leaves countries clickable in short desktop windows
   await backup(page);
   await status(page, 'EST', 'visited');
   await expect(page.locator('path[data-country="EST"]')).toHaveAttribute('data-status', 'visited');
+  for (const name of ['Data sources', 'mledoze/countries', 'ODbL']) {
+    const link = page.locator('.sidebar-footer').getByRole('link', { name, exact: true });
+    await link.scrollIntoViewIfNeeded();
+    await expect(link).toBeInViewport();
+  }
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   await status(page, 'USA', 'lived');
   await expect(page.locator('path[data-country="USA"]')).toHaveAttribute('data-status', 'lived');

@@ -37,10 +37,10 @@ async function checkContrast(page: Page): Promise<void> {
     const luminance = (rgb: number[]): number => rgb.slice(0, 3).map(value => value / 255)
       .map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4)
       .reduce((total, value, index) => total + value * [0.2126, 0.7152, 0.0722][index]!, 0);
-    return [
+    const ratios = [
       ['--ink', '--surface'], ['--muted', '--surface'], ['--subtle', '--surface'], ['--subtle', '--input'],
       ['--on-accent', '--button'], ['--on-accent', '--button-hover'],
-      ['--map-ink', '--map-panel'], ['--map-hint-ink', '--ocean'], ['--map-attribution-ink', '--ocean'],
+      ['--map-ink', '--map-panel'],
       ['--warning-ink', '--warning'], ['--toast-ink', '--toast'], ['--accent', '--surface'], ['--accent', '--input'],
     ].map(([foreground, background]) => {
       const rgb = color(background!);
@@ -52,6 +52,12 @@ async function checkContrast(page: Page): Promise<void> {
       const b = luminance(rgb);
       return { foreground, background, ratio: (Math.max(a, b) + .05) / (Math.min(a, b) + .05) };
     });
+    const sidebar = getComputedStyle(document.querySelector('.sidebar')!);
+    const credits = getComputedStyle(document.querySelector('.data-license')!);
+    const a = luminance(credits.color.match(/[\d.]+/g)!.map(Number));
+    const b = luminance(sidebar.backgroundColor.match(/[\d.]+/g)!.map(Number));
+    ratios.push({ foreground: 'sidebar credits', background: 'sidebar', ratio: (Math.max(a, b) + .05) / (Math.min(a, b) + .05) });
+    return ratios;
   });
   for (const { foreground, background, ratio } of ratios) {
     expect(ratio, `${foreground} on ${background}`).toBeGreaterThanOrEqual(foreground === '--accent' ? 3 : 4.5);

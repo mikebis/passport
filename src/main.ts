@@ -12,6 +12,9 @@ import type { SceneryState } from './scenery';
 import { applyTheme, ThemePreference } from './theme';
 import { THEMES } from './themes';
 import { createGoogleSync } from './sync-ui';
+import { createSidebarTabs } from './sidebar-tabs';
+import { createStatistics } from './statistics-ui';
+import { createBadges } from './badges-ui';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const themePreference = new ThemePreference(() => window.localStorage);
@@ -121,6 +124,12 @@ async function boot(): Promise<void> {
         </section>
         <aside id="places-sidebar" class="sidebar" aria-labelledby="places-heading">
           <div class="sidebar-heading"><div><p class="eyebrow">THE WORLD, YOUR WAY</p><h2 id="places-heading">Your places<span>.</span></h2></div><span class="globe-icon" aria-hidden="true">\u25ce</span></div>
+          <div class="sidebar-tabs" role="tablist" aria-label="Sidebar views">
+            <button id="tab-manage" role="tab" aria-selected="true" aria-controls="panel-manage">Manage countries</button>
+            <button id="tab-stats" role="tab" aria-selected="false" aria-controls="panel-stats" tabindex="-1">Stats</button>
+            <button id="tab-badges" role="tab" aria-selected="false" aria-controls="panel-badges" tabindex="-1">Badges</button>
+          </div>
+          <section id="panel-manage" class="sidebar-panel manage-panel" role="tabpanel" aria-labelledby="tab-manage">
           <label class="theme-picker" for="theme-picker">Theme<select id="theme-picker" aria-describedby="theme-message"></select></label>
           <p id="theme-message" class="theme-message" role="status" hidden></p>
           <div class="travel-stats" aria-label="Your travel totals">
@@ -130,6 +139,9 @@ async function boot(): Promise<void> {
           </div>
           <div class="journey-progress"><div><span>Your world in color</span><strong id="colored-count">0 / ${registry.length}</strong></div><div class="progress-track"><span id="progress-fill"></span></div></div>
           <div id="country-sidebar" class="sidebar-content"></div>
+          </section>
+          <section id="panel-stats" class="sidebar-panel insight-panel" role="tabpanel" aria-labelledby="tab-stats" tabindex="0" hidden></section>
+          <section id="panel-badges" class="sidebar-panel insight-panel" role="tabpanel" aria-labelledby="tab-badges" tabindex="0" hidden></section>
           <footer class="sidebar-footer"><p id="save-status"><span class="save-indicator"></span> Changes stay in your browser</p><div id="google-sync"></div><div class="data-actions"><button id="export-data" class="button primary">Export data <span aria-hidden="true">\u2197</span></button><button id="copy-data" class="button secondary">Copy JSON</button><button id="import-data" class="text-button">Import</button></div><input id="import-file" type="file" accept=".json,application/json" hidden /><p class="data-license">Boundaries: Natural Earth \u00b7 <a href="${import.meta.env.BASE_URL}data/provenance.json" target="_blank" rel="noopener">Data sources</a><br />Country metadata: <a href="https://github.com/mledoze/countries" target="_blank" rel="noopener">mledoze/countries</a> \u00b7 <a href="${import.meta.env.BASE_URL}data/COUNTRIES-LICENSE.txt" target="_blank" rel="noopener">ODbL</a></p></footer>
         </aside>
       </main>
@@ -183,7 +195,7 @@ async function boot(): Promise<void> {
     element('#save-status').textContent = 'Saved on this device';
   };
   const store = new TravelStore(initial.entries, registry, storage, warn, saved);
-  const popover = new StatusPopover(store, registry, announce, () => sidebar.focusSearch());
+  const popover = new StatusPopover(store, registry, announce, () => focusSidebar());
   const selectCountry: SelectTerritory = (id, anchor) => {
     map.focusCountry(id);
     popover.open(id, anchor);
@@ -238,6 +250,18 @@ async function boot(): Promise<void> {
     showThemeWarning();
   });
   const sidebar = createSidebar(element('#country-sidebar'), registry, store, selectCountry, map.previewCountry);
+  createStatistics(element('#panel-stats'), registry, store);
+  const badges = createBadges(element('#panel-badges'), registry, store);
+  const tabs = createSidebarTabs(sidebarPanel, (tab) => {
+    popover.close(false);
+    sidebar.clearPreview();
+    if (tab === 'badges') badges.activate();
+  });
+  function focusSidebar(): void {
+    if (sidebarPanel.hidden) sidebarToggle.focus({ preventScroll: true });
+    else if (tabs.current === 'manage') sidebar.focusSearch();
+    else tabs.focus();
+  }
   function updateSidebarVisibility(): void {
     const active = document.activeElement;
     const focusHiddenSidebar = !mobileLayout.matches && !sidebarPreference.visible && sidebarPanel.contains(active);
@@ -247,15 +271,25 @@ async function boot(): Promise<void> {
     sidebar.clearPreview();
     renderSidebarVisibility();
     if (focusClosedPopover) {
-      if (mobileLayout.matches) sidebar.focusSearch();
+      if (mobileLayout.matches) focusSidebar();
       else sidebarToggle.focus({ preventScroll: true });
     } else if (focusHiddenSidebar) sidebarToggle.focus({ preventScroll: true });
-    else if (focusHiddenToggle) sidebar.focusSearch();
+    else if (focusHiddenToggle) focusSidebar();
   }
   sidebarToggle.addEventListener('click', () => {
     if (mobileLayout.matches) return;
     sidebarPreference.choose(!sidebarPreference.visible);
     updateSidebarVisibility();
+  });
+  sidebarToggle.addEventListener('blur', () => {
+    if (!mobileLayout.matches) return;
+    // CSS may hide the toggle before the media-query change event can recover focus.
+    queueMicrotask(() => {
+      if (mobileLayout.matches && document.activeElement === document.body) {
+        updateSidebarVisibility();
+        focusSidebar();
+      }
+    });
   });
   mobileLayout.addEventListener('change', updateSidebarVisibility);
   element('#zoom-in').addEventListener('click', map.zoomIn);

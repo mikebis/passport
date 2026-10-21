@@ -23,6 +23,9 @@
   --visited: #224cbb;
   --lived: #fbe769;
   --want-to-visit: #ec6568;
+  --visited-text: #95b3ff;
+  --lived-text: var(--lived);
+  --want-to-visit-text: var(--want-to-visit);
   --visited-tint: #224cbb30;
   --lived-tint: #fbe76924;
   --wishlist-tint: #ec656824;

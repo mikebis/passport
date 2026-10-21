@@ -199,6 +199,91 @@ Flags depend on platform emoji support; ISO country codes are always present.
 Additional areas use a generic symbol and an explicit non-ISO label instead of
 an invented national flag or ISO code.
 
+### Sidebar tabs and statistics
+
+The sidebar has **Manage countries**, **Stats**, and **Badges** tabs. Only the
+heading and footer are shared: the theme picker, existing all-place totals,
+search, filters and country list live in Manage countries. Keyboard users can
+switch tabs with Left/Right and Home/End. Manage countries opens on reload;
+switching tabs retains its search, filters, accordion choices and scroll.
+Sidebar hiding and mobile transitions retain the active tab.
+
+Stats reports the four status counts, combined visited-or-lived count and
+percentage, continent coverage, and per-continent completed/total percentages.
+It counts **official ISO countries and territories only** (currently 249),
+including Antarctica as the seventh continent. Additional non-ISO places and
+subdivisions do not count. Its denominators come from the full registry, not
+Manage's filters. Existing Manage totals still cover all 266 tracked places.
+Statistics and badges update on edits, imports and accepted Drive versions,
+even when local saving fails; they do not change the map or travel JSON.
+
+### Editing badges
+
+Edit **`data/badges.json`**, a public JSON array bundled with the application.
+Add to or edit the included badge definitions. Each object must have exactly
+four fields:
+
+```json
+[
+  {
+    "name": "Two neighbours",
+    "description": "Visit or live in at least two of Slovakia, Czechia and Austria.",
+    "condition": "(SVK, CZE, AUT){2}",
+    "value": 10
+  }
+]
+```
+
+`value` is non-negative integer **points**, not a target. Visited and Lived /
+Living qualify; Want to Visit and Unvisited do not. Awards and points are
+recomputed from current statuses and can be lost if the condition stops matching.
+They have no saved unlock history, timestamps, export fields or Drive metadata.
+Badges shows completed definitions first, ordered by points from highest to
+lowest. Incomplete badges follow by completion percentage from highest to lowest,
+then points from highest to lowest. Exact ties keep their JSON file order.
+Ordering updates with your map, retaining existing cards and panel scroll.
+Each badge shows its progress bar, alongside total earned/available badges and
+points. Each card also lists all countries referenced by its condition, once
+each in formula order, including alternatives and threshold members. Country
+names use theme-aware, readable status text colors; Unvisited is muted.
+Hover text and screen-reader labels give the exact status, and names/colors
+update with the current map without changing badge conditions or progress.
+The catalog loads when Badges is first
+opened; an empty file explains that no badges are configured. Request/JSON/
+definition errors appear only there, with retry, leaving the other tabs usable.
+
+Formulas use exact registry identifiers: Germany is **DEU**, not GER.
+Existing IDs such as `custom:KOS` and `ATA` can also be explicitly referenced.
+Whitespace and nested parentheses are supported:
+
+| Formula | Meaning |
+| --- | --- |
+| `SVK \| CZE` | Either place (or both) |
+| `SVK + CZE + AUT` | All three |
+| `(SVK \| CZE) + (AUT \| DEU)` | One qualifying place in each pair |
+| `(SVK, CZE, AUT){2}` | At least two distinct listed places |
+| `(SVK + CZE) \| AUT` | Both Slovakia and Czechia, or Austria |
+
+`+` binds more tightly than `|`; use parentheses for clarity. Thresholds accept
+only explicit comma-separated identifiers, with a positive integer target no
+greater than the list size. Duplicate threshold IDs are rejected. There are no
+continent queries, date/status comparisons or executable JavaScript.
+
+Each country is one progress unit. AND sums its operands' progress units; OR is
+one unit with the best alternative's completion fraction. A threshold clamps
+at its target. Thus the paired-OR example progresses 0/2, 1/2, 2/2, and a
+four-of-ten list shows **4/10** with a **40%** bar. Fractional compound progress
+uses percentage-only text: the final example shows 50% when only SVK qualifies.
+A country may satisfy overlapping logical groups, so these units need not be
+unique countries. Earned state uses the exact condition, not rounded percentages.
+
+Validation allows at most 500 badges, 120 characters per name, 1000 per
+description, 4096 per condition, and 32 nested parentheses. Names must be
+nonempty and unique ignoring surrounding whitespace/case; descriptions and
+conditions must be nonempty. Points and their total must be safe integers.
+Unknown IDs, extra/missing fields and malformed formulas reject the catalog
+with an actionable error rather than awarding a partial list.
+
 ### A little life on the map
 
 Tiny ships, airplanes (dragons in Medieval), and clouds follow illustrative geographic routes.

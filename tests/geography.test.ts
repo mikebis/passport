@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import registryJson from '../data/registry.json';
 import { validateRegistry } from '../src/geography';
-import { continentProgress, filterTerritories } from '../src/sidebar';
+import { filterTerritories } from '../src/sidebar';
+import { continentProgress } from '../src/statistics';
 import additional from '../data/additional-territories.json';
 import { CONTINENTS, STATUSES, territorySymbol, type TravelStatus } from '../src/types';
 import { TravelStore } from '../src/store';

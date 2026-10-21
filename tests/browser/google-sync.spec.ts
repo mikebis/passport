@@ -159,6 +159,31 @@ test('accepted Drive replacement updates active sidebar filter membership withou
   expect([...drive.files.values()].every((file) => Array.isArray(file.snapshot.entries))).toBe(true);
 });
 
+test('accepted Drive data updates hidden Manage and live Stats/Badges without changing tabs or uploading awards', async ({ page }) => {
+  const drive = await mockGoogle(page);
+  await page.route('**/data/badges.json', (route) => route.fulfill({ json: [
+    { name: 'Estonia', description: 'Visit or live in Estonia.', condition: 'EST', value: 10 },
+  ] }));
+  await ready(page);
+  await backup(page);
+  await page.getByRole('tab', { name: 'Badges', exact: true }).click();
+  await expect(page.locator('#badge-summary')).toContainText('0/10 points');
+  addRemote(drive);
+  await page.getByRole('button', { name: 'Sync now', exact: true }).click();
+  const size = drive.files.size;
+  await page.getByRole('dialog', { name: 'Choose your travel map' })
+    .getByRole('button', { name: /^Google Drive version/ }).click();
+  await expect(page.getByRole('tab', { name: 'Badges', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('#badge-summary')).toContainText('10/10 points');
+  await expect(page.locator('.badge-country[data-country="EST"]')).toHaveAttribute('data-status', 'lived');
+  await page.getByRole('tab', { name: 'Stats', exact: true }).click();
+  await expect(page.locator('[data-stat="lived"]')).toHaveText('1');
+  await page.getByRole('tab', { name: 'Manage countries', exact: true }).click();
+  await expect(page.locator('#lived-count')).toHaveText('1');
+  expect(drive.files.size).toBe(size);
+  expect([...drive.files.values()].some((file) => 'badges' in file.snapshot)).toBe(false);
+});
+
 test('cancelled conflict stays paused and sign-out leaves local and Drive maps intact', async ({ page }) => {
   const drive = await mockGoogle(page);
   await ready(page);

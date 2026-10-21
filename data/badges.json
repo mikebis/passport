@@ -1,0 +1,254 @@
+[
+  {
+    "name": "Nordic Explorer",
+    "description": "Visit all five Nordic countries.",
+    "condition": "DNK + FIN + ISL + NOR + SWE",
+    "value": 25
+  },
+  {
+    "name": "European Union Master",
+    "description": "Visit all 27 member states of the European Union.",
+    "condition": "AUT + BEL + BGR + HRV + CYP + CZE + DNK + EST + FIN + FRA + DEU + GRC + HUN + IRL + ITA + LVA + LTU + LUX + MLT + NLD + POL + PRT + ROU + SVK + SVN + ESP + SWE",
+    "value": 50
+  },
+  {
+    "name": "Microstate Collector",
+    "description": "Visit at least three European microstates.",
+    "condition": "(AND, LIE, MCO, SMR, VAT, LUX){3}",
+    "value": 20
+  },
+  {
+    "name": "Post-Soviet Voyager",
+    "description": "Visit at least five post-Soviet states.",
+    "condition": "(ARM, AZE, BLR, EST, GEO, KAZ, KGZ, LVA, LTU, MDA, RUS, TJK, TKM, UKR, UZB){5}",
+    "value": 30
+  },
+  {
+    "name": "Silk Road Adventurer",
+    "description": "Trace the historic Silk Road by visiting key countries along the route.",
+    "condition": "CHN + IRN + KAZ + KGZ + TJK + TKM + TUR + UZB",
+    "value": 40
+  },
+  {
+    "name": "Cradle of Civilization",
+    "description": "Visit historic seats of ancient civilizations including Egypt, Greece, Italy, Iraq, China, and India.",
+    "condition": "EGY + GRC + ITA + IRQ + CHN + IND",
+    "value": 35
+  },
+  {
+    "name": "Island Hopper",
+    "description": "Visit at least three major island nations.",
+    "condition": "(CUB, ISL, JPN, MDG, NZL, PHL, IDN, LKA){3}",
+    "value": 15
+  },
+  {
+    "name": "Northern Extremity",
+    "description": "Visit Norway, a northernmost stronghold of Europe.",
+    "condition": "NOR",
+    "value": 10
+  },
+  {
+    "name": "Southern Mediterranean",
+    "description": "Visit Cyprus or Malta in the southern Mediterranean Sea.",
+    "condition": "CYP | MLT",
+    "value": 10
+  },
+  {
+    "name": "Western Extremity",
+    "description": "Visit Portugal, the westernmost country of mainland Europe.",
+    "condition": "PRT",
+    "value": 10
+  },
+  {
+    "name": "Arctic Chill",
+    "description": "Experience extreme northern climates in Canada, Iceland, or Norway.",
+    "condition": "CAN | ISL | NOR",
+    "value": 15
+  },
+  {
+    "name": "Desert Sun",
+    "description": "Visit nations renowned for their expansive desert climates.",
+    "condition": "MLI | NER | SDN | DJI | MRT",
+    "value": 15
+  },
+  {
+    "name": "Global Explorer: Beginner",
+    "description": "Take your first steps into world travel by visiting at least 5 popular international destinations.",
+    "condition": "(USA, CAN, GBR, FRA, DEU, ESP, ITA, JPN, AUS, BRA){5}",
+    "value": 10
+  },
+  {
+    "name": "Global Explorer: Experienced",
+    "description": "Expand your horizons by visiting at least 10 major world destinations.",
+    "condition": "(USA, CAN, GBR, FRA, DEU, ESP, ITA, JPN, AUS, BRA, MEX, ZAF, IND, CHN, ARG, THA, EGY, NZL, SGP, ARE){10}",
+    "value": 25
+  },
+  {
+    "name": "Global Explorer: Advanced",
+    "description": "Prove your dedication to global travel by visiting at least 15 major world destinations.",
+    "condition": "(USA, CAN, GBR, FRA, DEU, ESP, ITA, JPN, AUS, BRA, MEX, ZAF, IND, CHN, ARG, THA, EGY, NZL, SGP, ARE){15}",
+    "value": 50
+  },
+  {
+    "name": "Benelux Union",
+    "description": "Visit all three Benelux countries.",
+    "condition": "BEL + LUX + NLD",
+    "value": 15
+  },
+  {
+    "name": "Iberian Peninsula",
+    "description": "Visit both Spain and Portugal.",
+    "condition": "ESP + PRT",
+    "value": 15
+  },
+  {
+    "name": "British Isles Explorer",
+    "description": "Visit both the United Kingdom and Ireland.",
+    "condition": "GBR + IRL",
+    "value": 15
+  },
+  {
+    "name": "Alpine Enthusiast",
+    "description": "Visit at least two countries spanning the Alpine region.",
+    "condition": "(AUT, CHE, DEU, FRA, ITA, LIE, SVN){2}",
+    "value": 15
+  },
+  {
+    "name": "Baltic Voyager",
+    "description": "Visit all three Baltic states along the eastern coast of the Baltic Sea.",
+    "condition": "EST + LVA + LTU",
+    "value": 20
+  },
+  {
+    "name": "Visegrád Four",
+    "description": "Explore the Central European cultural heartland of Poland, Czechia, Slovakia, and Hungary.",
+    "condition": "POL + CZE + SVK + HUN",
+    "value": 20
+  },
+  {
+    "name": "Balkan Trailblazer",
+    "description": "Visit at least four countries across the vibrant Balkan Peninsula.",
+    "condition": "(ALB, BIH, BGR, HRV, GRC, MKD, MNE, SRB, SVN){4}",
+    "value": 25
+  },
+  {
+    "name": "Caucasian Peaks",
+    "description": "Traverse the Caucasus by visiting Armenia, Azerbaijan, and Georgia.",
+    "condition": "ARM + AZE + GEO",
+    "value": 25
+  },
+  {
+    "name": "The Levant",
+    "description": "Explore the historic Levant region along the eastern Mediterranean.",
+    "condition": "ISR + JOR + LBN",
+    "value": 30
+  },
+  {
+    "name": "East African Safari Route",
+    "description": "Experience world-famous wildlife reserves in Kenya, Tanzania, or Uganda.",
+    "condition": "KEN | TZA | UGA",
+    "value": 20
+  },
+  {
+    "name": "Southern Cone Explorer",
+    "description": "Travel across the southern tip of South America in Argentina and Chile.",
+    "condition": "ARG + CHL",
+    "value": 20
+  },
+  {
+    "name": "Andean Explorer",
+    "description": "Traverse the mighty Andes mountains across South America.",
+    "condition": "(BOL, CHL, COL, ECU, PER){3}",
+    "value": 25
+  },
+  {
+    "name": "Landlocked Pioneer",
+    "description": "Visit at least three nations completely surrounded by land.",
+    "condition": "(AUT, CHE, CZE, SVK, HUN, PRY, BOL, MNG, NPL, ETH, ZWE){3}",
+    "value": 20
+  },
+  {
+    "name": "Double-Landlocked Explorer",
+    "description": "Visit both of the world's double-landlocked nations: Liechtenstein and Uzbekistan.",
+    "condition": "LIE + UZB",
+    "value": 40
+  },
+  {
+    "name": "Equatorial Crossing",
+    "description": "Cross into countries directly intersected by the Earth's Equator.",
+    "condition": "(ECU, COL, BRA, GAB, COG, COD, UGA, KEN, IDN){3}",
+    "value": 25
+  },
+  {
+    "name": "Ring of Fire",
+    "description": "Visit countries situated along the highly volcanic Pacific Rim.",
+    "condition": "(JPN, PHL, IDN, NZL, CHL, MEX){3}",
+    "value": 20
+  },
+  {
+    "name": "Inca & Maya Civilizations",
+    "description": "Step into the footprints of ancient Pre-Columbian empires in Peru, Mexico, or Guatemala.",
+    "condition": "PER | MEX | GTM",
+    "value": 15
+  },
+  {
+    "name": "Coffee Belt Connoisseur",
+    "description": "Visit major coffee-producing nations around the globe.",
+    "condition": "(BRA, COL, ETH, VNM, GTM, CRI, KEN){3}",
+    "value": 20
+  },
+  {
+    "name": "Transcontinental Journey",
+    "description": "Visit countries that naturally span two or more continents.",
+    "condition": "(TUR, EGY, RUS, KAZ, PAN){2}",
+    "value": 20
+  },
+  {
+    "name": "Antarctica & Beyond",
+    "description": "Set foot on Antarctica or its sub-antarctic territories.",
+    "condition": "ATA",
+    "value": 50
+  },
+  {
+    "name": "Megadiverse Realms",
+    "description": "Discover nations housing the world's richest biodiversity.",
+    "condition": "(BRA, COL, IDN, MDG, AUS, CRI, MEX, MYS, PER, ZAF){4}",
+    "value": 30
+  },
+  {
+    "name": "Oceania Outposts",
+    "description": "Reach remote island nations across the Pacific Ocean.",
+    "condition": "(FJI, VUT, FSM, PLW, WSM, TON){2}",
+    "value": 35
+  },
+  {
+    "name": "Fjord Navigator",
+    "description": "Marvel at dramatic glacial fjords in Norway, New Zealand, or Chile.",
+    "condition": "NOR | NZL | CHL",
+    "value": 15
+  },
+  {
+    "name": "Microstate Mastery",
+    "description": "Visit five of the world's smallest sovereign nations.",
+    "condition": "(AND, LIE, MCO, SMR, VAT, NRU, TUV, MLT, MDV, KNA){5}",
+    "value": 40
+  },
+  {
+    "name": "Six-Continent Voyager",
+    "description": "Visit at least one country on each of the six inhabited continents.",
+    "condition": "(FRA | DEU | GBR | ITA | ESP) + (USA | CAN | MEX) + (BRA | ARG | COL) + (EGY | MAR | ZAF) + (CHN | IND | JPN) + (AUS | NZL)",
+    "value": 60
+  },
+  {
+    "name": "Global Nomad: Veteran",
+    "description": "Reach the prestigious milestone of 30 countries visited globally.",
+    "condition": "(USA, CAN, MEX, GTM, CRI, PAN, CUB, JAM, BRA, ARG, CHL, COL, PER, BOL, URY, PRY, ECU, VEN, GBR, IRL, FRA, ESP, PRT, DEU, ITA, NLD, BEL, CHE, AUT, DNK, NOR, SWE, FIN, POL, CZE, HUN, SVK, ROU, BGR, GRC, TUR, EGY, ZAF, MAR, KEN, TZA, NGA, GHA, ARE, SAU, JOR, ISR, IND, CHN, JPN, KOR, TWN, THA, VNM, MYS, SGP, IDN, PHL, AUS, NZL, FJI){30}",
+    "value": 75
+  },
+  {
+    "name": "Global Nomad: Maniac",
+    "description": "An elite tier awarded for exploring 50 distinct nations worldwide.",
+    "condition": "(USA, CAN, MEX, GTM, CRI, PAN, CUB, JAM, BRA, ARG, CHL, COL, PER, BOL, URY, PRY, ECU, VEN, GBR, IRL, FRA, ESP, PRT, DEU, ITA, NLD, BEL, CHE, AUT, DNK, NOR, SWE, FIN, POL, CZE, HUN, SVK, ROU, BGR, GRC, TUR, EGY, ZAF, MAR, KEN, TZA, NGA, GHA, ARE, SAU, JOR, ISR, IND, CHN, JPN, KOR, TWN, THA, VNM, MYS, SGP, IDN, PHL, AUS, NZL, FJI){50}",
+    "value": 150
+  }
+]

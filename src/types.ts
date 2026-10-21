@@ -1,5 +1,9 @@
 export type TravelStatus = 'unvisited' | 'visited' | 'lived' | 'want_to_visit';
 
+export function isCompletedStatus(status: TravelStatus): boolean {
+  return status === 'visited' || status === 'lived';
+}
+
 export interface LocationEntry {
   id: string;
   name: string;

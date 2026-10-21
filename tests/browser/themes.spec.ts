@@ -41,6 +41,7 @@ async function checkContrast(page: Page): Promise<void> {
       ['--ink', '--surface'], ['--muted', '--surface'], ['--subtle', '--surface'], ['--subtle', '--input'],
       ['--on-accent', '--button'], ['--on-accent', '--button-hover'],
       ['--map-ink', '--map-panel'],
+      ['--visited-text', '--surface'], ['--lived-text', '--surface'], ['--want-to-visit-text', '--surface'],
       ['--warning-ink', '--warning'], ['--toast-ink', '--toast'], ['--accent', '--surface'], ['--accent', '--input'],
     ].map(([foreground, background]) => {
       const rgb = color(background!);

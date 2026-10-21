@@ -1,4 +1,5 @@
 import type { TravelStore } from './store';
+import { continentProgress } from './statistics';
 import { CONTINENTS, NON_ISO_LABEL, territorySymbol, STATUSES, STATUS_LABELS, type Continent, type SelectTerritory, type Territory, type TravelStatus } from './types';
 
 interface StatusFilter {
@@ -12,23 +13,6 @@ export function filterTerritories(registry: readonly Territory[], query: string,
     `${country.name} ${country.id} ${country.alpha2 ?? ''}`.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('en').includes(needle)
     && (!statuses?.selected.size || statuses.selected.has(statuses.status(country.id))),
   ).sort((a, b) => a.name.localeCompare(b.name, 'en'));
-}
-
-export function continentProgress(
-  registry: readonly Territory[],
-  status: (id: string) => TravelStatus,
-): Map<Continent, { completed: number; total: number }> {
-  const progress = new Map<Continent, { completed: number; total: number }>(
-    ([...CONTINENTS, 'Antarctica'] as const).map((continent) => [continent, { completed: 0, total: 0 }]),
-  );
-  for (const country of registry) {
-    if (country.kind !== 'iso') continue;
-    const count = progress.get(country.continent)!;
-    count.total++;
-    const current = status(country.id);
-    if (current === 'visited' || current === 'lived') count.completed++;
-  }
-  return progress;
 }
 
 export function createSidebar(

@@ -243,7 +243,10 @@ test('the floating toggle stays inside the map and themed at narrow and wide des
         const bounds = (await toggle.boundingBox())!;
         const map = (await page.locator('.map-section').boundingBox())!;
         expect(bounds.x + bounds.width).toBeLessThanOrEqual(map.x + map.width - 16);
-        expect(bounds.y).toBe(16);
+        const legend = (await page.locator('.map-legend').boundingBox())!;
+        expect(map.y + map.height - bounds.y - bounds.height).toBeCloseTo(16, 0);
+        expect(bounds.y + bounds.height).toBeCloseTo(legend.y + legend.height, 0);
+        expect(legend.x + legend.width + 12).toBeLessThanOrEqual(bounds.x);
         expect(bounds.height).toBeGreaterThanOrEqual(40);
         const paints = await toggle.evaluate(node => {
           const style = getComputedStyle(node);

@@ -1,10 +1,16 @@
 import type { TravelStore } from './store';
-import { CONTINENTS, NON_ISO_LABEL, territorySymbol, STATUS_LABELS, type Continent, type SelectTerritory, type Territory, type TravelStatus } from './types';
+import { CONTINENTS, NON_ISO_LABEL, territorySymbol, STATUSES, STATUS_LABELS, type Continent, type SelectTerritory, type Territory, type TravelStatus } from './types';
 
-export function filterTerritories(registry: readonly Territory[], query: string): Territory[] {
+interface StatusFilter {
+  selected: ReadonlySet<TravelStatus>;
+  status: (id: string) => TravelStatus;
+}
+
+export function filterTerritories(registry: readonly Territory[], query: string, statuses?: StatusFilter): Territory[] {
   const needle = query.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('en');
   return registry.filter((country) =>
-    `${country.name} ${country.id} ${country.alpha2 ?? ''}`.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('en').includes(needle),
+    `${country.name} ${country.id} ${country.alpha2 ?? ''}`.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('en').includes(needle)
+    && (!statuses?.selected.size || statuses.selected.has(statuses.status(country.id))),
   ).sort((a, b) => a.name.localeCompare(b.name, 'en'));
 }
 
@@ -41,17 +47,68 @@ export function createSidebar(
   input.autocomplete = 'off';
   input.setAttribute('aria-controls', 'country-groups');
   label.append(input);
+  const selected = new Set<TravelStatus>();
+  const filters = document.createElement('div');
+  filters.className = 'status-filters';
+  filters.setAttribute('role', 'group');
+  filters.setAttribute('aria-label', 'Filter places by travel status');
+  filters.setAttribute('aria-describedby', 'status-filter-hint');
+  const filterLabel = document.createElement('span');
+  filterLabel.className = 'status-filters-label';
+  filterLabel.textContent = 'Filters';
+  const hint = document.createElement('span');
+  hint.id = 'status-filter-hint';
+  hint.className = 'sr-only';
+  hint.textContent = 'Combine statuses to include either. No selected statuses shows all places. Text search narrows the results.';
+  filters.append(filterLabel, hint);
+  const filterButtons = new Map<TravelStatus, HTMLButtonElement>();
+  for (const status of STATUSES) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'status-filter';
+    button.dataset.status = status;
+    const dot = document.createElement('span');
+    dot.className = `status-dot ${status}`;
+    dot.setAttribute('aria-hidden', 'true');
+    button.append(dot);
+    button.title = `Filter by ${STATUS_LABELS[status]}`;
+    button.setAttribute('aria-label', `Filter by ${STATUS_LABELS[status]}`);
+    button.setAttribute('aria-pressed', 'false');
+    button.setAttribute('aria-controls', 'country-groups');
+    button.addEventListener('click', () => {
+      if (selected.has(status)) selected.delete(status);
+      else selected.add(status);
+      updateFilters();
+    });
+    filterButtons.set(status, button);
+    filters.append(button);
+  }
+  const reset = document.createElement('button');
+  reset.type = 'button';
+  reset.className = 'status-filter-reset';
+  reset.textContent = '\u21ba';
+  reset.title = 'Show all statuses';
+  reset.setAttribute('aria-label', 'Show all statuses');
+  reset.setAttribute('aria-controls', 'country-groups');
+  reset.addEventListener('click', () => {
+    selected.clear();
+    updateFilters();
+  });
+  filters.append(reset);
   const meta = document.createElement('p');
   meta.className = 'sidebar-meta';
   meta.setAttribute('aria-live', 'polite');
   const groups = document.createElement('div');
   groups.id = 'country-groups';
   groups.className = 'country-groups';
-  container.append(label, meta, groups);
+  container.append(label, filters, meta, groups);
   const continents = [...CONTINENTS, 'Antarctica'] as const;
   const expanded = new Map<Continent, boolean>(continents.map((name) => [name, false]));
   const rows = new Map<string, { button: HTMLButtonElement; badge: HTMLElement; country: Territory }>();
   const progressElements = new Map<Continent, { count: HTMLElement; label: HTMLElement }>();
+  const continentElements = new Map<Continent, HTMLDetailsElement>();
+  const empty = document.createElement('p');
+  empty.className = 'empty-state';
   let hoveredId: string | undefined;
   let focusedId: string | undefined;
 
@@ -63,6 +120,42 @@ export function createSidebar(
     hoveredId = undefined;
     focusedId = undefined;
     updatePreview();
+  }
+
+  function isFiltering(): boolean {
+    return input.value.trim().length > 0 || selected.size > 0;
+  }
+
+  function updateFilters(): void {
+    for (const [status, button] of filterButtons) button.setAttribute('aria-pressed', String(selected.has(status)));
+    updateMembership(true);
+  }
+
+  function updateMembership(revealGroups = false): void {
+    const matching = new Set(filterTerritories(registry, input.value, { selected, status: (id) => store.status(id) })
+      .map((country) => country.id));
+    let focusExcluded = false;
+    for (const [id, { button }] of rows) {
+      const excluded = !matching.has(id);
+      if (excluded && document.activeElement === button) focusExcluded = true;
+      button.hidden = excluded;
+      if (excluded && hoveredId === id) hoveredId = undefined;
+      if (excluded && focusedId === id) focusedId = undefined;
+    }
+    const visibleContinents = new Set(registry.filter((country) => matching.has(country.id)).map((country) => country.continent));
+    for (const [continent, details] of continentElements) {
+      const wasHidden = details.hidden;
+      details.hidden = !visibleContinents.has(continent);
+      if (revealGroups) details.open = isFiltering() || (expanded.get(continent) ?? false);
+      else if (wasHidden && !details.hidden && isFiltering()) details.open = true;
+    }
+    updatePreview();
+    if (focusExcluded) input.focus({ preventScroll: true });
+    meta.textContent = isFiltering() ? `${matching.size} matching places` : `${registry.length} places. A world of possibilities.`;
+    empty.hidden = matching.size > 0;
+    empty.textContent = selected.size
+      ? 'No places match these filters. Show all statuses or change your search.'
+      : 'No places found. Try a name or an ISO code.';
   }
 
   function addProgress(continent: Continent, parent: HTMLElement, label: HTMLElement): void {
@@ -78,16 +171,8 @@ export function createSidebar(
     groups.replaceChildren();
     rows.clear();
     progressElements.clear();
+    continentElements.clear();
     const filtered = filterTerritories(registry, input.value);
-    const searching = input.value.trim().length > 0;
-    meta.textContent = searching ? `${filtered.length} matching places` : `${registry.length} places. A world of possibilities.`;
-    if (!filtered.length) {
-      const empty = document.createElement('p');
-      empty.className = 'empty-state';
-      empty.textContent = 'No places found. Try a name or an ISO code.';
-      groups.append(empty);
-      return;
-    }
 
     function addRow(country: Territory, parent: HTMLElement): void {
       const button = document.createElement('button');
@@ -149,7 +234,7 @@ export function createSidebar(
       if (!countries.length) continue;
       const details = document.createElement('details');
       details.className = continent === 'Antarctica' ? 'continent antarctica' : 'continent';
-      details.open = searching || (expanded.get(continent) ?? false);
+      details.open = isFiltering() || (expanded.get(continent) ?? false);
       const summary = document.createElement('summary');
       const name = document.createElement('span');
       name.textContent = continent;
@@ -159,15 +244,17 @@ export function createSidebar(
       countries.forEach((country) => addRow(country, details));
       details.addEventListener('toggle', () => {
         if (!details.isConnected) return;
-        if (!searching) expanded.set(continent, details.open);
+        if (!isFiltering()) expanded.set(continent, details.open);
         if (!details.open) {
           if (hoveredId && rows.get(hoveredId)?.country.continent === continent) hoveredId = undefined;
           if (focusedId && rows.get(focusedId)?.country.continent === continent) focusedId = undefined;
           updatePreview();
         }
       });
+      continentElements.set(continent, details);
       groups.append(details);
     }
+    groups.append(empty);
     updateStatuses();
   }
 
@@ -187,6 +274,7 @@ export function createSidebar(
       button.setAttribute('aria-label', `${country.name} (${country.id}), ${kind}${STATUS_LABELS[status]}. Change status`);
       button.title = `${country.name} \u00b7 ${kind}${STATUS_LABELS[status]}`;
     }
+    updateMembership();
   }
   input.addEventListener('input', render);
   store.subscribe(updateStatuses);

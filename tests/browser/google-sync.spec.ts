@@ -139,6 +139,26 @@ test('chooses a remote version only after confirmation, with downloadable versio
   expect(drive.files.size).toBe(saved);
 });
 
+test('accepted Drive replacement updates active sidebar filter membership without syncing the filters', async ({ page }) => {
+  const drive = await mockGoogle(page);
+  await ready(page);
+  await backup(page);
+  await page.getByRole('button', { name: 'Filter by Lived / Living', exact: true }).click();
+  await expect(page.locator('.empty-state')).toBeVisible();
+  addRemote(drive);
+  await page.getByRole('button', { name: 'Sync now', exact: true }).click();
+  await expect(page.locator('.country-row[data-country="EST"]')).toBeHidden();
+  const size = drive.files.size;
+  await page.getByRole('dialog', { name: 'Choose your travel map' })
+    .getByRole('button', { name: /^Google Drive version/ }).click();
+  await expect(page.locator('#google-sync')).toHaveAttribute('data-sync-phase', 'synced');
+  await expect(page.locator('.country-row[data-country="EST"]')).toBeVisible();
+  await expect(page.locator('.sidebar-meta')).toHaveText('1 matching places');
+  await expect(page.getByRole('button', { name: 'Filter by Lived / Living', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  expect(drive.files.size).toBe(size);
+  expect([...drive.files.values()].every((file) => Array.isArray(file.snapshot.entries))).toBe(true);
+});
+
 test('cancelled conflict stays paused and sign-out leaves local and Drive maps intact', async ({ page }) => {
   const drive = await mockGoogle(page);
   await ready(page);

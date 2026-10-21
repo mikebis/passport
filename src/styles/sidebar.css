@@ -18,12 +18,19 @@
 .progress-track { height: 4px; border-radius: var(--radius-small); background: var(--track); overflow: hidden; }
 .progress-track > span { display: block; height: 100%; background: var(--progress); border-radius: inherit; transition: width .2s; }
 .sidebar-content { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+.sidebar-content > .search-box, .status-filters, .sidebar-meta { flex-shrink: 0; }
 .search-box { display: flex; gap: 8px; align-items: center; border: 1px solid var(--input-border); background: var(--input); padding: 0 11px; margin: 0 22px; border-radius: var(--radius-small); }
 .search-box > span:first-child { font-size: 25px; line-height: 1; color: var(--subtle); }
 .search-box input { border: 0; background: transparent; min-width: 0; width: 100%; height: 40px; color: var(--ink); font-size: 11px; }
 .search-box input::placeholder { color: var(--subtle); }
 .search-box input:focus { outline-offset: -3px; }
-.sidebar-meta { font-size: 10px; color: var(--subtle); margin: 14px 26px 16px; }
+.status-filters { display: flex; align-items: center; gap: 6px; margin: 12px 22px 0; }
+.status-filters-label { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.status-filter, .status-filter-reset { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 32px; width: 32px; height: 32px; padding: 0; border: 1px solid var(--input-border); border-radius: var(--radius-small); background: var(--input); color: var(--ink); }
+.status-filter[aria-pressed="true"] { border: 2px solid var(--ink); background: var(--selected); }
+.status-filter:hover, .status-filter-reset:hover { background: var(--hover); }
+.status-filter-reset { font-size: 20px; }
+.sidebar-meta { font-size: 10px; color: var(--subtle); margin: 8px 26px 12px; }
 .country-groups { overflow: auto; min-height: 0; padding: 0 12px 18px; scrollbar-width: thin; scrollbar-color: var(--scrollbar) transparent; }
 .continent { margin-bottom: 3px; }
 .continent summary { list-style: none; display: flex; align-items: center; min-height: 44px; padding: 0 14px; cursor: pointer; font-size: 12px; font-weight: 650; }
@@ -41,7 +48,6 @@
 .territory-kind { display: block; font-size: 9px; color: var(--muted); font-weight: 400; margin-top: 2px; }
 .country-code { color: var(--subtle); font-size: 8px; letter-spacing: .5px; flex-shrink: 0; }
 .country-row > .status-dot { width: 8px; height: 8px; margin-left: 3px; }
-.antarctica { border-top: 1px solid var(--border); margin: 14px 0 0; padding-top: 14px; }
 .empty-state { color: var(--muted); line-height: 1.7; padding: 14px; font-size: 12px; }
 .sidebar-footer { border-top: 1px solid var(--border); padding: 16px 24px 14px; margin-top: auto; max-height: 30dvh; overflow: auto; flex-shrink: 0; }
 .sidebar-footer > p:first-child { color: var(--muted); font-size: 10px; margin: 0 0 12px; display: flex; gap: 6px; align-items: center; }
@@ -63,6 +69,21 @@
 .sync-version .button { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
 .sync-version p { font-size: 12px; }
 @media (max-width: 1000px) { .sidebar-heading { padding-inline: 22px; } .sidebar-footer { padding-inline: 20px; } .data-actions { gap: 6px; } .data-actions .button { padding-inline: 10px; } }
+@media (min-width: 721px) and (max-height: 760px) {
+  .sidebar-heading { padding-top: 12px; }
+  .sidebar-heading h2 { font-size: 23px; }
+  .sidebar-heading .eyebrow { margin-bottom: 4px; }
+  .globe-icon { font-size: 32px; }
+  .theme-picker { margin-top: 8px; }
+  .theme-picker select { min-height: 30px; }
+  .travel-stats { padding-block: 10px 8px; }
+  .travel-stats strong { font-size: 24px; }
+  .travel-stats > div { gap: 5px; }
+  .journey-progress { margin-bottom: 8px; }
+  .journey-progress > div:first-child { margin-bottom: 6px; }
+  .status-filters { margin-top: 8px; gap: 4px; }
+  .sidebar-footer { max-height: 24dvh; padding-block: 12px; }
+}
 @media (max-width: 720px) {
   .sidebar { height: auto; min-height: 0; border-left: 0; border-top: 1px solid var(--border); }
   .sidebar-heading { padding-top: 26px; }

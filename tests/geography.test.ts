@@ -3,7 +3,7 @@ import registryJson from '../data/registry.json';
 import { validateRegistry } from '../src/geography';
 import { continentProgress, filterTerritories } from '../src/sidebar';
 import additional from '../data/additional-territories.json';
-import { CONTINENTS, territorySymbol, type TravelStatus } from '../src/types';
+import { CONTINENTS, STATUSES, territorySymbol, type TravelStatus } from '../src/types';
 import { TravelStore } from '../src/store';
 
 const registry = validateRegistry(registryJson);
@@ -87,6 +87,25 @@ describe('registry and sidebar organization', () => {
   it('finds accented names with unaccented search', () => {
     expect(filterTerritories(registry, 'aland').some((country) => country.id === 'ALA')).toBe(true);
     expect(filterTerritories(registry, 'reunion').some((country) => country.id === 'REU')).toBe(true);
+  });
+  it('matches independent statuses, OR combinations and an empty/all selection in alphabetical order', () => {
+    const statuses = new Map<string, TravelStatus>([
+      ['EST', 'visited'], ['FRA', 'lived'], ['DEU', 'want_to_visit'], ['custom:KOS', 'visited'], ['ATA', 'lived'],
+    ]);
+    const status = (id: string): TravelStatus => statuses.get(id) ?? 'unvisited';
+    const matching = (selected: TravelStatus[], query = '') => filterTerritories(registry, query, { selected: new Set(selected), status });
+    expect(matching([])).toEqual(filterTerritories(registry, ''));
+    for (const selected of STATUSES) {
+      expect(matching([selected])).toEqual(filterTerritories(registry, '').filter((country) => status(country.id) === selected));
+    }
+    expect(matching(['visited', 'want_to_visit']).map((country) => country.id)).toEqual(['EST', 'DEU', 'custom:KOS']);
+    expect(matching([...STATUSES])).toEqual(matching([]));
+    expect(matching(['visited'], ' est ').map((country) => country.id)).toEqual(['EST']);
+    expect(matching(['lived'], 'est')).toEqual([]);
+    expect(matching(['visited'], 'custom:KOS').map((country) => country.id)).toEqual(['custom:KOS']);
+    expect(matching(['lived'], 'ata').map((country) => country.id)).toEqual(['ATA']);
+    expect(matching(['unvisited'], 'aland').some((country) => country.id === 'ALA')).toBe(true);
+    expect(matching(['unvisited'], 'REUNION').map((country) => country.id)).toEqual(['REU']);
   });
   it('rejects unknown custom IDs, missing additions, and invented custom flag codes', () => {
     expect(() => validateRegistry(registry.map((entry) => entry.id === 'custom:KOS' ? { ...entry, id: 'custom:XXX' } : entry)))

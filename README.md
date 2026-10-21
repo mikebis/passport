@@ -26,8 +26,9 @@ The informational legend lets clicks, drags and zoom gestures reach the map
 underneath. There is no navigation hint or reserved map footer; boundary
 attribution and the Data sources link sit with the sidebar footer's license credits.
 
-On desktop, **Hide sidebar** at the map's upper-right corner gives the full width
-to the map; **Show sidebar** restores the same sidebar. It starts shown unless
+On desktop, **Hide sidebar** at the map's bottom-right corner, level with the
+legend, gives the full width to the map; **Show sidebar** restores the same
+sidebar. It starts shown unless
 you previously chose to hide it in this browser. This independent
 `passport:sidebar:v1` preference is not part of travel exports or Google Drive
 sync. If it cannot be read, the sidebar stays shown with an explanation; if it
@@ -167,13 +168,29 @@ genuine bundled boundary polygons: **266 independently tracked places** in total
 Tiny territories also have constant-size markers. The seven continent accordions
 use one assignment per territory, with Antarctica as the final group.
 All groups, including Europe and Antarctica, start collapsed on each page load.
-Open any groups independently; search temporarily expands matching groups and
-restores their previous open/closed states when cleared.
+Open any groups independently; search and status filters temporarily expand
+matching groups and restore their previous open/closed states when both clear.
+
+Use **Visited**, **Lived / Living**, **Want to Visit**, and **Unvisited** buttons
+below search to filter the sidebar. Each is independent: selecting Visited and
+Want to Visit includes either status; Lived / Living is not included in Visited.
+Text search further narrows that selection. No selected buttons means all
+statuses; **Show all statuses** clears just the status selection, keeping search.
+Compact, neutral buttons fit on one row, with colored circles matching the
+active theme's map legend and a thicker border indicating selection. Hover for
+status tooltips; the reset arrow shows all statuses. Results update immediately
+after edits, imports or accepted Drive replacements, including additional places
+and Antarctica.
+Filters last only until reload, survive theme switches and sidebar hiding, and
+are not saved, exported or synchronized. They affect sidebar rows only, not map
+visibility, travel data, global totals or continent progress. If a status edit
+filters out its sidebar trigger, focus returns to search instead of a hidden row.
+
 Each continent shows **(visited or lived / total)** using only official ISO
 countries and territories; Antarctica's summary shows **(0/1)** or **(1/1)**.
 Only Visited and Lived / Living contribute to the numerator, once per place.
 ISO wishlist and unvisited places remain in the denominator; additional non-ISO
-areas are excluded entirely. Search filters the list, not the progress values.
+areas are excluded entirely. Search/status filters change the list, not the progress values.
 These ISO-only ratios differ from the global counters and world-in-color progress,
 which still include additional areas (and wishlist in world-in-color).
 Mercator cannot show the poles: polar land is clipped by the viewport, with an

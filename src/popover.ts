@@ -9,7 +9,12 @@ export class StatusPopover {
   private anchor: SelectionAnchor | undefined;
   private scrollOrigin = { x: 0, y: 0 };
 
-  constructor(private store: TravelStore, registry: readonly Territory[], private announce: (message: string) => void) {
+  constructor(
+    private store: TravelStore,
+    registry: readonly Territory[],
+    private announce: (message: string) => void,
+    private focusFallback?: () => void,
+  ) {
     this.countries = new Map(registry.map((country) => [country.id, country]));
     this.element.className = 'status-popover';
     this.element.hidden = true;
@@ -107,8 +112,12 @@ export class StatusPopover {
     if (this.element.hidden) return;
     this.element.hidden = true;
     this.currentId = undefined;
-    if (restoreFocus && this.trigger instanceof HTMLElement) this.trigger.focus({ preventScroll: true });
-    else if (restoreFocus && this.trigger instanceof SVGElement) this.trigger.focus({ preventScroll: true });
+    if (restoreFocus) {
+      if ((this.trigger instanceof HTMLElement || this.trigger instanceof SVGElement)
+        && this.trigger.isConnected && this.trigger.checkVisibility() && this.trigger.getClientRects().length) {
+        this.trigger.focus({ preventScroll: true });
+      } else this.focusFallback?.();
+    }
   }
 
   get selectedId(): string | undefined {

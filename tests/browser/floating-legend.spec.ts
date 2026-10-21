@@ -44,7 +44,12 @@ for (const theme of ['classic', 'dark', 'medieval']) {
       const toolbar = (await page.locator('.map-toolbar').boundingBox())!;
       expect(box.x).toBeGreaterThanOrEqual(16);
       expect(box.x + box.width).toBeLessThanOrEqual(section.width - 16);
-      expect(box.x + box.width / 2).toBeCloseTo(section.width / 2, 0);
+      if (size.width > 720 && section.width <= 650) {
+        expect(box.x).toBe(16);
+        const toggle = (await page.locator('#toggle-sidebar').boundingBox())!;
+        expect(box.x + box.width + 12).toBeLessThanOrEqual(toggle.x);
+        expect(box.y + box.height).toBeCloseTo(toggle.y + toggle.height, 0);
+      } else expect(box.x + box.width / 2).toBeCloseTo(section.width / 2, 0);
       expect(section.height - box.y - box.height).toBeCloseTo(16, 0);
       expect(box.y - toolbar.y - toolbar.height).toBeGreaterThanOrEqual(8);
       await expect(legend).toBeInViewport();

@@ -183,7 +183,7 @@ async function boot(): Promise<void> {
     element('#save-status').textContent = 'Saved on this device';
   };
   const store = new TravelStore(initial.entries, registry, storage, warn, saved);
-  const popover = new StatusPopover(store, registry, announce);
+  const popover = new StatusPopover(store, registry, announce, () => sidebar.focusSearch());
   const selectCountry: SelectTerritory = (id, anchor) => {
     map.focusCountry(id);
     popover.open(id, anchor);

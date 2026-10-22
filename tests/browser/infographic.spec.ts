@@ -56,19 +56,28 @@ async function captureSvg(page: Page): Promise<void> {
     };
   });
 }
-async function portraitLayout(page: Page, height: number, story: boolean) {
-  return page.evaluate(async ({ height, story }) => {
+async function pictureLayout(page: Page, height: number, story: boolean, width = 1080) {
+  return page.evaluate(async ({ height, story, width }) => {
     const svg: unknown = await Reflect.get(window, '__pictureSvg');
     if (typeof svg !== 'string') throw new Error('Missing rendered SVG');
     const root = new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement;
     root.style.cssText = 'position:absolute;left:-10000px;top:0;visibility:hidden';
     document.body.append(root);
     try {
-      const texts = [...root.querySelectorAll('text')].map((node) => {
+      const bounds = (node: SVGGraphicsElement) => {
         const box = node.getBBox();
-        return { label: node.textContent, x: box.x, y: box.y, width: box.width, height: box.height };
-      });
-      const outside = texts.filter((box) => box.x < 40 || box.x + box.width > 1040
+        const corners = [[box.x, box.y], [box.x + box.width, box.y], [box.x, box.y + box.height], [box.x + box.width, box.y + box.height]]
+          .map(([x, y]) => new DOMPoint(x, y).matrixTransform(node.getCTM()!));
+        const left = Math.min(...corners.map((point) => point.x));
+        const top = Math.min(...corners.map((point) => point.y));
+        return { label: node.getAttribute('data-handwritten-title') ?? node.getAttribute('data-handwritten-name') ?? node.textContent, x: left, y: top,
+          transform: node.getAttribute('transform'),
+          width: Math.max(...corners.map((point) => point.x)) - left, height: Math.max(...corners.map((point) => point.y)) - top };
+      };
+      const texts = [...root.querySelectorAll<SVGGraphicsElement>('text, [data-handwritten-title], [data-handwritten-name]')].map(bounds);
+      const handwrittenNames = [...root.querySelectorAll<SVGGraphicsElement>('[data-handwritten-name]')].map(bounds);
+      const titles = [...root.querySelectorAll<SVGGraphicsElement>('[data-handwritten-title]')].map(bounds);
+      const outside = texts.filter((box) => box.x < 40 || box.x + box.width > width - 40
         || box.y < (story ? 160 : 30) || box.y + box.height > (story ? 1720 : height - 24));
       const overlaps: string[] = [];
       for (let a = 0; a < texts.length; a++) for (let b = a + 1; b < texts.length; b++) {
@@ -77,8 +86,19 @@ async function portraitLayout(page: Page, height: number, story: boolean) {
         const height = Math.min(first.y + first.height, second.y + second.height) - Math.max(first.y, second.y);
         if (width > 1 && height > 1) overlaps.push(`${first.label} / ${second.label}`);
       }
+      const qr = { label: 'QR', x: width > height ? 1990 : 732, y: width > height ? 100 : story ? 1370 : 970, width: 300, height: 300 };
+      const passportCount = root.querySelectorAll('[data-decoration="passport"]').length;
+      const decorationOverlaps: string[] = [];
+      for (const node of root.querySelectorAll<SVGGraphicsElement>('[data-decoration="stamp"], [data-decoration="badge-sticker"], [data-decoration="metric-icon"], [data-decoration="compass"]')) {
+        const art = bounds(node);
+        for (const content of [...texts, qr]) {
+          const intersectWidth = Math.min(art.x + art.width, content.x + content.width) - Math.max(art.x, content.x);
+          const intersectHeight = Math.min(art.y + art.height, content.y + content.height) - Math.max(art.y, content.y);
+          if (intersectWidth > 1 && intersectHeight > 1) decorationOverlaps.push(`${node.getAttribute('data-decoration')} / ${content.label}`);
+        }
+      }
       const groups = [...root.querySelectorAll('[data-flag-group]')];
-      return { outside, overlaps, text: texts.map((box) => box.label).join('\n'),
+      return { outside, overlaps, decorationOverlaps, passportCount, handwrittenNames, titles, text: texts.map((box) => box.label).join('\n'),
         paths: root.querySelectorAll('[data-country]').length,
         groups: groups.map((group) => group.getAttribute('data-flag-group')),
         strips: groups.map((group) => ({
@@ -86,10 +106,11 @@ async function portraitLayout(page: Page, height: number, story: boolean) {
           text: group.textContent,
         })) };
     } finally { root.remove(); }
-  }, { height, story });
+  }, { height, story, width });
 }
 
 test('downloads the exact preview PNG with a decodable app-only QR, actual flag pixels and marked geography', async ({ page }) => {
+  await captureSvg(page);
   const errors: string[] = [];
   const external: string[] = [];
   const requests: string[] = [];
@@ -102,8 +123,10 @@ test('downloads the exact preview PNG with a decodable app-only QR, actual flag 
   expect(requests.some((url) => /infographic-ui|\/sk-[\w-]+\.svg/.test(url))).toBe(false);
   const storage = await page.evaluate(() => ({ ...localStorage }));
   await open(page);
+  await picture(page).getByLabel('Name (optional)').fill('Alex Morgan');
+  await expect(downloadButton(page)).toBeEnabled();
   await expect(image(page)).toHaveAttribute('alt', /3 of 249 ISO places.*4 badges earned/);
-  await expect(picture(page).locator('input')).toHaveCount(3);
+  await expect(picture(page).locator('input')).toHaveCount(1);
   await expect(picture(page).locator('.infographic-local-warning')).toBeVisible();
   expect(await image(page).evaluate((node) => node.getBoundingClientRect().height <= innerHeight * .6 + 1)).toBe(true);
   if (process.env.INFOGRAPHIC_CAPTURE_DIR) await picture(page).screenshot({ path: join(process.env.INFOGRAPHIC_CAPTURE_DIR, 'passport-share-desktop.png') });
@@ -126,15 +149,46 @@ test('downloads the exact preview PNG with a decodable app-only QR, actual flag 
     const context = canvas.getContext('2d')!;
     context.drawImage(image, 0, 0);
     const pixel = (x: number, y: number) => Array.from(context.getImageData(x, y, 1, 1).data);
-    const map = context.getImageData(120, 675, 1380, 515).data;
+    const svg: unknown = await Reflect.get(window, '__pictureSvg');
+    if (typeof svg !== 'string') throw new Error('Missing composition SVG');
+    const titleCanvas = document.createElement('canvas');
+    titleCanvas.width = image.width; titleCanvas.height = 480;
+    const titleContext = titleCanvas.getContext('2d')!;
+    for (const title of new DOMParser().parseFromString(svg, 'image/svg+xml').querySelectorAll('[data-handwritten-title], [data-handwritten-name]')) {
+      const titleImage = new Image();
+      titleImage.src = title.getAttribute('href')!;
+      await titleImage.decode();
+      const angle = title.getAttribute('transform')?.match(/^rotate\(([-\d.]+) /);
+      if (!angle) throw new Error('Missing handwritten angle');
+      titleContext.save();
+      titleContext.translate(Number(title.getAttribute('x')), Number(title.getAttribute('y')));
+      titleContext.rotate(Number(angle[1]) * Math.PI / 180);
+      titleContext.drawImage(titleImage, 0, 0);
+      titleContext.restore();
+    }
+    const glyphs = titleContext.getImageData(0, 0, titleCanvas.width, titleCanvas.height).data;
+    const renderedTitle = context.getImageData(0, 0, titleCanvas.width, titleCanvas.height).data;
+    let titleInk = 0, matchingTitleInk = 0;
+    for (let offset = 0; offset < glyphs.length; offset += 4) {
+      if (glyphs[offset + 3] === 255) {
+        titleInk++;
+        if (renderedTitle[offset] === 22 && renderedTitle[offset + 1] === 63 && renderedTitle[offset + 2] === 97) matchingTitleInk++;
+      }
+    }
+    context.font = '600 64px PassportHandwriting,Arial,sans-serif';
+    const handwrittenWidth = context.measureText('My Travel Passport').width;
+    context.font = '600 64px Arial,sans-serif';
+    const plainWidth = context.measureText('My Travel Passport').width;
+    const map = context.getImageData(127, 525, 1398, 680).data;
     let visited = 0, lived = 0, unvisited = 0;
     for (let index = 0; index < map.length; index += 4) {
-      if (map[index] === 98 && map[index + 1] === 165 && map[index + 2] === 116) visited++;
-      if (map[index] === 228 && map[index + 1] === 183 && map[index + 2] === 85) lived++;
-      if (map[index] === 220 && map[index + 1] === 216 && map[index + 2] === 202) unvisited++;
+      if (map[index] === 105 && map[index + 1] === 173 && map[index + 2] === 60) visited++;
+      if (map[index] === 237 && map[index + 1] === 189 && map[index + 2] === 73) lived++;
+      if (map[index] === 200 && map[index + 1] === 201 && map[index + 2] === 195) unvisited++;
     }
-    return { width: image.width, height: image.height, qr: Array.from(context.getImageData(1990, 80, 300, 300).data),
-      flagWhite: pixel(1256, 1367), flagRed: pixel(1256, 1385), visited, lived, unvisited };
+    return { width: image.width, height: image.height, qr: Array.from(context.getImageData(1990, 100, 300, 300).data),
+      flagWhite: pixel(1268, 1371), flagRed: pixel(1268, 1389), visited, lived, unvisited,
+      titleInk, matchingTitleInk, fontWidthDifference: Math.abs(handwrittenWidth - plainWidth) };
   }, bytes.toString('base64'));
   expect([pixels.width, pixels.height]).toEqual([2400, 1600]);
   expect(jsQR(Uint8ClampedArray.from(pixels.qr), 300, 300)?.data).toBe(address);
@@ -143,28 +197,92 @@ test('downloads the exact preview PNG with a decodable app-only QR, actual flag 
   expect(pixels.visited).toBeGreaterThan(2000);
   expect(pixels.lived).toBeGreaterThan(20);
   expect(pixels.unvisited).toBeGreaterThan(50000);
+  expect(pixels.titleInk).toBeGreaterThan(500);
+  expect(pixels.matchingTitleInk).toBe(pixels.titleInk);
+  expect(pixels.fontWidthDifference).toBeGreaterThan(10);
+  const layout = await pictureLayout(page, 1600, false, 2400);
+  expect(layout.outside).toEqual([]);
+  expect(layout.overlaps).toEqual([]);
+  expect(layout.decorationOverlaps).toEqual([]);
+  expect(layout.passportCount).toBe(0);
+  expect(layout.handwrittenNames).toHaveLength(1);
+  expect(layout.handwrittenNames[0]!.label).toBe('Alex Morgan');
+  expect(layout.titles).toHaveLength(1);
+  expect(layout.titles[0]!.label).toBe('My Travel Passport');
+  expect(layout.titles[0]!.height).toBeGreaterThan(layout.handwrittenNames[0]!.height);
+  expect(layout.titles[0]!.transform).toMatch(/^rotate\(-2 /);
+  expect(layout.handwrittenNames[0]!.transform).toMatch(/^rotate\(-1\.2 /);
+  expect(layout.handwrittenNames[0]!.y).toBeGreaterThan(layout.titles[0]!.y + layout.titles[0]!.height);
+  expect(layout.text).not.toMatch(/Prepared for|Every journey leaves a story/);
   expect(await page.evaluate(() => ({ ...localStorage }))).toEqual(storage);
   expect(external).toEqual([]);
   expect(errors).toEqual([]);
 });
 
-test('personalization is ephemeral, escaped and regenerated; blank titles have an explicit recoverable error', async ({ page }) => {
+test('handwritten fonts stay local and lazy, retry HTTP/decode failures and cache successes across formats', async ({ page }) => {
+  const requests: string[] = [];
+  page.on('request', (request) => {
+    if (request.resourceType() === 'fetch' && /caveat.*\.woff2/.test(request.url())) requests.push(request.url());
+  });
+  await ready(page);
+  expect(requests).toEqual([]);
+  let latinRequests = 0;
+  await page.route(/caveat-latin-600-normal.*\.woff2(?:\?.*)?$/, (route) => {
+    if (route.request().resourceType() !== 'fetch') return route.continue();
+    latinRequests++;
+    if (latinRequests === 1) return route.fulfill({ status: 503, body: 'Unavailable' });
+    if (latinRequests === 2) return route.fulfill({ contentType: 'font/woff2', body: 'Invalid font bytes' });
+    return route.continue();
+  });
+  await page.getByRole('button', { name: 'Share picture', exact: true }).click();
+  await expect(picture(page).getByRole('alert')).toContainText('handwritten title font');
+  await expect(downloadButton(page)).toBeDisabled();
+  await picture(page).getByRole('button', { name: 'Retry picture' }).click();
+  await expect(picture(page).getByRole('alert')).toContainText('Could not prepare');
+  await expect(downloadButton(page)).toBeDisabled();
+  await expect(image(page)).toBeHidden();
+  await picture(page).getByRole('button', { name: 'Retry picture' }).click();
+  await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
+  expect(latinRequests).toBe(3);
+  expect(requests).toHaveLength(6);
+  expect(requests.every((url) => new URL(url).origin === new URL(page.url()).origin)).toBe(true);
+  await picture(page).getByLabel('Name (optional)').fill('\u0141\u00f3d\u017a \u2014 \u0416\u0438\u0432\u0438 \u{1f30d} \u6771\u4eac');
+  await picture(page).getByLabel('Picture format').selectOption('feed');
+  await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
+  await expect(image(page)).toHaveAttribute('alt', /^\u0141\u00f3d\u017a/);
+  expect(requests).toHaveLength(6);
+});
+
+test('only the name is customizable and ephemeral; the fixed title stays when the name is blank', async ({ page }) => {
+  await captureSvg(page);
   await ready(page);
   const stored = await page.evaluate(() => ({ ...localStorage }));
   await open(page);
   const first = await image(page).getAttribute('src');
+  await expect(picture(page).locator('input')).toHaveCount(1);
+  await expect(picture(page).getByLabel('Title', { exact: true })).toHaveCount(0);
+  await expect(picture(page).getByLabel('Subtitle (optional)')).toHaveCount(0);
   await picture(page).getByLabel('Name (optional)').fill('Zo\u00eb <script> & friends');
-  await picture(page).getByLabel('Title', { exact: true }).fill('My "Private" Atlas');
-  await picture(page).getByLabel('Subtitle (optional)').fill('Memories <not markup>');
   await expect(downloadButton(page)).toBeEnabled();
-  await expect(image(page)).toHaveAttribute('alt', /^My "Private" Atlas\./);
+  await expect(image(page)).toHaveAttribute('alt', /^Zo\u00eb <script> & friends\./);
   expect(await image(page).getAttribute('src')).not.toBe(first);
   expect(await page.evaluate(() => ({ ...localStorage }))).toEqual(stored);
-  await picture(page).getByLabel('Title', { exact: true }).fill(' ');
-  await expect(picture(page).getByRole('alert')).toContainText('Please enter a title');
-  await expect(downloadButton(page)).toBeDisabled();
-  await expect(image(page)).toBeHidden();
-  await picture(page).getByLabel('Title', { exact: true }).fill('The next adventure');
+  for (const [format, height, width] of [['horizontal', 1600, 2400], ['feed', 1350, 1080], ['story', 1920, 1080]] as const) {
+    await picture(page).getByLabel('Picture format').selectOption(format);
+    await picture(page).getByLabel('Name (optional)').fill(' ');
+    await expect(downloadButton(page)).toBeEnabled();
+    const layout = await pictureLayout(page, height, format === 'story', width);
+    expect(layout.text).not.toMatch(/Prepared for|Every journey leaves a story/);
+    expect(layout.titles).toHaveLength(1);
+    expect(layout.titles[0]!.label).toBe('My Travel Passport');
+    expect(await page.evaluate(async () => {
+      const svg: string = await Reflect.get(window, '__pictureSvg');
+      return new DOMParser().parseFromString(svg, 'image/svg+xml').querySelectorAll('[data-handwritten-name]').length;
+    })).toBe(0);
+    expect(layout.outside).toEqual([]);
+    expect(layout.overlaps).toEqual([]);
+  }
+  await picture(page).getByLabel('Name (optional)').fill('Zo\u00eb <script> & friends');
   await expect(downloadButton(page)).toBeEnabled();
   await page.keyboard.press('Escape');
   await expect(picture(page)).toBeHidden();
@@ -175,7 +293,7 @@ test('personalization is ephemeral, escaped and regenerated; blank titles have a
   await page.reload();
   await open(page);
   await expect(picture(page).getByLabel('Name (optional)')).toHaveValue('');
-  await expect(picture(page).getByLabel('Title', { exact: true })).toHaveValue('My Travel Passport');
+  await expect(picture(page).locator('input')).toHaveCount(1);
 });
 
 test('catalog failures are isolated, retryable and shared with the Badges tab', async ({ page }) => {
@@ -237,6 +355,35 @@ test('PNG encoding failures are explicit and retry uses a fresh render', async (
   await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
 });
 
+for (const failedCall of [1, 2]) {
+  test(`${failedCall === 1 ? 'title' : 'name'} raster encoding failures retain explicit errors and retry releases the failed canvas`, async ({ page }) => {
+    await ready(page);
+    await open(page);
+    await picture(page).getByLabel('Name (optional)').fill('Alex Morgan');
+    await expect(downloadButton(page)).toBeEnabled();
+    await page.evaluate((failedCall) => {
+      const original = HTMLCanvasElement.prototype.toDataURL;
+      let calls = 0;
+      HTMLCanvasElement.prototype.toDataURL = function (...args) {
+        if (++calls === failedCall) {
+          Reflect.set(window, '__failedTitleCanvas', this);
+          return 'data:,';
+        }
+        return original.apply(this, args);
+      };
+    }, failedCall);
+    await picture(page).getByLabel('Picture format').selectOption('feed');
+    await expect(picture(page).getByRole('alert')).toContainText('could not encode the handwritten title');
+    await expect(downloadButton(page)).toBeDisabled();
+    expect(await page.evaluate(() => {
+      const canvas: unknown = Reflect.get(window, '__failedTitleCanvas');
+      return canvas instanceof HTMLCanvasElement && canvas.width === 0 && canvas.height === 0;
+    })).toBe(true);
+    await picture(page).getByRole('button', { name: 'Retry picture' }).click();
+    await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
+  });
+}
+
 test('closing or editing during a delayed load ignores stale work and renders only the latest inputs and snapshot', async ({ page }) => {
   await ready(page);
   let release!: () => void;
@@ -244,7 +391,7 @@ test('closing or editing during a delayed load ignores stale work and renders on
   await page.route('**/data/badges.json', async (route) => { await gate; await route.fulfill({ json: catalog }); });
   await page.getByRole('button', { name: 'Share picture', exact: true }).click();
   await expect(picture(page).locator('.infographic-message')).toContainText('Preparing');
-  await picture(page).getByLabel('Title', { exact: true }).fill('Old title');
+  await picture(page).getByLabel('Name (optional)').fill('Old name');
   await picture(page).getByLabel('Picture format').selectOption('feed');
   await page.keyboard.press('Escape');
   release();
@@ -252,10 +399,10 @@ test('closing or editing during a delayed load ignores stale work and renders on
   await page.locator('path.country-boundary[data-country="CZE"]').dispatchEvent('click', { clientX: 100, clientY: 100 });
   await page.locator('.status-choice[data-status="visited"]').click();
   await page.getByRole('button', { name: 'Share picture', exact: true }).click();
-  await picture(page).getByLabel('Title', { exact: true }).fill('Latest title');
+  await picture(page).getByLabel('Name (optional)').fill('Latest name');
   await picture(page).getByLabel('Picture format').selectOption('story');
   await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
-  await expect(image(page)).toHaveAttribute('alt', /^Latest title\. 4 of 249 ISO places.*5 badges earned/);
+  await expect(image(page)).toHaveAttribute('alt', /^Latest name\. 4 of 249 ISO places.*5 badges earned/);
   await expect(image(page)).toHaveJSProperty('naturalHeight', 1920);
   await expect(page.locator('.status-popover')).toBeHidden();
 });
@@ -294,14 +441,15 @@ test('failed local saves still export the current in-memory map', async ({ page 
 });
 
 for (const format of [
-  { id: 'feed', label: 'Instagram Feed', height: 1350, limit: 6, qrY: 970, flagY: 919 },
-  { id: 'story', label: 'Story', height: 1920, limit: 12, qrY: 1370, flagY: 1263 },
+  { id: 'feed', label: 'Instagram Feed', height: 1350, limit: 6, qrX: 732, qrY: 970, flagY: 919 },
+  { id: 'story', label: 'Story', height: 1920, limit: 12, qrX: 732, qrY: 1370, flagY: 1263 },
 ] as const) {
   test(`${format.id}: reflowed PNG retains all sections, real flags, readable QR and non-overlapping text`, async ({ page }) => {
     await captureSvg(page);
     await ready(page);
     const stored = await page.evaluate(() => ({ ...localStorage }));
     await open(page);
+    await picture(page).getByLabel('Name (optional)').fill('Alex Morgan');
     await picture(page).getByLabel('Picture format').selectOption(format.id);
     await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
     await expect(image(page)).toHaveAttribute('alt', new RegExp(`${format.label}, 1080 by ${format.height}`));
@@ -312,7 +460,7 @@ for (const format of [
     });
     const bytes = await png(page, [1080, format.height], `passport-share-${format.id}.png`);
     expect(createHash('sha256').update(bytes).digest('hex')).toBe(blobHash);
-    const pixels = await page.evaluate(async ({ base64, qrY, flagY }) => {
+    const pixels = await page.evaluate(async ({ base64, qrX, qrY, flagY }) => {
       const image = new Image();
       image.src = `data:image/png;base64,${base64}`;
       await image.decode();
@@ -321,15 +469,25 @@ for (const format of [
       const context = canvas.getContext('2d')!;
       context.drawImage(image, 0, 0);
       const sample = (x: number, y: number) => Array.from(context.getImageData(x, y, 1, 1).data);
-      return { qr: Array.from(context.getImageData(732, qrY, 300, 300).data),
+      return { qr: Array.from(context.getImageData(qrX, qrY, 300, 300).data),
         white: sample(94, flagY + 7), red: sample(94, flagY + 25) };
-    }, { base64: bytes.toString('base64'), qrY: format.qrY, flagY: format.flagY });
+    }, { base64: bytes.toString('base64'), qrX: format.qrX, qrY: format.qrY, flagY: format.flagY });
     expect(jsQR(Uint8ClampedArray.from(pixels.qr), 300, 300)?.data).toBe(new URL(process.env.TEST_BASE_PATH || '/', page.url()).href);
     expect(pixels.white).toEqual([255, 255, 255, 255]);
     expect(pixels.red).toEqual([215, 20, 26, 255]);
-    const layout = await portraitLayout(page, format.height, format.id === 'story');
+    const layout = await pictureLayout(page, format.height, format.id === 'story');
     expect(layout.outside).toEqual([]);
     expect(layout.overlaps).toEqual([]);
+    expect(layout.decorationOverlaps).toEqual([]);
+    expect(layout.passportCount).toBe(0);
+    expect(layout.handwrittenNames).toHaveLength(1);
+    expect(layout.handwrittenNames[0]!.label).toBe('Alex Morgan');
+    expect(layout.titles).toHaveLength(1);
+    expect(layout.titles[0]!.label).toBe('My Travel Passport');
+    expect(layout.titles[0]!.height).toBeGreaterThan(layout.handwrittenNames[0]!.height);
+    expect(layout.titles[0]!.transform).toMatch(/^rotate\(-2 /);
+    expect(layout.handwrittenNames[0]!.transform).toMatch(/^rotate\(-1\.2 /);
+    expect(layout.handwrittenNames[0]!.y).toBeGreaterThan(layout.titles[0]!.y + layout.titles[0]!.height);
     expect(layout.paths).toBe(266);
     expect(layout.groups).toEqual(['visited', 'lived', 'want_to_visit', 'favourite']);
     for (const text of ['3/249', '2/7', '4 earned', '50 points', 'Southern explorer', 'Equal points', 'Favourites', 'KOS']) expect(layout.text).toContain(text);
@@ -376,14 +534,16 @@ test('all-place overflow and zero groups render successfully without fetching un
   await ready(page, dense);
   await open(page);
   await expect(image(page)).toHaveAttribute('alt', /150 of 249 ISO places/);
-  await picture(page).getByLabel('Title', { exact: true }).fill('W'.repeat(80));
   await picture(page).getByLabel('Name (optional)').fill('W'.repeat(60));
-  await picture(page).getByLabel('Subtitle (optional)').fill('W'.repeat(120));
   await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
   await expect(image(page)).toHaveJSProperty('naturalWidth', 2400);
   expect(flagRequests.length).toBeGreaterThan(18);
   expect(flagRequests.length).toBeLessThanOrEqual(72);
   expect(new Set(flagRequests).size).toBe(flagRequests.length);
+  const horizontal = await pictureLayout(page, 1600, false, 2400);
+  expect(horizontal.outside).toEqual([]);
+  expect(horizontal.overlaps).toEqual([]);
+  expect(horizontal.decorationOverlaps).toEqual([]);
   if (process.env.INFOGRAPHIC_CAPTURE_DIR) {
     const event = page.waitForEvent('download');
     await downloadButton(page).click();
@@ -392,9 +552,10 @@ test('all-place overflow and zero groups render successfully without fetching un
   for (const [id, height, limit] of [['feed', 1350, 6], ['story', 1920, 12]] as const) {
     await picture(page).getByLabel('Picture format').selectOption(id);
     await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
-    const layout = await portraitLayout(page, height, id === 'story');
+    const layout = await pictureLayout(page, height, id === 'story');
     expect(layout.outside).toEqual([]);
     expect(layout.overlaps).toEqual([]);
+    expect(layout.decorationOverlaps).toEqual([]);
     for (const [index, total] of [100, 50, 50, 266].entries()) {
       expect(layout.strips[index]!.shown).toBe(limit);
       expect(layout.strips[index]!.text).toContain(`+${total - limit} more`);
@@ -573,22 +734,22 @@ for (const theme of ['classic', 'dark', 'medieval'] as const) {
   });
 }
 
-test('portrait maximum badge names and Unicode personalization remain within their text regions', async ({ page }) => {
+test('maximum badge names and Unicode personalization remain within their text regions in all formats', async ({ page }) => {
   await captureSvg(page);
   await ready(page, seed, catalog.map((badge) => ({
     ...badge, name: badge.value === 50 ? 'W'.repeat(120) : badge.value === 30 ? `${badge.name} ${'\u00c9'.repeat(90)}` : badge.name,
   })));
   await open(page);
-  await picture(page).getByLabel('Title', { exact: true }).fill('\u00c9'.repeat(80));
   await picture(page).getByLabel('Name (optional)').fill('Zo\u00eb <Traveller>');
-  await picture(page).getByLabel('Subtitle (optional)').fill('Memories & adventures \u{1f30d}');
-  for (const [id, height] of [['feed', 1350], ['story', 1920]] as const) {
+  for (const [id, height, width] of [['horizontal', 1600, 2400], ['feed', 1350, 1080], ['story', 1920, 1080]] as const) {
     await picture(page).getByLabel('Picture format').selectOption(id);
     await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
-    const layout = await portraitLayout(page, height, id === 'story');
+    const layout = await pictureLayout(page, height, id === 'story', width);
     expect(layout.outside).toEqual([]);
     expect(layout.overlaps).toEqual([]);
+    expect(layout.decorationOverlaps).toEqual([]);
     expect(layout.text).toContain('Zo\u00eb <Traveller>');
-    expect(layout.text).toContain('Memories & adventures');
+    expect(layout.text).toContain('My Travel Passport');
+    expect(layout.text).not.toMatch(/Prepared for|Every journey leaves a story/);
   }
 });

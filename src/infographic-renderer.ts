@@ -1,15 +1,32 @@
 import { geoNaturalEarth1, geoPath } from 'd3';
 import type { Boundaries } from './geography';
 import { loadInfographicFlags, qrSvg } from './infographic-assets';
-import { INFOGRAPHIC_HEIGHT, INFOGRAPHIC_WIDTH, validatePersonalization, type InfographicData, type Personalization } from './infographic';
+import { metricIcon, scrapbook, SCRAPBOOK_DEFS, stamp, sticker, tape } from './infographic-artwork';
+import { loadTitleFont, rasterTitle, type TitleBox, type TitleRaster } from './infographic-title';
+import { validatePersonalization, type InfographicData, type InfographicFormatId, type Personalization } from './infographic';
 import { formatPercentage } from './statistics';
 import { STATUSES, type Territory, type TravelStatus } from './types';
 
 const PALETTE: Record<TravelStatus, string> = {
-  visited: '#62a574', lived: '#e4b755', want_to_visit: '#a28ac0', unvisited: '#dcd8ca',
+  visited: '#69ad3c', lived: '#edbd49', want_to_visit: '#b18ad0', unvisited: '#c8c9c3',
 };
-const PAPER_DEFS = '<defs><linearGradient id="paper" x2="1" y2="1"><stop stop-color="#fbf3df"/><stop offset="1" stop-color="#e6d2ab"/></linearGradient><pattern id="grain" width="43" height="37" patternUnits="userSpaceOnUse"><path d="m4 7 3 1m20 12 5-1M10 30l4-1" stroke="#967748" stroke-opacity=".09"/><circle cx="36" cy="8" r=".8" fill="#967748" opacity=".14"/></pattern></defs>';
 const LEGEND_LABELS = ['Visited', 'Lived / Living', 'Want to Visit', 'Unvisited'];
+const TITLE_BOXES: Record<InfographicFormatId, TitleBox> = {
+  horizontal: { x: 106, y: 110, width: 800, height: 190, size: 150 },
+  feed: { x: 48, y: 62, width: 984, height: 140, size: 110 },
+  story: { x: 48, y: 184, width: 984, height: 190, size: 135 },
+};
+const NAME_BOXES: Record<InfographicFormatId, TitleBox> = {
+  horizontal: { ...TITLE_BOXES.horizontal, height: 100, size: 90 },
+  feed: { ...TITLE_BOXES.feed, height: 75, size: 64 },
+  story: { ...TITLE_BOXES.story, height: 95, size: 82 },
+};
+const TITLE_ANGLE = -2;
+const NAME_ANGLE = -1.2;
+function angledHeight(raster: TitleRaster, angle: number): number {
+  const radians = Math.abs(angle) * Math.PI / 180;
+  return raster.width * Math.sin(radians) + raster.height * Math.cos(radians);
+}
 type Measure = (text: string, size: number, serif?: boolean) => number;
 export interface InfographicSource {
   data: InfographicData;
@@ -21,7 +38,6 @@ export interface InfographicSource {
 export function escapeSvg(text: string): string {
   return text.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[character]!);
 }
-
 export function fitLines(text: string, width: number, size: number, count: number, measure: Measure, serif = false): string[] {
   const lines: string[] = [];
   let line = '';
@@ -31,10 +47,7 @@ export function fitLines(text: string, width: number, size: number, count: numbe
       if (space > 0 && lines.length < count - 1) {
         lines.push(line.slice(0, space));
         line = line.slice(space + 1);
-      } else {
-        lines.push(line.trim());
-        line = '';
-      }
+      } else { lines.push(line.trim()); line = ''; }
     }
     line += character;
   }
@@ -46,43 +59,34 @@ export function fitLines(text: string, width: number, size: number, count: numbe
   result[count - 1] = `${last.trimEnd()}\u2026`;
   return result;
 }
-
 function text(value: string, x: number, y: number, size: number, extra = ''): string {
   return `<text x="${x}" y="${y}" font-size="${size}" ${extra}>${escapeSvg(value)}</text>`;
 }
-function multiline(value: string, x: number, y: number, width: number, size: number, lines: number, measure: Measure, serif = false): string {
-  return fitLines(value, width, size, lines, measure, serif).map((line, index) =>
-    text(line, x, y + index * size * 1.22, size, serif ? 'font-family="Georgia,serif"' : '')).join('');
+function multiline(value: string, x: number, y: number, width: number, size: number, lines: number, measure: Measure): string {
+  return fitLines(value, width, size, lines, measure).map((line, index) => text(line, x, y + index * size * 1.22, size)).join('');
+}
+function titleArtwork(source: InfographicSource, title: TitleRaster, name: TitleRaster): string {
+  const box = TITLE_BOXES[source.data.format.id];
+  const titleY = box.y + title.width * Math.sin(-TITLE_ANGLE * Math.PI / 180);
+  const nameTop = box.y + angledHeight(title, TITLE_ANGLE) + 16;
+  const nameY = nameTop + name.width * Math.sin(-NAME_ANGLE * Math.PI / 180);
+  return `<image data-handwritten-title="My Travel Passport" aria-label="My Travel Passport" x="${box.x}" y="${titleY}" width="${title.width}" height="${title.height}" transform="rotate(${TITLE_ANGLE} ${box.x} ${titleY})" href="${escapeSvg(title.href)}"/>`
+    + (source.personal.name.trim() ? `<image data-handwritten-name="${escapeSvg(source.personal.name)}" aria-label="${escapeSvg(source.personal.name)}" x="${box.x}" y="${nameY}" width="${name.width}" height="${name.height}" transform="rotate(${NAME_ANGLE} ${box.x} ${nameY})" href="${escapeSvg(name.href)}"/>` : '');
 }
 function compass(x: number, y: number, size: number): string {
-  return `<g transform="translate(${x},${y}) scale(${size / 100})" fill="none" stroke="#9c7943" stroke-width="1.5">
-    <circle r="45"/><circle r="39"/><path d="M0-57V57M-57 0H57M-34-34l68 68M-34 34l68-68" opacity=".5"/>
-    <path d="M0-42 9-9 42 0 9 9 0 42-9 9-42 0-9-9Z" fill="#9c7943" fill-opacity=".24"/>
-    <path d="M0-42 0 0 9-9ZM42 0 0 0 9 9ZM0 42 0 0-9 9ZM-42 0 0 0-9-9Z" fill="#365363"/>
-    <circle r="4" fill="#365363"/></g>`;
+  return `<g data-decoration="compass" transform="translate(${x},${y}) scale(${size / 100})" fill="none" stroke="#43667b" stroke-width="1.5">
+    <circle r="42"/><circle r="37"/><path d="M0-54V54M-54 0H54M-31-31l62 62M-31 31l62-62" opacity=".5"/>
+    <path d="M0-42 9-9 42 0 9 9 0 42-9 9-42 0-9-9Z" fill="#43667b" fill-opacity=".15"/>
+    <path d="M0-42 0 0 9-9ZM42 0 0 0 9 9ZM0 42 0 0-9 9ZM-42 0 0 0-9-9Z" fill="#43667b"/><circle r="3"/></g>`;
 }
-function medallion(x: number, y: number, index: number): string {
-  const icons = [
-    '<path d="m0-27 8 18 20 2-15 14 4 21-17-11-17 11 4-21-15-14 20-2Z" fill="#e1b965" stroke="#fff0c2" stroke-width="2"/>',
-    '<circle r="26" fill="none" stroke="#e1b965" stroke-width="3"/><path d="M-26 0H26M0-26C-17-13-17 13 0 26M0-26C17-13 17 13 0 26M-21-14H21M-21 14H21" fill="none" stroke="#e1b965" stroke-width="2"/>',
-    '<path d="m0-28 9 20 20 8-20 9-9 20-9-20-20-9 20-8Z" fill="#e1b965"/><path d="m0-20 5 15 15 5-15 5-5 15Z" fill="#f7e9bf"/>',
-  ];
-  return `<g transform="translate(${x},${y})"><path d="m-34 29-8 44 24-12 16 17 9-49M8 29l13 48 15-18 23 10-19-43" fill="#9a604e" stroke="#744b3f" stroke-width="2"/>
-    <path d="M0-55 38-39 53 0 38 39 0 55-38 39-53 0-38-39Z" fill="#bf9650" stroke="#704f2b" stroke-width="3"/>
-    <circle r="43" fill="#294957" stroke="#f3d18b" stroke-width="3"/>${icons[index % icons.length]}</g>`;
-}
-
 function summaryMetrics(data: InfographicData): [string, string][] {
   return [
-    [String(data.stats.counts.visited), 'Visited'],
-    [String(data.stats.counts.lived), 'Lived / Living'],
-    [String(data.stats.counts.want_to_visit), 'Want to Visit'],
-    [String(data.favourites), 'Favourites'],
+    [String(data.stats.counts.visited), 'Visited'], [String(data.stats.counts.lived), 'Lived / Living'],
+    [String(data.stats.counts.want_to_visit), 'Want to Visit'], [String(data.favourites), 'Favourites'],
     [`${data.stats.completed}/${data.stats.total}`, `Visited or lived \u00b7 ${formatPercentage(data.stats.percentage)}`],
     [`${data.stats.continentsCompleted}/${data.stats.continents.size}`, 'Continents explored'],
   ];
 }
-
 function worldMap(source: InfographicSource, extent: [[number, number], [number, number]]): string {
   const { data, countries, registry } = source;
   const projection = geoNaturalEarth1().fitExtent(extent, countries);
@@ -92,20 +96,33 @@ function worldMap(source: InfographicSource, extent: [[number, number], [number,
     const id = String(boundary.id);
     const geometry = path(boundary);
     if (!geometry) throw new Error(`Could not render infographic boundary ${id}.`);
-    pieces.push(`<path data-country="${escapeSvg(id)}" data-status="${data.status(id)}" d="${geometry}" fill="${PALETTE[data.status(id)]}" stroke="#faf5e8" stroke-width=".8" stroke-linejoin="round"/>`);
+    pieces.push(`<path data-country="${escapeSvg(id)}" data-status="${data.status(id)}" d="${geometry}" fill="${PALETTE[data.status(id)]}" stroke="#faf8ed" stroke-width=".8" stroke-linejoin="round"/>`);
   }
   for (const country of registry.filter((entry) => entry.microstate)) {
     const position = projection(country.marker);
     if (!position) throw new Error(`Could not render infographic marker ${country.id}.`);
-    pieces.push(`<circle cx="${position[0]}" cy="${position[1]}" r="2.3" fill="${PALETTE[data.status(country.id)]}" stroke="#faf5e8" stroke-width=".7"/>`);
+    pieces.push(`<circle cx="${position[0]}" cy="${position[1]}" r="2.3" fill="${PALETTE[data.status(country.id)]}" stroke="#faf8ed" stroke-width=".7"/>`);
   }
   return `${pieces.join('')}</g>`;
 }
-
-function flagImages(
-  countries: readonly Territory[], flags: ReadonlyMap<string, string>, x: number, y: number,
-  columns: number, columnStep = 55, rowStep = 48,
-): string {
+function mapPanel(source: InfographicSource, x: number, y: number, width: number, height: number, portrait: boolean): string {
+  const legendHeight = portrait ? 38 : 46;
+  const legendWidth = portrait ? 830 : 1060;
+  const legendX = x + (width - legendWidth) / 2;
+  const legendY = y + height - legendHeight - 12;
+  const legend = STATUSES.map((status, index) => {
+    const cx = legendX + 22 + index * (legendWidth / 4);
+    return `<circle cx="${cx}" cy="${legendY + legendHeight / 2}" r="${portrait ? 5 : 7}" fill="${PALETTE[status]}" stroke="#6c827d"/>`
+      + text(LEGEND_LABELS[index]!, cx + 14, legendY + legendHeight / 2 + 6, portrait ? 16 : 21);
+  }).join('');
+  return `<g data-section="world-map"><rect x="${x}" y="${y}" width="${width}" height="${height}" rx="9" fill="url(#sea)" stroke="#9cbdc1"/>
+    <rect x="${x}" y="${y}" width="${width}" height="${height}" rx="9" fill="url(#water)"/>
+    ${worldMap(source, [[x + 15, y + 15], [x + width - 15, legendY - 12]])}
+    ${compass(x + (portrait ? 34 : 56), legendY + 4, portrait ? 36 : 58)}
+    <rect x="${legendX}" y="${legendY}" width="${legendWidth}" height="${legendHeight}" rx="${legendHeight / 2}" fill="#fffdf4" fill-opacity=".9" stroke="#a6bbc0"/>${legend}
+    </g>`;
+}
+function flagImages(countries: readonly Territory[], flags: ReadonlyMap<string, string>, x: number, y: number, columns: number, columnStep: number, rowStep: number): string {
   return countries.map((country, index) => {
     const fx = x + index % columns * columnStep;
     const fy = y + Math.floor(index / columns) * rowStep;
@@ -114,169 +131,128 @@ function flagImages(
       if (!asset) throw new Error(`Missing rendered flag for ${country.id}.`);
       return `<image data-flag="${country.id}" x="${fx}" y="${fy}" width="44" height="33" href="${escapeSvg(asset)}" xlink:href="${escapeSvg(asset)}"/>`;
     }
-    return `<rect x="${fx}" y="${fy}" width="44" height="33" rx="3" fill="#dfd3b7" stroke="#9c8c6d"/>`
+    return `<rect x="${fx}" y="${fy}" width="44" height="33" rx="3" fill="#e3ddcb" stroke="#a3967c"/>`
       + text(country.id.replace('custom:', ''), fx + 22, fy + 22, 14, 'text-anchor="middle"');
   }).join('');
 }
-
-function portraitSvg(source: InfographicSource, flags: ReadonlyMap<string, string>, measure: Measure): string {
+function flagCards(data: InfographicData, flags: ReadonlyMap<string, string>, portrait: boolean, story = false): string {
+  return data.groups.map((group, index) => {
+    const x = portrait ? 48 + index % 2 * 504 : 112 + index * 552;
+    const height = portrait ? story ? 126 : 82 : 164;
+    const y = portrait ? (story ? 1080 : 782) + Math.floor(index / 2) * (height + (story ? 14 : 12)) : 1314;
+    const width = portrait ? 480 : 540;
+    return `<g data-flag-group="${group.id}"><rect x="${x}" y="${y}" width="${width}" height="${height}" rx="3" fill="#fffdf5" fill-opacity=".55" stroke="#c0b7a2" stroke-width="1.2"/>
+      <path d="M${x + 5} ${y + 7}H${x + width - 7}M${x + 7} ${y + height - 6}H${x + width - 5}" stroke="#d7ceba" fill="none"/>
+      ${text(group.label, x + 16, y + (portrait ? 25 : 30), portrait ? 20 : 25, 'font-weight="600"')}
+      ${text(String(group.total), x + width - 16, y + (portrait ? 25 : 30), portrait ? 20 : 24, 'text-anchor="end" fill="#6a726a"')}
+      ${flagImages(group.countries, flags, x + (portrait ? 16 : 22), y + (portrait ? 43 : 50), portrait ? 6 : 9, portrait ? 56 : 55, portrait ? 41 : 44)}
+      ${!group.total ? text('None yet', x + 16, y + 66, portrait ? 17 : 22, 'fill="#77796c"') : ''}
+      ${group.hidden ? text(`+${group.hidden} more`, x + width - 16, y + height - 13, portrait ? 13 : 18, 'text-anchor="end" fill="#6a726a"') : ''}
+      ${tape(x + 4, y + 2, -32, portrait ? .48 : .72)}
+      </g>`;
+  }).join('');
+}
+function start(source: InfographicSource): string[] {
+  const { width, height } = source.data.format;
+  return [`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img"><title>Personal travel passport infographic</title>`,
+    SCRAPBOOK_DEFS, scrapbook(width, height), '<g font-family="Arial,sans-serif" fill="#263f4c">'];
+}
+function portraitSvg(source: InfographicSource, flags: ReadonlyMap<string, string>, measure: Measure, title: TitleRaster, name: TitleRaster): string {
   const { data, address } = source;
-  const { format } = data;
-  const personal = validatePersonalization(source.personal);
-  const story = format.id === 'story';
-  const layout = story ? {
-    eyebrow: 184, title: 236, titleSize: 48, name: 337, subtitle: 373, divider: 400,
-    stats: 448, statsStep: 88, valueSize: 44, labelOffset: 30, progress: 580, isoNote: 610,
-    mapTitle: 636, mapY: 650, mapHeight: 380, legend: 1057,
-    flags: 1080, flagHeight: 126, flagGap: 14,
-    badgeHeading: 1400, badgeY: 1440, badgeStep: 80, badgeSize: 22, pointsOffset: 52,
-    earned: 1680, qrY: 1370, privacy: 1701, source: 1718,
-  } : {
-    eyebrow: 54, title: 100, titleSize: 38, name: 180, subtitle: 209, divider: 226,
-    stats: 262, statsStep: 64, valueSize: 35, labelOffset: 26, progress: 358, isoNote: 382,
-    mapTitle: 402, mapY: 414, mapHeight: 322, legend: 758,
-    flags: 782, flagHeight: 82, flagGap: 12,
-    badgeHeading: 1019, badgeY: 1044, badgeStep: 74, badgeSize: 20, pointsOffset: 48,
-    earned: 1267, qrY: 970, privacy: 1293, source: 1316,
-  };
-  const pieces = [
-    `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${format.width}" height="${format.height}" viewBox="0 0 ${format.width} ${format.height}" role="img">`,
-    '<title>Personal travel passport infographic</title>', PAPER_DEFS,
-    `<rect width="${format.width}" height="${format.height}" fill="#294653"/>`,
-    `<rect x="16" y="14" width="1048" height="${format.height - 28}" rx="16" fill="url(#paper)" stroke="#c3a577" stroke-width="2"/>`,
-    `<rect x="16" y="14" width="1048" height="${format.height - 28}" rx="16" fill="url(#grain)"/>`,
-    `<rect x="28" y="26" width="1024" height="${format.height - 52}" rx="9" fill="none" stroke="#9c7943" stroke-opacity=".55"/>`,
-    '<g font-family="Arial,sans-serif" fill="#263f4c">',
-    text('PASSPORT / A PERSONAL ATLAS', 48, layout.eyebrow, 12, 'letter-spacing="2.4" fill="#866a44"'),
-    multiline(personal.title, 48, layout.title, 984, layout.titleSize, 2, measure, true),
-    multiline(personal.name ? `Prepared for ${personal.name}` : 'Every journey leaves a story.', 48, layout.name, 984, story ? 23 : 20, 1, measure),
-    multiline(personal.subtitle, 48, layout.subtitle, 984, story ? 20 : 17, 1, measure),
-    `<path d="M48 ${layout.divider}H1032" stroke="#b9a17a"/>`,
-  ];
+  const story = data.format.id === 'story';
+  const titleBox = TITLE_BOXES[data.format.id];
+  const divider = titleBox.y + angledHeight(title, TITLE_ANGLE) + (name.height ? angledHeight(name, NAME_ANGLE) + 16 : 0) + 28;
+  const statsY = divider + (story ? 49 : 36);
+  const statsStep = story ? 88 : 64;
+  const mapY = divider + (story ? 238 : 194);
+  const mapBottom = story ? 1030 : 740;
+  const qrY = story ? 1370 : 970;
+  const badgeY = story ? 1440 : 1044;
+  const pieces = start(source);
+  pieces.push(titleArtwork(source, title, name),
+    `<path d="M48 ${divider}H1032" stroke="#c6baa2"/>`);
   for (const [index, [value, label]] of summaryMetrics(data).entries()) {
     const x = 48 + index % 3 * 328;
-    const y = layout.stats + Math.floor(index / 3) * layout.statsStep;
-    pieces.push(text(value, x, y, layout.valueSize, 'font-family="Georgia,serif"'),
-      text(label, x, y + layout.labelOffset, 17, 'fill="#685d4b"'));
+    const y = statsY + Math.floor(index / 3) * statsStep;
+    pieces.push(metricIcon(x + 1, y - (story ? 32 : 26), index, story ? 28 : 23),
+      text(value, x + (story ? 42 : 34), y, story ? 40 : 33, 'font-weight="600"'),
+      text(label, x, y + (story ? 30 : 22), 17, 'fill="#62716d"'));
   }
-  pieces.push(
-    `<rect x="376" y="${layout.progress}" width="265" height="5" rx="2.5" fill="#d2c5a8"/><rect x="376" y="${layout.progress}" width="${265 * data.stats.percentage / 100}" height="5" rx="2.5" fill="#62846a"/>`,
-    text('ISO countries and territories only. Flags also include additional places.', 48, layout.isoNote, 13, 'fill="#776c59"'),
-    text('THE PLACES IN YOUR STORY', 48, layout.mapTitle, 16, 'letter-spacing="2"'),
-    `<rect x="48" y="${layout.mapY}" width="984" height="${layout.mapHeight}" rx="9" fill="#bad7dc" stroke="#9bbfc7"/>`,
-    worldMap(source, [[62, layout.mapY + 14], [1018, layout.mapY + layout.mapHeight - 14]]),
-    compass(88, layout.mapY + layout.mapHeight - 38, 44),
-  );
-  for (const [index, status] of STATUSES.entries()) {
-    const x = 65 + index * 245;
-    pieces.push(`<circle cx="${x}" cy="${layout.legend}" r="5.5" fill="${PALETTE[status]}" stroke="#7f8273"/>`,
-      text(LEGEND_LABELS[index]!, x + 13, layout.legend + 6, 17));
-  }
-  for (const [index, group] of data.groups.entries()) {
-    const x = 48 + index % 2 * 504;
-    const y = layout.flags + Math.floor(index / 2) * (layout.flagHeight + layout.flagGap);
-    pieces.push(`<g data-flag-group="${group.id}"><rect x="${x}" y="${y}" width="480" height="${layout.flagHeight}" rx="8" fill="#fffaf0" fill-opacity=".45" stroke="#bda783"/>`,
-      text(group.label, x + 16, y + 25, 20, 'font-family="Georgia,serif"'),
-      text(String(group.total), x + 464, y + 25, 20, 'text-anchor="end" fill="#76603e"'),
-      flagImages(group.countries, flags, x + 16, y + 43, 6, 56, 41));
-    if (!group.total) pieces.push(text('None yet', x + 16, y + 66, 17, 'fill="#776c59"'));
-    if (group.hidden) pieces.push(text(`+${group.hidden} more`, x + 464, y + layout.flagHeight - 13, 13, 'text-anchor="end" fill="#76603e"'));
-    pieces.push('</g>');
-  }
-  pieces.push(text('TOP EARNED BADGES', 48, layout.badgeHeading, 17, 'letter-spacing="2"'));
+  const progressY = statsY + statsStep + (story ? 44 : 32);
+  pieces.push(`<rect x="376" y="${progressY}" width="265" height="4" rx="2" fill="#d8d3bc"/><rect x="376" y="${progressY}" width="${265 * data.stats.percentage / 100}" height="4" rx="2" fill="#6b9b58"/>`,
+    text('ISO countries and territories only. Flags also include additional places.', 48, progressY + 24, 13, 'fill="#77796c"'),
+    text('THE PLACES IN YOUR STORY', 48, mapY - 14, 15, 'letter-spacing="1.7"'),
+    mapPanel(source, 48, mapY, 984, mapBottom - mapY, true),
+    flagCards(data, flags, true, story),
+    text('TOP BADGES', 48, story ? 1400 : 1015, 17, 'font-weight="600" letter-spacing="1.5"'));
   for (const [index, badge] of data.badges.entries()) {
-    const y = layout.badgeY + index * layout.badgeStep;
-    pieces.push(`<g transform="translate(82,${y + 12}) scale(.34)">${medallion(0, 0, index)}</g>`,
-      multiline(badge.name, 125, y, 560, layout.badgeSize, 2, measure, true),
-      text(`${badge.value} points`, 125, y + layout.pointsOffset, 16, 'fill="#76603e"'));
+    const y = badgeY + index * (story ? 80 : 74);
+    pieces.push(sticker(82, y + 12, 58, index),
+      multiline(badge.name, 125, y, 560, story ? 22 : 20, 2, measure),
+      text(`${badge.value} points`, 125, y + (story ? 52 : 48), 16, 'fill="#657568"'));
   }
   if (!data.badges.length) {
-    pieces.push(compass(340, layout.badgeY + 45, 60),
-      text('No badges earned yet', 340, layout.badgeY + 112, 24, 'text-anchor="middle" font-family="Georgia,serif"'),
-      text('Your next adventure could change that.', 340, layout.badgeY + 144, 17, 'text-anchor="middle"'));
+    pieces.push(compass(340, badgeY + 45, 60),
+      text('No badges earned yet', 340, badgeY + 112, 24, 'text-anchor="middle"'),
+      text('Your next adventure could change that.', 340, badgeY + 144, 17, 'text-anchor="middle"'));
   }
   pieces.push(
-    text(`${data.earnedCount} earned \u00b7 ${data.earnedPoints} total points`, 48, layout.earned, 16, 'fill="#76603e"'),
-    qrSvg(address, { x: 732, y: layout.qrY, size: 300 }),
-    text('SCAN TO OPEN THE APP', 882, layout.qrY + 324, 12, 'text-anchor="middle" letter-spacing="1"'),
-    multiline(address, 732, layout.qrY + 344, 300, 11, 1, measure),
-    text('QR opens the app, not your personal map.', 48, layout.privacy, 12, 'fill="#6f624e"'),
-    text('Boundaries: Natural Earth. Flags: flag-icons (MIT).', 48, layout.source, 10, 'fill="#6f624e"'),
-    '</g></svg>',
-  );
+    text(`${data.earnedCount} earned \u00b7 ${data.earnedPoints} total points`, 48, story ? 1680 : 1267, 16, 'fill="#657568"'),
+    qrSvg(address, { x: 732, y: qrY, size: 300 }),
+    text('SCAN TO OPEN THE APP', 882, qrY + 324, 12, 'text-anchor="middle" letter-spacing="1"'),
+    multiline(address, 732, qrY + 344, 300, 11, 1, measure),
+    text('QR opens the app, not your personal map.', 48, story ? 1701 : 1293, 12, 'fill="#6f746a"'),
+    text('Natural Earth \u00b7 flag-icons (MIT) \u00b7 Caveat (OFL)', 48, story ? 1718 : 1316, 10, 'fill="#6f746a"'),
+    story ? stamp(90, 1830, 37) : stamp(26, 28, 10));
+  pieces.push('</g></svg>');
   return pieces.join('');
 }
-
-export function infographicSvg(source: InfographicSource, flags: ReadonlyMap<string, string>, measure: Measure): string {
-  if (source.data.format.id !== 'horizontal') return portraitSvg(source, flags, measure);
-  const personal = validatePersonalization(source.personal);
+export function infographicSvg(source: InfographicSource, flags: ReadonlyMap<string, string>, measure: Measure, title: TitleRaster, name: TitleRaster): string {
+  if (source.data.format.id !== 'horizontal') return portraitSvg(source, flags, measure, title, name);
   const { data, address } = source;
-  const pieces = [
-    `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${INFOGRAPHIC_WIDTH}" height="${INFOGRAPHIC_HEIGHT}" viewBox="0 0 2400 1600" role="img">`,
-    '<title>Personal travel passport infographic</title>',
-    PAPER_DEFS,
-    '<rect width="2400" height="1600" fill="#294653"/><path d="M0 1300 2400 300M0 300 2400 1300" stroke="#385460" stroke-width="180"/>',
-    '<rect x="34" y="30" width="2332" height="1540" rx="22" fill="url(#paper)" stroke="#c3a577" stroke-width="3"/>',
-    '<rect x="34" y="30" width="2332" height="1540" rx="22" fill="url(#grain)"/>',
-    '<rect x="57" y="53" width="2286" height="1494" rx="12" fill="none" stroke="#9c7943" stroke-opacity=".55"/>',
-    '<g font-family="Arial,sans-serif" fill="#263f4c">',
-    text('PASSPORT / A PERSONAL ATLAS', 110, 102, 20, 'letter-spacing="5" fill="#866a44"'),
-    multiline(personal.title, 105, 195, 1740, 76, 2, measure, true),
-    multiline(personal.name ? `Prepared for ${personal.name}` : 'Every journey leaves a story.', 112, 340, 1740, 29, 1, measure),
-    multiline(personal.subtitle, 112, 390, 1700, 26, 1, measure),
-    qrSvg(address),
-    text('SCAN TO START YOUR ATLAS', 2140, 408, 17, 'text-anchor="middle" letter-spacing="1.4"'),
-    multiline(address, 1925, 431, 420, 16, 1, measure),
-    '<path d="M110 454H2290" stroke="#b9a17a" stroke-width="2"/>',
-  ];
-  const metrics = summaryMetrics(data);
-  for (const [index, [value, label]] of metrics.entries()) {
-    const x = 110 + index * 365;
-    pieces.push(text(value!, x, 522, 52, 'font-family="Georgia,serif"'), text(label!, x, 559, 23, 'fill="#685d4b"'));
+  const pieces = start(source);
+  pieces.push(titleArtwork(source, title, name));
+  for (const [index, [value, label]] of summaryMetrics(data).entries()) {
+    const x = 940 + index % 3 * 328;
+    const y = 205 + Math.floor(index / 3) * 116;
+    pieces.push(metricIcon(x, y - 34, index, 29), text(value, x + 44, y, 39, 'font-weight="600"'),
+      text(label, x, y + 32, 19, 'fill="#62716d"'));
   }
-  pieces.push(`<rect x="1570" y="575" width="285" height="6" rx="3" fill="#d2c5a8"/><rect x="1570" y="575" width="${285 * data.stats.percentage / 100}" height="6" rx="3" fill="#62846a"/>`);
-  pieces.push(text('ISO countries and territories only. Flags below also include additional places.', 110, 594, 18, 'fill="#776c59"'));
-  pieces.push(text('THE PLACES IN YOUR STORY', 110, 636, 22, 'letter-spacing="3"'));
-  pieces.push('<rect x="100" y="655" width="1430" height="555" rx="12" fill="#bad7dc" stroke="#9bbfc7"/>');
-  pieces.push(worldMap(source, [[120, 675], [1500, 1190]]), compass(175, 1136, 70));
-  for (const [index, status] of STATUSES.entries()) {
-    const x = 152 + index * 338;
-    pieces.push(`<circle cx="${x}" cy="1242" r="8" fill="${PALETTE[status]}" stroke="#7f8273"/>`,
-      text(LEGEND_LABELS[index]!, x + 20, 1250, 23));
-  }
-  pieces.push(text('TOP EARNED BADGES', 1585, 636, 22, 'letter-spacing="3"'),
-    '<rect x="1570" y="655" width="730" height="610" rx="12" fill="#fffaf0" fill-opacity=".5" stroke="#bda783"/>');
+  pieces.push(
+    `<rect x="1268" y="366" width="270" height="5" rx="2.5" fill="#d8d3bc"/><rect x="1268" y="366" width="${270 * data.stats.percentage / 100}" height="5" rx="2.5" fill="#6b9b58"/>`,
+    text('ISO countries and territories only. Flags also include additional places.', 940, 415, 16, 'fill="#77796c"'),
+    qrSvg(address, { x: 1990, y: 100, size: 300 }),
+    text('SCAN TO OPEN THE APP', 2140, 423, 16, 'text-anchor="middle" letter-spacing="1.4"'),
+    multiline(address, 1990, 447, 300, 14, 1, measure),
+    '<path d="M112 470H2290" stroke="#c6baa2"/>',
+    mapPanel(source, 112, 510, 1428, 768, false),
+    text('TOP BADGES', 1580, 500, 23, 'font-weight="600"'),
+    '<rect x="1580" y="520" width="710" height="758" rx="3" fill="#fffdf5" fill-opacity=".4" stroke="#c0b7a2"/>');
   for (const [index, badge] of data.badges.entries()) {
-    const y = 750 + index * 170;
-    pieces.push(medallion(1660, y, index),
-      multiline(badge.name, 1745, y - 20, 520, 31, 2, measure, true),
-      text(`${badge.value} points`, 1745, y + 65, 24, 'fill="#76603e"'));
-    if (index < data.badges.length - 1) pieces.push(`<path d="M1605 ${y + 97}H2260" stroke="#cbb895"/>`);
+    const y = 632 + index * 196;
+    pieces.push(sticker(1680, y, 138, index),
+      multiline(badge.name, 1770, y - 18, 485, 28, 2, measure),
+      text(`${badge.value} points`, 1770, y + 64, 23, 'fill="#657568"'));
   }
   if (!data.badges.length) {
-    pieces.push(compass(1935, 868, 180), text('No badges earned yet', 1935, 1045, 35, 'text-anchor="middle" font-family="Georgia,serif"'),
-      text('Your next adventure could change that.', 1935, 1090, 25, 'text-anchor="middle"'));
+    pieces.push(compass(1935, 835, 145),
+      text('No badges earned yet', 1935, 1020, 32, 'text-anchor="middle"'),
+      text('Your next adventure could change that.', 1935, 1066, 23, 'text-anchor="middle"'));
   }
-  pieces.push(text(`${data.earnedCount} earned \u00b7 ${data.earnedPoints} total points`, 1935, 1235, 23, 'text-anchor="middle" fill="#76603e"'));
-  for (const [index, group] of data.groups.entries()) {
-    const x = 100 + index * 552;
-    pieces.push(`<g data-flag-group="${group.id}"><rect x="${x}" y="1300" width="540" height="205" rx="10" fill="#fffaf0" fill-opacity=".45" stroke="#bda783"/>`,
-      text(group.label, x + 20, 1338, 27, 'font-family="Georgia,serif"'),
-      text(String(group.total), x + 515, 1338, 26, 'text-anchor="end" fill="#76603e"'));
-    pieces.push(flagImages(group.countries, flags, x + 22, 1360, 9));
-    if (!group.total) pieces.push(text('None yet', x + 22, 1394, 24, 'fill="#776c59"'));
-    if (group.hidden) pieces.push(text(`+${group.hidden} more`, x + 515, 1481, 20, 'text-anchor="end" fill="#76603e"'));
-    pieces.push('</g>');
-  }
-  pieces.push(text('MY MAP. MY MEMORIES. MY NEXT ADVENTURE.', 110, 1538, 16, 'letter-spacing="2" fill="#6f624e"'),
-    text('QR links to the app, not this personal map. Boundaries: Natural Earth. Flags: flag-icons (MIT).', 2290, 1538, 16, 'text-anchor="end" fill="#6f624e"'),
+  pieces.push(text(`${data.earnedCount} earned \u00b7 ${data.earnedPoints} total points`, 1935, 1236, 22, 'text-anchor="middle" fill="#657568"'),
+    flagCards(data, flags, false), tape(1510, 514, 30, .85),
+    stamp(2220, 1516, 25),
+    text('MY MAP. MY MEMORIES. MY NEXT ADVENTURE.', 112, 1518, 15, 'letter-spacing="1.6" fill="#6f746a"'),
+    text('QR links to the app, not this personal map. Natural Earth \u00b7 flag-icons (MIT) \u00b7 Caveat (OFL)', 2130, 1518, 15, 'text-anchor="end" fill="#6f746a"'),
     '</g></svg>');
   return pieces.join('');
 }
-
 export async function renderInfographic(source: InfographicSource): Promise<Blob> {
+  await Promise.all([loadTitleFont(), document.fonts.ready]);
   const flags = await loadInfographicFlags(source.data.groups.flatMap((group) => [...group.countries]));
-  await document.fonts.ready;
+  const personal = validatePersonalization(source.personal);
+  const title = rasterTitle('My Travel Passport', TITLE_BOXES[source.data.format.id], fitLines);
+  const name = rasterTitle(personal.name, NAME_BOXES[source.data.format.id], fitLines);
   const canvas = document.createElement('canvas');
   canvas.width = source.data.format.width;
   canvas.height = source.data.format.height;
@@ -289,7 +265,7 @@ export async function renderInfographic(source: InfographicSource): Promise<Blob
   let url: string | undefined;
   const image = new Image();
   try {
-    const svg = infographicSvg(source, flags, measure);
+    const svg = infographicSvg(source, flags, measure, title, name);
     url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }));
     image.src = url;
     await image.decode();

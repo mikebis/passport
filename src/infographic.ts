@@ -17,8 +17,8 @@ export function infographicFormat(id: string) {
   if (!format) throw new Error(`Unknown picture format: ${id}`);
   return format;
 }
-export const TEXT_LIMITS = { name: 60, title: 80, subtitle: 120 } as const;
-export interface Personalization { name: string; title: string; subtitle: string }
+export const TEXT_LIMITS = { name: 60 } as const;
+export interface Personalization { name: string }
 export interface FlagGroup {
   id: TravelStatus | 'favourite';
   label: string;
@@ -62,13 +62,8 @@ export function infographicData(
 export type InfographicData = ReturnType<typeof infographicData>;
 
 export function validatePersonalization(input: Personalization): Personalization {
-  const result = { ...input };
-  for (const key of ['name', 'title', 'subtitle'] as const) {
-    if (Array.from(input[key]).length > TEXT_LIMITS[key]) throw new Error(`${key} must be ${TEXT_LIMITS[key]} characters or fewer.`);
-    result[key] = input[key].replace(/\s+/g, ' ').trim();
-  }
-  if (!result.title) throw new Error('Please enter a title.');
-  return result;
+  if (Array.from(input.name).length > TEXT_LIMITS.name) throw new Error(`name must be ${TEXT_LIMITS.name} characters or fewer.`);
+  return { name: input.name.replace(/\s+/g, ' ').trim() };
 }
 
 export function currentAppAddress(origin: string, base: string): string {

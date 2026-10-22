@@ -3,7 +3,7 @@
 .infographic-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .infographic-heading h2 { margin: 0; font-size: 25px; }
 .infographic-heading p, .infographic-note { font-size: 12px; color: var(--muted); line-height: 1.6; }
-.infographic-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 12px; }
+.infographic-fields { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 12px; }
 .infographic-format { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; margin-top: 12px; }
 .infographic-format select { min-width: 0; max-width: 100%; min-height: 40px; padding: 8px 10px; border: 1px solid var(--input-border); border-radius: var(--radius-small); background: var(--input); color: var(--ink); font: inherit; }
 .infographic-fields label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; min-width: 0; }

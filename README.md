@@ -244,8 +244,8 @@ even when local saving fails; they do not change the map or travel JSON.
 
 Choose the colored camera button at the top-right of the sidebar beside
 **Your places**, available from any tab. Its tooltip and accessible name are
-**Share picture**. Pick a **Picture format**, edit the title, optional name and
-subtitle, then use **Download PNG** to save the exact finished preview as
+**Share picture**. Pick a **Picture format**, optionally enter your name,
+then use **Download PNG** to save the exact finished preview as
 `passport-infographic.png`.
 
 | Format | PNG size | Flags/symbols per group |
@@ -259,16 +259,28 @@ earned badges and fixed app QR into a vertical composition. Badge names/points
 use compact rows; Story leaves extra top/bottom clearance for platform controls.
 These are PNG images for sharing, not an automatic Instagram upload or a Reel
 video. Platforms may crop/compress images or overlay controls.
-The original parchment/passport styling stays the same in every app theme.
+All three formats use an original scrapbook design: off-white textured paper
+over illustrated mountain/coast postcards, a blue handwritten heading, compact
+icon statistics, a prominent textured-blue world, taped flag cards and
+decorative stamps, without a corner passport illustration. The exported styling
+is independent of the app theme.
+The header shows the larger fixed **My Travel Passport** title with your smaller
+handwritten name directly below it, both in blue **Caveat** at slight, individual
+angles for a hand-lettered look. Only the name is
+editable; there is no subtitle, byline or placeholder slogan. Leave the name
+blank to show just the title.
+The font is bundled locally, loaded only when generating
+a picture and embedded as a transparent raster for reliable PNG rendering.
 The button uses the active theme's filled accent color and a local SVG camera.
-Names and subtitles are optional; limits are 60/80/120 characters for
-name/title/subtitle. Long text is wrapped or shortened to fit.
+The optional name is limited to 60 characters. Long text is wrapped or shortened to fit.
 
 The picture includes a separately fitted whole-world map, ISO-only status and
 favourite statistics, visited-or-lived world progress, continent coverage, and
 the three highest-point **currently earned** badges. Equal-point badges retain
 catalog order; the total earned count/points includes all earned badges.
-Generic original medallions accompany the real badge names and points.
+Original star, mountain and globe stickers accompany the real badge names and
+points. These and the scenic collage are illustrative decoration, not additional
+achievements or a claim that you visited the illustrated destinations.
 No achievements are invented for an empty or unearned catalog.
 
 Four strips show Visited, Lived / Living, Want to Visit and Favourites. Each
@@ -285,13 +297,14 @@ show a warning; a deployed address is not checked for public reachability.
 Use the full-size PNG and preserve the QR's white margin when sharing.
 Unsupported/overlong addresses fail explicitly rather than producing a tiny QR.
 
-Generation is entirely on this device, using locally bundled SVG flags and a
-QR encoder: no image upload, external generator or QR-destination request.
+Generation is entirely on this device, using locally bundled SVG flags,
+title fonts and a QR encoder: no image upload, external font/image service,
+external generator or QR-destination request.
 Personalization and the selected format stay in page memory across closing and
 reopening, never travel JSON, browser storage or Google Drive; reload resets the
 format to Horizontal. Current in-memory edits are included even if local saving
 fails. Data/input/format changes regenerate the preview and disable download
-until ready, without clearing the entered name/title/subtitle.
+until ready, without clearing the entered name.
 Close/Escape cancels stale results; flag/catalog/browser-encoding errors offer
 **Retry picture** without blocking normal map editing or JSON export.
 
@@ -619,8 +632,16 @@ Infographic flags come from [flag-icons](https://github.com/lipis/flag-icons)
 (MIT); QR generation uses [qrcode](https://github.com/soldair/node-qrcode)
 (MIT) and its dijkstrajs dependency (MIT). The unchanged notices ship as
 `data/FLAG-ICONS-LICENSE.txt`, `data/QRCODE-LICENSE.txt` and
-`data/DIJKSTRAJS-LICENSE.txt`. Passport accents and badge medallions are original
-vector artwork; no reference-picture artwork or external fonts are bundled.
+`data/DIJKSTRAJS-LICENSE.txt`. The handwritten name uses
+[Caveat](https://github.com/googlefonts/caveat), bundled through
+[@fontsource/caveat](https://fontsource.org/fonts/caveat) under **SIL OFL 1.1**;
+its unchanged notice ships as `data/CAVEAT-LICENSE.txt`. Latin/extended Latin and
+Cyrillic subsets are local assets; other characters use the declared system
+fallback. Font loading/decoding or title encoding failures use the picture's
+explicit error and Retry flow, not a silent replacement design.
+Scenic postcards, paper, stamp accents and badge stickers are original
+vector artwork; no reference-picture artwork, photographs or remotely hosted
+fonts are used.
 
 Pinned source URLs, revisions, normalization rules, marker placement, and
 continent exceptions are recorded in `data/provenance.json`.
@@ -748,6 +769,8 @@ coordination and sidebar controls;
 `map.ts` owns D3 rendering/navigation; `sidebar.ts` handles search/grouping;
 `popover.ts` provides shared accessible status actions; `badge-catalog.ts`
 shares validated lazy badge loading. `infographic.ts` derives the snapshot
-model; `infographic-assets.ts`, `infographic-renderer.ts` and `infographic-ui.ts`
-provide local assets, SVG-to-PNG rendering and the lazy preview dialog. CSS lives in
+model; `infographic-assets.ts` provides flags/QR, `infographic-artwork.ts` the
+original collage/stickers, and `infographic-title.ts` local typography.
+`infographic-renderer.ts` and `infographic-ui.ts` provide SVG-to-PNG composition
+and the lazy preview dialog. CSS lives in
 `src/styles`, reproducible geography scripts in `scripts`, and tests in `tests`.

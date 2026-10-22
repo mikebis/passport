@@ -11,6 +11,7 @@ import { normalizeData } from '../src/store';
 import type { LocationEntry } from '../src/types';
 
 const registry = validateRegistry(registryJson);
+const titleRaster = { href: 'data:image/png;base64,AA==', width: 760, height: 100 };
 const definition = { name: 'First steps', description: 'Visit Slovakia.', condition: 'SVK', value: 10 };
 const entries = (changes: Partial<LocationEntry>[] = []) => normalizeData(changes.map((entry) => ({
   name: 'test', continent: 'Europe', status: 'unvisited', ...entry,
@@ -106,8 +107,8 @@ describe('picture formats', () => {
       const flags = new Map(registry.flatMap((country) => country.kind === 'iso' ? [[country.alpha2, 'data:image/svg+xml,%3Csvg%2F%3E'] as const] : []));
       const svg = infographicSvg({
         data, registry, countries: decodeWorld(worldJson, registry).countries,
-        personal: { name: '<Traveller>', title: 'W'.repeat(80), subtitle: '& Memories' }, address: 'https://example.test/',
-      }, flags, (value, size) => value.length * size * .6);
+        personal: { name: '<Traveller>' }, address: 'https://example.test/',
+      }, flags, (value, size) => value.length * size * .6, titleRaster, titleRaster);
       expect(svg).toContain(`width="1080" height="${format.height}" viewBox="0 0 1080 ${format.height}"`);
       expect(svg.match(/data-country="/g)).toHaveLength(266);
       expect(svg.match(/data-flag-group="/g)).toHaveLength(4);
@@ -116,11 +117,21 @@ describe('picture formats', () => {
       expect(svg).toContain(`>+${266 - format.flagLimit} more</text>`);
       expect(svg).toContain('First steps');
       expect(svg).toContain('>10 points</text>');
-      expect(svg).toContain('Prepared for &lt;Traveller&gt;');
-      expect(svg).toContain('&amp; Memories');
+      expect(svg).toContain('data-handwritten-name="&lt;Traveller&gt;"');
+      expect(svg).not.toContain('Prepared for');
+      expect(svg).not.toContain('Every journey leaves a story.');
+      expect(svg).toContain('data-handwritten-title="My Travel Passport"');
       expect(svg).toContain(`transform="translate(732,${id === 'feed' ? 970 : 1370})"`);
       expect(svg).toContain('width="300" height="300"');
       expect(svg).toContain('QR opens the app, not your personal map.');
+      expect(svg.match(/data-decoration="metric-icon"/g)).toHaveLength(6);
+      expect(svg.match(/data-decoration="badge-sticker"/g)).toHaveLength(data.badges.length);
+      expect(svg.match(/data-decoration="tape"/g)).toHaveLength(4);
+      expect(svg).toContain('data-decoration="postcard"');
+      expect(svg).not.toContain('data-decoration="passport"');
+      expect(svg).toContain('data-handwritten-title=');
+      expect(svg).toContain('transform="rotate(-2 ');
+      expect(svg).toContain('transform="rotate(-1.2 ');
       expect(svg).not.toContain('foreignObject');
       expect(svg.match(/data-flag="/g)).toHaveLength(data.groups.flatMap((group) => group.countries).filter((country) => country.kind === 'iso').length);
     });
@@ -155,15 +166,11 @@ describe('shared badge loading', () => {
 });
 
 describe('picture personalization and fixed QR address', () => {
-  it('normalizes optional text, requires a title and bounds every field', () => {
-    expect(validatePersonalization({ name: '  Traveller  ', title: 'My\nAtlas', subtitle: '' })).toEqual({
-      name: 'Traveller', title: 'My Atlas', subtitle: '',
-    });
-    expect(() => validatePersonalization({ name: '', title: ' ', subtitle: '' })).toThrow('title');
-    for (const key of ['name', 'title', 'subtitle'] as const) {
-      expect(() => validatePersonalization({ name: '', title: 'Atlas', subtitle: '', [key]: 'W'.repeat(TEXT_LIMITS[key] + 1) })).toThrow(key);
-    }
-    expect(validatePersonalization({ name: '\u{1f30d}'.repeat(60), title: 'Atlas', subtitle: '' }).name).toHaveLength(120);
+  it('normalizes the optional name and bounds its Unicode character count', () => {
+    expect(validatePersonalization({ name: '  A\nTraveller  ' })).toEqual({ name: 'A Traveller' });
+    expect(validatePersonalization({ name: ' ' })).toEqual({ name: '' });
+    expect(() => validatePersonalization({ name: 'W'.repeat(TEXT_LIMITS.name + 1) })).toThrow('name');
+    expect(validatePersonalization({ name: '\u{1f30d}'.repeat(60) }).name).toHaveLength(120);
   });
   it('uses only the app origin/base, never incidental query/hash, credentials or an editable override', () => {
     expect(currentAppAddress('https://example.test', '/')).toBe('https://example.test/');
@@ -182,6 +189,18 @@ describe('picture personalization and fixed QR address', () => {
 });
 
 describe('self-contained infographic artwork', () => {
+  it.each(['horizontal', 'feed', 'story'] as const)('%s keeps the fixed title without a name placeholder when blank', (format) => {
+    const svg = infographicSvg({
+      data: infographicData(registry, entries(), [], format), registry,
+      countries: decodeWorld(worldJson, registry).countries, personal: { name: '' }, address: 'https://example.test/',
+    }, new Map(), (value, size) => value.length * size * .6, titleRaster, { href: '', width: 800, height: 0 });
+    expect(svg).toContain('data-handwritten-title="My Travel Passport"');
+    expect(svg).not.toContain('data-handwritten-name');
+    expect(svg).not.toContain('Prepared for');
+    expect(svg).not.toContain('Every journey leaves a story.');
+    expect(svg.match(/data-country="/g)).toHaveLength(266);
+    expect(svg.match(/data-flag-group="/g)).toHaveLength(4);
+  });
   it('has a locally bundled flag for every ISO territory without inventing custom flags', () => {
     for (const country of registry) if (country.kind === 'iso') expect(flagAssetUrls.has(country.alpha2), country.id).toBe(true);
     expect(flagAssetUrls.has('custom:KOS')).toBe(false);
@@ -198,14 +217,16 @@ describe('self-contained infographic artwork', () => {
     const data = infographicData(registry, entries([{ id: 'SVK', status: 'visited' }, { id: 'custom:KOS', favourite: true }]), parseBadges([definition], registry));
     const svg = infographicSvg({
       data, registry, countries: decodeWorld(worldJson, registry).countries,
-      personal: { name: '<script>', title: 'My "Passport"', subtitle: 'A & B' }, address: 'https://example.test/',
-    }, new Map([['SK', 'data:image/svg+xml,%3Csvg%2F%3E']]), (value, size) => value.length * size * .6);
+      personal: { name: '<script> "Traveller"' }, address: 'https://example.test/',
+    }, new Map([['SK', 'data:image/svg+xml,%3Csvg%2F%3E']]), (value, size) => value.length * size * .6, titleRaster, titleRaster);
     expect(svg).toContain('width="2400" height="1600"');
     expect(svg.match(/data-country="/g)).toHaveLength(266);
     expect(svg).toContain('data-country="ATA"');
     expect(svg).toContain('data-country="SVK" data-status="visited"');
-    expect(svg).toContain('My &quot;Passport&quot;');
-    expect(svg).toContain('Prepared for &lt;script&gt;');
+    expect(svg).toContain('&lt;script&gt; &quot;Traveller&quot;');
+    expect(svg).not.toContain('Prepared for');
+    expect(svg).not.toContain('Every journey leaves a story.');
+    expect(svg).toContain('data-handwritten-title="My Travel Passport"');
     expect(svg).not.toContain('<script>');
     expect(svg).toContain('data-flag="SVK"');
     expect(svg).not.toContain('data-flag="custom:KOS"');
@@ -215,6 +236,19 @@ describe('self-contained infographic artwork', () => {
     expect(svg).toContain('QR links to the app, not this personal map.');
     expect(svg).not.toContain('foreignObject');
     expect(svg).toContain('shape-rendering="crispEdges"');
+    expect(svg).toContain('data-decoration="scrapbook"');
+    expect(svg.match(/data-decoration="postcard"/g)!.length).toBeGreaterThan(6);
+    expect(svg.match(/data-decoration="metric-icon"/g)).toHaveLength(6);
+    expect(svg.match(/data-decoration="badge-sticker"/g)).toHaveLength(data.badges.length);
+    expect(svg.match(/data-decoration="tape"/g)).toHaveLength(5);
+    expect(svg).not.toContain('data-decoration="passport"');
+    expect(svg).toContain('data-decoration="stamp"');
+    expect(svg).toContain('data-handwritten-name="&lt;script&gt; &quot;Traveller&quot;"');
+    expect(svg).toContain('transform="rotate(-2 ');
+    expect(svg).toContain('transform="rotate(-1.2 ');
+    expect(svg).toContain('fill="url(#water)"');
+    expect(svg).not.toContain('<filter');
+    expect(svg).not.toContain('<script');
     expect(() => qrSvg('a'.repeat(2000))).toThrow();
   });
 });

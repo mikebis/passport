@@ -34,21 +34,16 @@ export function createInfographic(
   formatSelect.addEventListener('change', () => refresh());
   const resolution = dialog.querySelector<HTMLSpanElement>('.infographic-resolution')!;
   const fields = dialog.querySelector<HTMLDivElement>('.infographic-fields')!;
-  const inputs = new Map<'name' | 'title' | 'subtitle', HTMLInputElement>();
-  for (const key of ['name', 'title', 'subtitle'] as const) {
-    const label = document.createElement('label');
-    label.textContent = key === 'name' ? 'Name (optional)' : key === 'title' ? 'Title' : 'Subtitle (optional)';
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.name = key;
-    input.maxLength = TEXT_LIMITS[key];
-    input.autocomplete = 'off';
-    if (key === 'title') { input.value = 'My Travel Passport'; input.required = true; }
-    label.append(input);
-    fields.append(label);
-    inputs.set(key, input);
-    input.addEventListener('input', () => refresh());
-  }
+  const label = document.createElement('label');
+  label.textContent = 'Name (optional)';
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.name = 'name';
+  nameInput.maxLength = TEXT_LIMITS.name;
+  nameInput.autocomplete = 'off';
+  label.append(nameInput);
+  fields.append(label);
+  nameInput.addEventListener('input', () => refresh());
   const message = dialog.querySelector<HTMLParagraphElement>('.infographic-message')!;
   const preview = dialog.querySelector<HTMLImageElement>('.infographic-preview img')!;
   const previewContainer = dialog.querySelector<HTMLDivElement>('.infographic-preview')!;
@@ -86,7 +81,7 @@ export function createInfographic(
       const format = infographicFormat(formatSelect.value);
       resolution.textContent = `${format.width} \u00d7 ${format.height} PNG.${format.id === 'horizontal' ? '' : ` ${format.label} portrait; up to ${format.flagLimit} flags per group.`}`;
       const personal = validatePersonalization({
-        name: inputs.get('name')!.value, title: inputs.get('title')!.value, subtitle: inputs.get('subtitle')!.value,
+        name: nameInput.value,
       });
       const entries = store.snapshot();
       const catalog = await loadCatalog();
@@ -103,7 +98,7 @@ export function createInfographic(
       previewUrl = candidateUrl;
       candidateUrl = undefined;
       preview.src = previewUrl;
-      preview.alt = `${personal.title}. ${data.stats.completed} of ${data.stats.total} ISO places visited or lived in; ${data.earnedCount} badges earned. Four flag groups: Visited, Lived, Want to Visit and Favourites. ${format.label}, ${format.width} by ${format.height} PNG.`;
+      preview.alt = `${personal.name ? `${personal.name}. ` : ''}${data.stats.completed} of ${data.stats.total} ISO places visited or lived in; ${data.earnedCount} badges earned. Four flag groups: Visited, Lived, Want to Visit and Favourites. ${format.label}, ${format.width} by ${format.height} PNG.`;
       preview.hidden = false;
       rendered = blob;
       download.disabled = false;
@@ -164,7 +159,7 @@ export function createInfographic(
   return () => {
     if (dialog.open) return;
     dialog.showModal();
-    inputs.get('name')!.focus({ preventScroll: true });
+    nameInput.focus({ preventScroll: true });
     unsubscribe = store.subscribe(() => refresh());
     refresh(0);
   };

@@ -32,11 +32,14 @@ available. Only explicit Google opt-in loads external Google Identity Services.
 * **Map Interactivity & Context Popover:**
 * **Hover:** Displays a sleek floating tooltip with the territory's full name, country flag/code, and current status. Non-ISO entries show a generic symbol, their full custom ID, and an explicit "Additional territory / non-ISO" label instead of an invented national flag.
 * **Interaction Work:** Reuse tooltip content and dimensions while the hovered territory is unchanged, retaining viewport clamping and refreshing after status/viewport changes. Pan/zoom transforms existing country paths rather than regenerating their geometry.
-* **Click (Map / Dot / Polygon):** Opens a small, modern 4-button context popover adjacent to the clicked location or cursor with choices:
+* **Click (Map / Dot / Polygon):** Opens a small, modern context popover adjacent to the clicked location or cursor with four status choices and a separate Favourite toggle:
 1. 🟩 **Visited**
 2. 🟨 **Lived / Living**
 3. 🟪 **Want to Visit**
 4. ⬜ **Reset (Unvisited)**
+
+* **Independent Favourites:** Every tracked ISO/additional place, including Antarctica, has an optional favourite flag. Show a separate native star toggle beside each sidebar country button (never nested), with a country-specific name, `aria-pressed`, add/remove tooltip and keyboard focus. Use outlined/filled stars for off/on; clicking changes only the flag without selecting, opening a popover or navigating. The shared popover's Favourite toggle updates in place and stays open. Preserve its focus trap, Escape and focus restoration. Resetting status never clears favourites; favourites do not affect sorting, status filters, totals, Stats or badges.
+* **Favourite Map Styling:** Favourites do not alter status fills, country boundaries, tiny-place marker rings or hover/selection/sidebar-preview styling. Preserve existing map/geometry nodes and normal theme-aware outlines. Include Favourite in map tooltips. Hover/focus previews work across both sidebar row controls; hiding a focused star through filtering must recover visible focus and clear stale previews.
 
 * **Pan & Zoom:** Smooth D3 zoom behavior (`d3.zoom`) supporting scroll-to-zoom, double-click zoom, and drag-panning.
 
@@ -65,7 +68,18 @@ available. Only explicit Google opt-in loads external Google Identity Services.
 * **Continent Progress:** Beside each continent summary show `(visited or lived / total)` for official ISO countries and territories only. Count each qualifying top-level place once; exclude wishlist, unvisited, additional non-ISO areas, and subdivisions from the numerator. Derive the denominator from all ISO entries assigned to that continent, including unvisited/wishlist entries, independently of search. Show Antarctica's `(0/1)` or `(1/1)` in its summary, not duplicated inside its country row. Update immediately after status edits and confirmed imports. This ISO-only policy does not change combined global status counters or world-in-color progress (which also includes wishlist).
 * **Search / Filter:** A real-time quick filter input followed by four independent native toggle buttons: Visited, Lived / Living, Want to Visit, Unvisited. Selected statuses combine with OR; text search intersects them with AND. No selected statuses means all; turning off the last toggle or choosing Show all statuses clears only status criteria. Include additional non-ISO places and Antarctica. Use compact neutral buttons containing only colored status circles matching the active theme's map legend, with no visible status text. Fit all four and the reset-arrow button on one line, including narrow sidebars. Retain accessible names, status tooltips, visible focus, aria-pressed and a thicker selected border. Keep filters session-only: survive theme/sidebar/breakpoint changes but reset on reload, without storage, export or Drive fields. Filter sidebar rows only, never map visibility, travel data, global totals or full-continent ISO ratios. Recompute membership and matching counts after edits/imports/accepted cloud replacements, including failed local saves; hide excluded rows and empty groups from layout and keyboard navigation. Temporarily expand matches while either criterion is active, restoring prior session group states only when both clear. Preserve unaffected row identity/focus and manual filtered-group closure on unrelated updates. Clear excluded previews; if an update hides a focused row or a status popover's trigger, restore focus to search without stealing focus from other visible controls.
 * **Controls per Country Item:** Displays status badges and triggers the same selection state options as the map popover.
+* **Favourite Filter:** Add a compact star-only native toggle beside the four status filters, on the same line with the Filters label and reset arrow. Use the same neutral surface, size, selected border and keyboard focus, with a theme-aware golden star, `aria-pressed`, and a Filter by Favourites label/tooltip. When pressed, show only favourites intersected with the status union and text query; when off, do not restrict favourite state. Show all statuses clears only statuses, preserving the star selection and search. Keep the filter session-only and reset it on reload. Recompute on all store updates, including unfavouriting, imports and accepted Drive replacements. Hide entire excluded rows, clear previews and recover focus to search if a focused star disappears. Temporarily expand matches until all criteria clear; preserve totals, Stats, badges, map appearance and country order.
 * **Sidebar Map Preview:** Hovering or keyboard-focusing any sidebar place temporarily adds a contrasting map outline, preserving its status fill; tiny-place markers also receive a stronger ring. Include additional non-ISO territories and Antarctica. Hover takes priority over a different focused row, falling back to that row when hover ends or clearing if neither applies. Clear stale previews when filtering/removing rows or collapsing their group. Previewing does not pan/zoom/scroll the map, open tooltips/popovers, change status/storage, or overwrite clicked selection.
+
+#### Personalized share picture
+
+* **Entry and output:** Place a single Share picture camera button at the right of the shared sidebar heading beside Your places, replacing the decorative circle logo and available from every tab. Use a filled active-theme accent, small original currentColor SVG camera, at least 40px square hit area, no visible button text, and Share picture as both accessible name and tooltip. Preserve contrast, keyboard focus, hover/disabled states and short/narrow heading fit; no footer duplicate, attention animation or icon dependency. Lazy-load a native accessible preview dialog with a labelled Picture format select, optional name/subtitle, required title (default My Travel Passport), read-only QR destination, dynamic resolution note, loading/error/retry, Download PNG and Close/Escape. Offer Horizontal (default, 2400 x 1600), Instagram Feed (4:5, 1080 x 1350) and Story (9:16, 1080 x 1920). Export exactly the finished preview Blob as `passport-infographic.png` in every format. Preserve the existing horizontal composition; deliberately reflow portraits rather than rotating/stretching/cropping landscape. Use original parchment/passport styling independent of app theme. Bound name/title/subtitle to 60/80/120 characters, escape all text and wrap/shorten long labels without overlap.
+* **Consistent content:** Derive all sections from one current store snapshot, independent of sidebar filtering. Reuse ISO-only statistics including exact status counts, favourites, visited-or-lived percentage and seven-continent coverage. Map all 266 actual geometries with a separate whole-world projection including Antarctica, four fixed status colors and tiny-place dots, without changing live map/navigation/scenery or restoring favourite outlines. Exclude subdivisions.
+* **Flags and badges:** Four alphabetically ordered all-place strips for Visited, Lived / Living, Want to Visit and independent Favourites; display at most 18 per group in Horizontal, 6 in Feed and 12 in Story, with actual totals, exact +N more counts and honest empty states. Portraits arrange the four groups in a two-by-two grid and retain all six summary metrics, the full marked world, compact legend and QR. Use local SVG flags for ISO places, neutral code symbols for additions. Show only the top three currently earned badges by descending points, catalog-order ties, real names/points and original generic medallions; portraits use compact rows. Report total earned badges/points even when more than three qualify. Reuse one validated, lazy, coalesced, retryable badge catalog with the Badges panel; never invent awards or modify the catalog schema.
+* **Fixed URL-only QR:** Always encode the current HTTP(S) app origin plus deployment base path, excluding query/hash/credentials; no editable URL or override. Limit the canonical URL to 512 characters, use error correction M, a four-module quiet zone and integer modules at least three exported pixels wide. Show a readable destination label and warn for localhost/private/local addresses without claiming public reachability. Never fetch the destination. The QR opens the app, not a public copy of the user's personal travel dataset.
+* **Format lifecycle and social layout:** Keep format choice in page memory alongside personalization across close/reopen; fresh loads select Horizontal without preference writes. Format changes preserve text and travel data, immediately disable stale downloads, and regenerate one consistent captured format/snapshot. Slow earlier layouts must never replace a newer selection. Fit the dialog/select and preview on short desktop and 320px mobile. Keep essential Story content clear of approximately 160px at the top and 200px at the bottom, without claiming every platform overlay is identical. Offer local PNG files only, not Instagram authentication/upload, automatic posting or video generation; platform cropping/compression remains outside app control.
+* **Local processing and lifecycle:** Build a self-contained SVG using locally bundled flag-icons/qrcode and original vector accents, then rasterize through image/canvas to PNG. No external generation services, fonts, HTML screenshots, upload, public-map hosting, clipboard image, Web Share or SVG/PDF export. Personalization stays in memory only, excluded from browser persistence, travel JSON and Drive. Coalesce input/data changes, invalidate stale results immediately and disable stale downloads. Recompute on imports, accepted Drive replacements and failed-save in-memory edits. Closing unsubscribes and releases preview URLs; ignore late generations. Keep explicit errors/retry for catalogs, flags, QR and browser encoding, never partial-success output. Preserve modal focus/Escape/restoration and responsive internal scrolling, plus the live map and sidebar state.
+* **Attribution and verification:** Ship unchanged flag-icons, qrcode and dijkstrajs MIT notices under data. Verify all ISO flag assets, exact counts/overflow, earned ordering, bounded/escaped text, real PNG pixels/dimensions, decoded app-only QR under root/subpath hosting, preview/download identity, privacy, retry/lifecycle, theme/mobile fit and unchanged application behavior.
 
 ### 2.3 Data Persistence & Extensible Schema
 
@@ -77,7 +91,7 @@ available. Only explicit Google opt-in loads external Google Identity Services.
   Require user-driven reconnection after reload/expiry; no backend, client secret
   or refresh token. Missing configuration must not block local use.
 * Store private hidden app-data JSON snapshots, not ordinary shared Drive files.
-  Use versioned envelopes preserving complete normalized entries, timestamps and
+  Use versioned envelopes preserving complete normalized entries, favourites, timestamps and
   subdivisions. Keep imports/exports and committed data as `LocationEntry[]`.
 * Debounce automatic saves, serialize work, persist account-owned pending
   operations separately from travel data and verify every acknowledged upload.
@@ -90,6 +104,10 @@ available. Only explicit Google opt-in loads external Google Identity Services.
   versions first. No newest-wins rule or automatic status merge. Concurrent
   saves preserve both branches; resolution creates a new snapshot referencing
   the accepted heads. Invalidate choices after intervening edits.
+  Include favourite-only edits in reconciliation/uploads; compare absent and
+  false flags equally, but preserve timestamps and subdivisions. Report status
+  and favourite differences separately. Accepted remote flags update existing
+  controls/map nodes without echoing an upload.
 * Check before saving, on connection, returning to a visible app, coming online
   and manual Sync now. Suspend unsafe/background work and surface bounded retry,
   permission, popup, scope, expiry, offline, malformed-data and quota failures.
@@ -119,6 +137,7 @@ export interface LocationEntry {
   name: string;
   continent: string;
   status: TravelStatus;
+  favourite?: boolean;
   subdivisions?: LocationEntry[]; // Extensible for future US States, Canadian provinces, etc.
   updatedAt?: string;
 }
@@ -126,6 +145,7 @@ export interface LocationEntry {
 ```
 
 * **Compatibility:** Keep the `LocationEntry[]` format. Older ISO-only saves/exports retain their statuses, timestamps, and subdivisions; missing additional entries default to Unvisited without a corruption prompt. Existing passport saves are not automatically rewritten on load. Reject unknown custom IDs. Nonempty subdivision arrays on custom entries are unsupported until a dedicated custom subdivision schema exists; existing ISO subdivision support is unchanged.
+* **Favourite Persistence:** Missing `favourite` means false; accept only boolean values when supplied. Preserve true/false recursively in supported payloads, while favourite controls operate on top-level places only. Genuine flag changes update `updatedAt`, save and notify through the existing store; no-ops do not write, notify or timestamp. Status changes preserve flags. Keep the existing storage key, array export shape and Drive protocol. Failed local saves retain live changes with the standard warning and working export. Confirmed replacement imports include favourites, so old files without flags clear them; cancellation/invalid flags leave data untouched. Show separate status/favourite change counts. Use updated clients across devices because older app versions can discard unsupported flags.
 * **Project Rename Migration:** Use `passport:locations:v1` as the browser storage key. Only when absent, validate and copy the legacy `visited:locations:v1` JSON unchanged, then remove the old key after a successful new-key write. Existing passport data always takes precedence, including its corruption recovery flow. Migration write failure preserves legacy and in-memory data with an unsaved warning; cleanup failure reports that data is saved but legacy removal failed, with cleanup retried on the next successful save. Corrupt legacy data is untouched until explicit recovery; replacement is saved under the new key before legacy cleanup.
 
 * **Persistence Strategy:**
@@ -220,13 +240,19 @@ export interface LocationEntry {
 │   │   ├── classic/      # Complete token defaults and original scenery.svg
 │   │   ├── dark/         # Dark token overrides; default scenery
 │   │   └── medieval/     # Fantasy-atlas tokens, galleon/dragon/cloud SVG, paper-grain.svg
-│   ├── popover.ts        # 4-button contextual selection popover
+│   ├── popover.ts        # Status choices and independent Favourite toggle
 │   ├── sidebar.ts        # Sidebar list, search filtering, continent accordion
+│   ├── badge-catalog.ts  # Shared lazy, validated badge definitions
+│   ├── infographic.ts   # Snapshot statistics, strips, badges and fixed QR address
+│   ├── infographic-assets.ts # Local SVG flags and vector QR
+│   ├── infographic-renderer.ts # Independent horizontal/Feed/Story SVG and PNG
+│   ├── infographic-ui.ts # Lazy ephemeral personalization/preview dialog
 │   ├── store.ts          # State management, localStorage, JSON sync/export
 │   └── styles/
 │       ├── main.css      # Theme imports, layout reset, token-based typography
 │       ├── sidebar.css   # Sidebar layout and theme picker
 │       ├── map.css       # SVG map layer styles, tooltips, microstate dots
+│       ├── infographic.css # Responsive picture dialog
 │       └── popover.css   # Context popover floating panel styles
 ├── data/
 │   ├── world-10m.json    # Simplified 1:10m-derived TopoJSON retaining every polygon and ring

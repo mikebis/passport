@@ -82,7 +82,8 @@ export function createMap(
     const countryPath = countryPaths.get(previewId);
     if (!countryPath) throw new Error(`Missing rendered boundary for ${previewId}`);
     preview.attr('d', countryPath.getAttribute('d'))
-      .attr('data-preview-country', previewId).style('display', null);
+      .attr('data-preview-country', previewId)
+      .attr('data-favourite', String(store.isFavourite(previewId))).style('display', null);
   }
 
   function nearestMarker(event: MouseEvent, fallback: string): string {
@@ -115,7 +116,7 @@ export function createMap(
       const title = document.createElement('strong');
       title.textContent = `${territorySymbol(country)} ${country.name}`;
       const status = document.createElement('span');
-      status.textContent = `${id} \u00b7 ${country.kind === 'custom' ? `${NON_ISO_LABEL} \u00b7 ` : ''}${STATUS_LABELS[store.status(id)]}`;
+      status.textContent = `${id} \u00b7 ${country.kind === 'custom' ? `${NON_ISO_LABEL} \u00b7 ` : ''}${STATUS_LABELS[store.status(id)]}${store.isFavourite(id) ? ' \u00b7 Favourite' : ''}`;
       tooltip.append(title, status);
       tooltip.hidden = false;
       const rect = tooltip.getBoundingClientRect();
@@ -197,9 +198,12 @@ export function createMap(
 
   function update(): void {
     paths.attr('data-status', (boundary) => store.status(String(boundary.id)))
+      .attr('data-favourite', (boundary) => String(store.isFavourite(String(boundary.id))))
       .classed('is-selected', (boundary) => boundary.id === activeId);
     markers.attr('data-status', (country) => store.status(country.id))
+      .attr('data-favourite', (country) => String(store.isFavourite(country.id)))
       .classed('is-selected', (country) => country.id === activeId);
+    if (previewId !== undefined) preview.attr('data-favourite', String(store.isFavourite(previewId)));
     if (hoveredId) hideTooltip();
   }
   store.subscribe(update);

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import initial from '../../data/user-data.json' with { type: 'json' };
 import type { Snapshot } from '../../src/google-drive';
-import { STATUSES } from '../../src/types';
+import { STATUSES, type TravelStatus } from '../../src/types';
 
 interface CloudFile { metadata: { id: string; description: string; mimeType: string; appProperties: { passport: string } }; snapshot: Snapshot }
 interface Cloud { files: Map<string, CloudFile>; next: number; requests: string[]; failList: boolean; owner: string; denyScope: boolean }
@@ -72,7 +72,7 @@ async function status(page: Page, id: string, value: string): Promise<void> {
   await page.locator(`.country-row[data-country="${id}"]`).click();
   await page.locator(`.status-choice[data-status="${value}"]`).click();
 }
-function addRemote(drive: Cloud, status: 'visited' | 'lived' = 'lived'): void {
+function addRemote(drive: Cloud, status: TravelStatus = 'lived'): void {
   const referenced = new Set([...drive.files.values()].flatMap((value) => value.snapshot.predecessors));
   const heads = [...drive.files.keys()].filter((id) => !referenced.has(id));
   const snapshot: Snapshot = {
@@ -157,6 +157,66 @@ test('accepted Drive replacement updates active sidebar filter membership withou
   await expect(page.getByRole('button', { name: 'Filter by Lived / Living', exact: true })).toHaveAttribute('aria-pressed', 'true');
   expect(drive.files.size).toBe(size);
   expect([...drive.files.values()].every((file) => Array.isArray(file.snapshot.entries))).toBe(true);
+});
+
+test('accepted Drive data refreshes an open travel picture without upload echo', async ({ page }) => {
+  const drive = await mockGoogle(page);
+  await page.route('**/data/badges.json', (route) => route.fulfill({ json: [
+    { name: 'Estonia', description: 'Visit or live in Estonia.', condition: 'EST', value: 5 },
+  ] }));
+  await ready(page);
+  await backup(page);
+  addRemote(drive);
+  await page.getByRole('button', { name: 'Sync now', exact: true }).click();
+  const conflict = page.getByRole('dialog', { name: 'Choose your travel map' });
+  await expect(conflict).toBeVisible();
+  await page.getByRole('button', { name: 'Cancel and pause sync', exact: true }).click();
+  await page.getByRole('button', { name: 'Share picture', exact: true }).click();
+  const picture = page.getByRole('dialog', { name: 'Your travel passport', exact: true });
+  await expect(picture.getByRole('button', { name: 'Download PNG' })).toBeEnabled({ timeout: 20000 });
+  await picture.getByLabel('Picture format').selectOption('story');
+  await expect(picture.getByRole('button', { name: 'Download PNG' })).toBeEnabled({ timeout: 20000 });
+  await expect(picture.locator('img')).toHaveAttribute('alt', /0 of 249 ISO places.*0 badges earned/);
+  await page.getByRole('button', { name: 'Sync now', exact: true }).dispatchEvent('click');
+  await expect(conflict).toBeVisible();
+  const count = drive.files.size;
+  await conflict.getByRole('button', { name: /^Google Drive version/ }).click();
+  await expect(picture.getByRole('button', { name: 'Download PNG' })).toBeEnabled({ timeout: 20000 });
+  await expect(picture.locator('img')).toHaveAttribute('alt', /1 of 249 ISO places.*1 badges earned/);
+  await expect(picture.locator('img')).toHaveJSProperty('naturalHeight', 1920);
+  expect(drive.files.size).toBe(count);
+});
+
+test('favourite-only changes save to Drive and remote replacements update stars without upload echo', async ({ page }) => {
+  const drive = await mockGoogle(page);
+  await ready(page);
+  await backup(page);
+  await page.getByRole('searchbox').fill('EST');
+  const star = page.locator('.country-favourite[data-country="EST"]');
+  await star.click();
+  await expect.poll(() => drive.files.size).toBe(2);
+  await expect(page.locator('#google-sync')).toHaveAttribute('data-sync-phase', 'synced');
+  const localVersion = [...drive.files.values()].at(-1)!.snapshot;
+  expect(localVersion.entries.find((entry) => entry.id === 'EST')).toMatchObject({
+    favourite: true, status: 'unvisited',
+  });
+  await page.getByRole('button', { name: 'Filter by Favourites', exact: true }).click();
+  addRemote(drive, 'unvisited');
+  drive.files.get('remote-version')!.snapshot.entries = localVersion.entries.map((entry) =>
+    entry.id === 'EST' ? { ...entry, favourite: false } : entry);
+  await page.getByRole('button', { name: 'Sync now', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Choose your travel map' });
+  const remote = dialog.locator('.sync-version').filter({ has: page.getByRole('button', { name: /^Google Drive version/ }) });
+  await expect(remote).toContainText('0 place statuses and 1 favourite flags differ');
+  const files = drive.files.size;
+  await remote.getByRole('button', { name: /^Google Drive version/ }).click();
+  await expect(star).toHaveAttribute('aria-pressed', 'false');
+  await expect(star).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Filter by Favourites', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('path[data-country="EST"]')).toHaveAttribute('data-favourite', 'false');
+  await expect(page.locator('path[data-country="EST"]')).toHaveAttribute('data-status', 'unvisited');
+  await expect(page.locator('#google-sync')).toHaveAttribute('data-sync-phase', 'synced');
+  expect(drive.files.size).toBe(files);
 });
 
 test('accepted Drive data updates hidden Manage and live Stats/Badges without changing tabs or uploading awards', async ({ page }) => {

@@ -149,6 +149,13 @@ describe('Google authentication', () => {
 });
 
 describe('private immutable Drive protocol', () => {
+  it('preserves favourite flags in downloaded snapshots and rejects invalid flags', () => {
+    const entries = data();
+    entries[0]!.favourite = true;
+    const drive = new GoogleDrive(registry);
+    expect(drive.parse(snapshot('favourite', [], entries)).entries).toEqual(entries);
+    expect(() => drive.parse({ ...snapshot(), entries: [{ ...data()[0], favourite: 'yes' }] })).toThrow('Favourite flag');
+  });
   it('detects forks, missing predecessors and cyclic metadata', () => {
     expect(snapshotHeads([file('root'), file('a', ['root']), file('b', ['root'])]).map((value) => value.id)).toEqual(['a', 'b']);
     expect(snapshotHeads([file('root'), file('a', ['root']), file('b', ['root']), file('resolution', ['a', 'b'])]).map((value) => value.id)).toEqual(['resolution']);
@@ -208,6 +215,44 @@ describe('private immutable Drive protocol', () => {
 });
 
 describe('local-first synchronization', () => {
+  it('canonicalizes absent/false equally while retaining true flags and subdivision favourites', () => {
+    const entries = data();
+    const changed = structuredClone(entries);
+    changed[0]!.favourite = false;
+    expect(canonicalData(changed)).toBe(canonicalData(entries));
+    changed[0]!.favourite = true;
+    expect(canonicalData(changed)).not.toBe(canonicalData(entries));
+    entries[1]!.subdivisions = [{ id: 'US-CA', name: 'California', continent: 'North America', status: 'unvisited' }];
+    const nested = structuredClone(entries);
+    nested[1]!.subdivisions![0]!.favourite = true;
+    expect(canonicalData(nested)).not.toBe(canonicalData(entries));
+  });
+  it('automatically saves favourite-only local edits without changing statuses', async () => {
+    vi.useFakeTimers();
+    const { store, drive, sync } = await linked();
+    store.setFavourite('EST', true);
+    await vi.advanceTimersByTimeAsync(1100);
+    const head = snapshotHeads(await drive.list())[0]!;
+    expect((await drive.read(head.id)).entries[0]).toMatchObject({ id: 'EST', favourite: true, status: 'unvisited' });
+    expect(drive.uploads).toHaveLength(2);
+    expect(sync.state.phase).toBe('synced');
+  });
+  it('asks about favourite-only remote differences and applies them without upload echo', async () => {
+    const { store, drive, sync } = await linked();
+    const previous = snapshotHeads(await drive.list())[0]!;
+    const remote = data();
+    remote[0]!.favourite = true;
+    drive.files.set('favourite-device', snapshot('favourite-edit', [previous.id], remote));
+    await sync.syncNow();
+    expect(sync.state.phase).toBe('conflict');
+    expect(store.isFavourite('EST')).toBe(false);
+    const uploads = drive.uploads.length;
+    await sync.resolve('favourite-device');
+    expect(store.isFavourite('EST')).toBe(true);
+    expect(store.status('EST')).toBe('unvisited');
+    expect(drive.uploads).toHaveLength(uploads);
+    expect(sync.state.phase).toBe('synced');
+  });
   it('requires explicit first backup, debounces changes, preserves history and signs out without changing the map', async () => {
     vi.useFakeTimers();
     const { sync, store, drive, storage, auth } = fixture();

@@ -21,6 +21,7 @@ export interface SyncState {
 export function canonicalData(entries: readonly LocationEntry[]): string {
   const ordered = (items: readonly LocationEntry[]): LocationEntry[] => [...items].sort((a, b) => a.id.localeCompare(b.id)).map((entry) => {
     const value: LocationEntry = { id: entry.id, name: entry.name, continent: entry.continent, status: entry.status };
+    if (entry.favourite === true) value.favourite = true;
     if (entry.updatedAt !== undefined) value.updatedAt = entry.updatedAt;
     if (entry.subdivisions !== undefined) value.subdivisions = ordered(entry.subdivisions);
     return value;

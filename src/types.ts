@@ -9,6 +9,7 @@ export interface LocationEntry {
   name: string;
   continent: string;
   status: TravelStatus;
+  favourite?: boolean;
   subdivisions?: LocationEntry[];
   updatedAt?: string;
 }

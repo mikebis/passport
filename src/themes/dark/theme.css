@@ -26,6 +26,7 @@
   --visited-text: #95b3ff;
   --lived-text: var(--lived);
   --want-to-visit-text: var(--want-to-visit);
+  --favourite-text: #f6c453;
   --visited-tint: #224cbb30;
   --lived-tint: #fbe76924;
   --wishlist-tint: #ec656824;

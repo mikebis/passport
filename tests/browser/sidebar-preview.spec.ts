@@ -85,6 +85,9 @@ test('keyboard focus previews a row, hover takes priority, and leaving restores 
   await page.getByRole('searchbox').hover();
   await expect(preview(page)).toHaveAttribute('data-preview-country', 'EST');
   await page.keyboard.press('Tab');
+  await expect(page.locator('.country-favourite[data-country="EST"]')).toBeFocused();
+  await expect(preview(page)).toHaveAttribute('data-preview-country', 'EST');
+  await page.keyboard.press('Tab');
   const focusedId = await page.locator('.country-row:focus').getAttribute('data-country');
   expect(focusedId).not.toBe('EST');
   await expect(preview(page)).toHaveAttribute('data-preview-country', focusedId!);

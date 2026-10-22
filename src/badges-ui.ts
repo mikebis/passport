@@ -1,10 +1,10 @@
-import { badgeCountryIds, evaluateBadge, parseBadges, type Badge } from './badges';
-import { loadJson } from './geography';
+import { badgeCountryIds, evaluateBadge, type Badge } from './badges';
+import type { BadgeCatalogLoader } from './badge-catalog';
 import { formatPercentage } from './statistics';
 import type { TravelStore } from './store';
 import { errorMessage, STATUS_LABELS, type Territory } from './types';
 
-export function createBadges(container: HTMLElement, registry: readonly Territory[], store: TravelStore) {
+export function createBadges(container: HTMLElement, registry: readonly Territory[], store: TravelStore, loadCatalog: BadgeCatalogLoader) {
   const heading = document.createElement('h3');
   heading.textContent = 'Travel badges';
   const summary = document.createElement('p');
@@ -22,7 +22,7 @@ export function createBadges(container: HTMLElement, registry: readonly Territor
   list.className = 'badge-list';
   container.append(heading, summary, message, retry, list);
   let state: 'idle' | 'loading' | 'loaded' | 'error' = 'idle';
-  let badges: Badge[] = [];
+  let badges: readonly Badge[] = [];
   const territories = new Map(registry.map((country) => [country.id, country]));
   const rows: {
     badge: Badge; card: HTMLElement; state: HTMLElement; text: HTMLElement; progress: HTMLProgressElement;
@@ -71,7 +71,7 @@ export function createBadges(container: HTMLElement, registry: readonly Territor
     retry.hidden = true;
     message.textContent = 'Loading badges\u2026';
     try {
-      badges = parseBadges(await loadJson('badges.json'), registry);
+      badges = await loadCatalog();
       for (const [index, badge] of badges.entries()) {
         const card = document.createElement('article');
         card.className = 'badge-card';

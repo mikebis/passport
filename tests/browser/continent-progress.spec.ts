@@ -31,7 +31,7 @@ async function ready(page: Page, entries: LocationEntry[] = []): Promise<void> {
 
 async function setStatus(page: Page, id: string, status: TravelStatus): Promise<void> {
   const row = page.locator(`.country-row[data-country="${id}"]`);
-  const group = row.locator('..');
+  const group = row.locator('xpath=ancestor::details');
   if (await group.getAttribute('open') === null) await group.locator('summary').click();
   await row.click();
   await page.locator(`.status-choice[data-status="${status}"]`).click();

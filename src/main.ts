@@ -15,6 +15,7 @@ import { createGoogleSync } from './sync-ui';
 import { createSidebarTabs } from './sidebar-tabs';
 import { createStatistics } from './statistics-ui';
 import { createBadges } from './badges-ui';
+import { createBadgeCatalog } from './badge-catalog';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const themePreference = new ThemePreference(() => window.localStorage);
@@ -123,7 +124,7 @@ async function boot(): Promise<void> {
           </div>
         </section>
         <aside id="places-sidebar" class="sidebar" aria-labelledby="places-heading">
-          <div class="sidebar-heading"><div><p class="eyebrow">THE WORLD, YOUR WAY</p><h2 id="places-heading">Your places<span>.</span></h2></div><span class="globe-icon" aria-hidden="true">\u25ce</span></div>
+          <div class="sidebar-heading"><div><p class="eyebrow">THE WORLD, YOUR WAY</p><h2 id="places-heading">Your places<span>.</span></h2></div><button id="share-picture" type="button" class="button primary" aria-label="Share picture" title="Share picture"><svg class="share-picture-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 6 9.5 4h5L16 6h4a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13.5" r="4"/></svg></button></div>
           <div class="sidebar-tabs" role="tablist" aria-label="Sidebar views">
             <button id="tab-manage" role="tab" aria-selected="true" aria-controls="panel-manage">Manage countries</button>
             <button id="tab-stats" role="tab" aria-selected="false" aria-controls="panel-stats" tabindex="-1">Stats</button>
@@ -142,7 +143,9 @@ async function boot(): Promise<void> {
           </section>
           <section id="panel-stats" class="sidebar-panel insight-panel" role="tabpanel" aria-labelledby="tab-stats" tabindex="0" hidden></section>
           <section id="panel-badges" class="sidebar-panel insight-panel" role="tabpanel" aria-labelledby="tab-badges" tabindex="0" hidden></section>
-          <footer class="sidebar-footer"><p id="save-status"><span class="save-indicator"></span> Changes stay in your browser</p><div id="google-sync"></div><div class="data-actions"><button id="export-data" class="button primary">Export data <span aria-hidden="true">\u2197</span></button><button id="copy-data" class="button secondary">Copy JSON</button><button id="import-data" class="text-button">Import</button></div><input id="import-file" type="file" accept=".json,application/json" hidden /><p class="data-license">Boundaries: Natural Earth \u00b7 <a href="${import.meta.env.BASE_URL}data/provenance.json" target="_blank" rel="noopener">Data sources</a><br />Country metadata: <a href="https://github.com/mledoze/countries" target="_blank" rel="noopener">mledoze/countries</a> \u00b7 <a href="${import.meta.env.BASE_URL}data/COUNTRIES-LICENSE.txt" target="_blank" rel="noopener">ODbL</a></p></footer>
+          <footer class="sidebar-footer"><p id="save-status"><span class="save-indicator"></span> Changes stay in your browser</p><div id="google-sync"></div>
+            <div class="data-actions"><button id="export-data" class="text-button">Export data</button><button id="copy-data" class="text-button">Copy JSON</button><button id="import-data" class="text-button">Import</button></div>
+            <input id="import-file" type="file" accept=".json,application/json" hidden /><p class="data-license">Boundaries: Natural Earth \u00b7 <a href="${import.meta.env.BASE_URL}data/provenance.json" target="_blank" rel="noopener">Data sources</a><br />Country metadata: <a href="https://github.com/mledoze/countries" target="_blank" rel="noopener">mledoze/countries</a> \u00b7 <a href="${import.meta.env.BASE_URL}data/COUNTRIES-LICENSE.txt" target="_blank" rel="noopener">ODbL</a></p></footer>
         </aside>
       </main>
       <div id="warning" class="warning-banner" role="alert" hidden></div>
@@ -249,9 +252,10 @@ async function boot(): Promise<void> {
     if (sceneryState) syncSceneryControls(sceneryState);
     showThemeWarning();
   });
-  const sidebar = createSidebar(element('#country-sidebar'), registry, store, selectCountry, map.previewCountry);
+  const sidebar = createSidebar(element('#country-sidebar'), registry, store, selectCountry, map.previewCountry, announce);
   createStatistics(element('#panel-stats'), registry, store);
-  const badges = createBadges(element('#panel-badges'), registry, store);
+  const loadCatalog = createBadgeCatalog(registry);
+  const badges = createBadges(element('#panel-badges'), registry, store, loadCatalog);
   const tabs = createSidebarTabs(sidebarPanel, (tab) => {
     popover.close(false);
     sidebar.clearPreview();
@@ -315,6 +319,24 @@ async function boot(): Promise<void> {
   else if (initial.warning || storageWarning) warn(initial.warning || storageWarning!);
   else if (initial.cleanupWarning) warn(initial.cleanupWarning, true);
   createGoogleSync(element('#google-sync'), store, registry, storage, () => popover.close(false));
+  const sharePicture = element<HTMLButtonElement>('#share-picture');
+  let openPicture: (() => void) | undefined;
+  sharePicture.addEventListener('click', async () => {
+    sharePicture.disabled = true;
+    try {
+      if (!openPicture) {
+        const { createInfographic } = await import('./infographic-ui');
+        openPicture = createInfographic(store, registry, world.countries, loadCatalog, sharePicture, focusSidebar);
+      }
+      popover.close(false);
+      sidebar.clearPreview();
+      openPicture();
+    } catch (error) {
+      notify(`Could not open the picture generator. ${errorMessage(error)} Try Share picture again.`);
+    } finally {
+      sharePicture.disabled = false;
+    }
+  });
 
   element('#export-data').addEventListener('click', () => {
     download(store.exportJson(), 'passport-data.json');
@@ -340,8 +362,9 @@ async function boot(): Promise<void> {
       if (file.size > 5 * 1024 * 1024) throw new Error('The import file must be 5 MB or smaller.');
       const entries: LocationEntry[] = parseData(await file.text(), registry);
       const changed = entries.filter((entry) => entry.status !== store.status(entry.id)).length;
+      const favourites = entries.filter((entry) => (entry.favourite ?? false) !== store.isFavourite(entry.id)).length;
       const confirmed = await confirmation('Replace your travel data?',
-        `Importing ${file.name} will replace your current data, including subdivisions. ${changed} place statuses will change. Export a backup first if you want to keep the current version.`,
+        `Importing ${file.name} will replace your current data, including subdivisions. ${changed} place statuses and ${favourites} favourite flags will change. Export a backup first if you want to keep the current version.`,
         'Replace data');
       if (confirmed) {
         popover.close(false);

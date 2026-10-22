@@ -108,6 +108,22 @@ describe('registry and sidebar organization', () => {
     expect(matching(['unvisited'], 'aland').some((country) => country.id === 'ALA')).toBe(true);
     expect(matching(['unvisited'], 'REUNION').map((country) => country.id)).toEqual(['REU']);
   });
+  it('intersects favourites with status unions and text without changing alphabetical order', () => {
+    const favourites = new Set(['EST', 'DEU', 'custom:KOS', 'ATA', 'ALA']);
+    const statuses = new Map<string, TravelStatus>([['EST', 'visited'], ['DEU', 'want_to_visit'], ['ATA', 'lived']]);
+    const matching = (selected: TravelStatus[], query = '') => filterTerritories(registry, query, {
+      selected: new Set(selected), status: (id) => statuses.get(id) ?? 'unvisited', favourite: (id) => favourites.has(id),
+    });
+    expect(matching([])).toEqual(filterTerritories(registry, '').filter((country) => favourites.has(country.id)));
+    expect(matching(['visited', 'want_to_visit']).map((country) => country.id)).toEqual(['EST', 'DEU']);
+    expect(matching(['unvisited'], 'aland').map((country) => country.id)).toEqual(['ALA']);
+    expect(matching([], 'custom:kos').map((country) => country.id)).toEqual(['custom:KOS']);
+    expect(matching(['lived'], 'ata').map((country) => country.id)).toEqual(['ATA']);
+    expect(matching(['visited'], 'fra')).toEqual([]);
+    expect(matching([...STATUSES])).toEqual(matching([]));
+    favourites.clear();
+    expect(matching([])).toEqual([]);
+  });
   it('rejects unknown custom IDs, missing additions, and invented custom flag codes', () => {
     expect(() => validateRegistry(registry.map((entry) => entry.id === 'custom:KOS' ? { ...entry, id: 'custom:XXX' } : entry)))
       .toThrow('Invalid territory identifier');

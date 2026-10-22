@@ -42,6 +42,7 @@ async function checkContrast(page: Page): Promise<void> {
       ['--on-accent', '--button'], ['--on-accent', '--button-hover'],
       ['--map-ink', '--map-panel'],
       ['--visited-text', '--surface'], ['--lived-text', '--surface'], ['--want-to-visit-text', '--surface'],
+      ['--favourite-text', '--surface'], ['--favourite-text', '--selected'],
       ['--warning-ink', '--warning'], ['--toast-ink', '--toast'], ['--accent', '--surface'], ['--accent', '--input'],
     ].map(([foreground, background]) => {
       const rgb = color(background!);
@@ -58,6 +59,10 @@ async function checkContrast(page: Page): Promise<void> {
     const a = luminance(credits.color.match(/[\d.]+/g)!.map(Number));
     const b = luminance(sidebar.backgroundColor.match(/[\d.]+/g)!.map(Number));
     ratios.push({ foreground: 'sidebar credits', background: 'sidebar', ratio: (Math.max(a, b) + .05) / (Math.min(a, b) + .05) });
+    const share = getComputedStyle(document.querySelector('#share-picture')!);
+    const shareInk = luminance(share.color.match(/[\d.]+/g)!.map(Number));
+    const shareFill = luminance(share.backgroundColor.match(/[\d.]+/g)!.map(Number));
+    ratios.push({ foreground: 'Share picture', background: 'filled camera button', ratio: (Math.max(shareInk, shareFill) + .05) / (Math.min(shareInk, shareFill) + .05) });
     return ratios;
   });
   for (const { foreground, background, ratio } of ratios) {

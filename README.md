@@ -36,6 +36,27 @@ cannot be saved, your choice still works for the current session.
 Mobile always shows the sidebar below the map, without changing the saved
 desktop choice.
 
+### Favourite places
+
+Use the star beside a place in **Manage countries**, or the **Favourite** toggle
+in its map/sidebar popover. An outlined star becomes a filled golden star.
+Favourites do not change map boundaries, tiny-place marker rings or map previews.
+All ISO and additional places, including Antarctica, can be favourites.
+The controls support mouse and keyboard without changing map navigation.
+
+Favourites are independent of travel status: even an Unvisited place can be a
+favourite, and **Reset (Unvisited)** does not remove it. They do not change
+alphabetical ordering, status filters, totals, Stats or badge progress.
+They save locally, appear in JSON exports/imports and participate in optional
+Google Drive sync, including favourite-only changes.
+
+The optional `favourite` field is a boolean; missing means `false`. Existing saves
+need no migration or startup rewrite. Confirmed imports replace favourites too:
+importing an older file without flags clears them, while cancellation preserves
+the current map. Import and Drive comparisons report status and favourite
+differences separately. Use updated app versions on all devices: older clients
+do not understand the field and can discard it when saving or synchronizing.
+
 ### Optional Google sign-in and Drive sync
 
 Open **Google Drive sync** in the sidebar footer and choose **Connect Google
@@ -168,17 +189,19 @@ genuine bundled boundary polygons: **266 independently tracked places** in total
 Tiny territories also have constant-size markers. The seven continent accordions
 use one assignment per territory, with Antarctica as the final group.
 All groups, including Europe and Antarctica, start collapsed on each page load.
-Open any groups independently; search and status filters temporarily expand
-matching groups and restore their previous open/closed states when both clear.
+Open any groups independently; search and filters temporarily expand
+matching groups and restore their previous open/closed states when all clear.
 
 Use **Visited**, **Lived / Living**, **Want to Visit**, and **Unvisited** buttons
 below search to filter the sidebar. Each is independent: selecting Visited and
 Want to Visit includes either status; Lived / Living is not included in Visited.
 Text search further narrows that selection. No selected buttons means all
-statuses; **Show all statuses** clears just the status selection, keeping search.
+statuses; **Show all statuses** clears just the status selection, keeping search
+and the favourite filter. The star button beside the status filters toggles
+**favourites only**, intersecting the selected statuses and text search.
 Compact, neutral buttons fit on one row, with colored circles matching the
 active theme's map legend and a thicker border indicating selection. Hover for
-status tooltips; the reset arrow shows all statuses. Results update immediately
+filter tooltips; the reset arrow shows all statuses. Results update immediately
 after edits, imports or accepted Drive replacements, including additional places
 and Antarctica.
 Filters last only until reload, survive theme switches and sidebar hiding, and
@@ -216,6 +239,61 @@ subdivisions do not count. Its denominators come from the full registry, not
 Manage's filters. Existing Manage totals still cover all 266 tracked places.
 Statistics and badges update on edits, imports and accepted Drive versions,
 even when local saving fails; they do not change the map or travel JSON.
+
+### Share a travel picture
+
+Choose the colored camera button at the top-right of the sidebar beside
+**Your places**, available from any tab. Its tooltip and accessible name are
+**Share picture**. Pick a **Picture format**, edit the title, optional name and
+subtitle, then use **Download PNG** to save the exact finished preview as
+`passport-infographic.png`.
+
+| Format | PNG size | Flags/symbols per group |
+| --- | --- | --- |
+| Horizontal (default) | 2400 x 1600 | Up to 18 |
+| Instagram Feed (4:5) | 1080 x 1350 | Up to 6 |
+| Story (9:16) | 1080 x 1920 | Up to 12 |
+
+Both portraits reflow the full map, six statistics, four flag groups, top three
+earned badges and fixed app QR into a vertical composition. Badge names/points
+use compact rows; Story leaves extra top/bottom clearance for platform controls.
+These are PNG images for sharing, not an automatic Instagram upload or a Reel
+video. Platforms may crop/compress images or overlay controls.
+The original parchment/passport styling stays the same in every app theme.
+The button uses the active theme's filled accent color and a local SVG camera.
+Names and subtitles are optional; limits are 60/80/120 characters for
+name/title/subtitle. Long text is wrapped or shortened to fit.
+
+The picture includes a separately fitted whole-world map, ISO-only status and
+favourite statistics, visited-or-lived world progress, continent coverage, and
+the three highest-point **currently earned** badges. Equal-point badges retain
+catalog order; the total earned count/points includes all earned badges.
+Generic original medallions accompany the real badge names and points.
+No achievements are invented for an empty or unearned catalog.
+
+Four strips show Visited, Lived / Living, Want to Visit and Favourites. Each
+uses the full registry, alphabetical names, its format's display limit and an
+exact **+N more** count. Favourites are independent and may repeat a place in
+another strip. Additional non-ISO places use neutral code symbols instead of
+invented flags. Subdivisions are excluded; sidebar filters do not affect the
+picture. As in Stats, the summary counts ISO countries and territories only.
+
+The **non-editable QR destination** is the current app origin and deployment
+base path, without incidental query strings or fragments. It opens the app,
+**not a published copy of your personal map**. Localhost/private addresses
+show a warning; a deployed address is not checked for public reachability.
+Use the full-size PNG and preserve the QR's white margin when sharing.
+Unsupported/overlong addresses fail explicitly rather than producing a tiny QR.
+
+Generation is entirely on this device, using locally bundled SVG flags and a
+QR encoder: no image upload, external generator or QR-destination request.
+Personalization and the selected format stay in page memory across closing and
+reopening, never travel JSON, browser storage or Google Drive; reload resets the
+format to Horizontal. Current in-memory edits are included even if local saving
+fails. Data/input/format changes regenerate the preview and disable download
+until ready, without clearing the entered name/title/subtitle.
+Close/Escape cancels stale results; flag/catalog/browser-encoding errors offer
+**Retry picture** without blocking normal map editing or JSON export.
 
 ### Editing badges
 
@@ -420,7 +498,7 @@ your data automatically.
   such as HTTPS or localhost. If copying fails, use the download instead.
 - **Import** validates a JSON file, then asks for confirmation before replacing
   current state. Missing known places become Unvisited. Unknown territory IDs,
-  invalid statuses, duplicate IDs, and malformed subdivision data are rejected.
+  invalid statuses/favourite flags, duplicate IDs, and malformed subdivision data are rejected.
   Cancellation and validation failures do not change existing state.
 
 To retain your state in Git, export and replace `data/user-data.json` with the
@@ -452,6 +530,7 @@ registry; an arbitrary `custom:` prefix is not enough.
     "name": "United States",
     "continent": "North America",
     "status": "visited",
+    "favourite": true,
     "subdivisions": [
       {
         "id": "US-CA",
@@ -465,7 +544,8 @@ registry; an arbitrary `custom:` prefix is not enough.
 ]
 ```
 
-Statuses are `unvisited`, `visited`, `lived`, and `want_to_visit`. Country names
+Statuses are `unvisited`, `visited`, `lived`, and `want_to_visit`. The optional
+boolean `favourite` defaults to false and is independent of status. Country names
 and continent labels are normalized to the canonical registry. Recursive
 subdivisions and optional ISO timestamps survive editing/import/export, but
 subdivisions do not yet have a map, editing UI, or their own totals.
@@ -535,6 +615,13 @@ available under ODbL 1.0; the full license is in `data/COUNTRIES-LICENSE.txt`.
 The generator and all derived data needed to reproduce them are included.
 These data-license terms are separate from application code.
 
+Infographic flags come from [flag-icons](https://github.com/lipis/flag-icons)
+(MIT); QR generation uses [qrcode](https://github.com/soldair/node-qrcode)
+(MIT) and its dijkstrajs dependency (MIT). The unchanged notices ship as
+`data/FLAG-ICONS-LICENSE.txt`, `data/QRCODE-LICENSE.txt` and
+`data/DIJKSTRAJS-LICENSE.txt`. Passport accents and badge medallions are original
+vector artwork; no reference-picture artwork or external fonts are bundled.
+
 Pinned source URLs, revisions, normalization rules, marker placement, and
 continent exceptions are recorded in `data/provenance.json`.
 `data/coverage-report.json` records actual polygon coverage and separate ISO,
@@ -575,6 +662,9 @@ controls, zoom/drag, and mobile layout; screenshots are saved in `test-results`.
 Scenery tests cover route interpolation, ship tracks against bundled land,
 motion/visibility controls, reduced motion, background suspension, cleanup,
 click-through selection, and constant-size positioning during map navigation.
+Infographic tests inspect real downloaded PNG dimensions, marked-map/flag
+pixels, decoded QR payloads, preview/download identity, ephemeral text,
+current-state updates, errors/retry and responsive modal behavior.
 Use `npx playwright install --with-deps chromium` on Linux.
 
 To exercise the production build rather than the development server:
@@ -656,5 +746,8 @@ local builds alone do not confirm a live deployment.
 immutable private snapshot protocol, and `sync.ts` / `sync-ui.ts` cloud
 coordination and sidebar controls;
 `map.ts` owns D3 rendering/navigation; `sidebar.ts` handles search/grouping;
-`popover.ts` provides shared accessible status actions. CSS lives in
+`popover.ts` provides shared accessible status actions; `badge-catalog.ts`
+shares validated lazy badge loading. `infographic.ts` derives the snapshot
+model; `infographic-assets.ts`, `infographic-renderer.ts` and `infographic-ui.ts`
+provide local assets, SVG-to-PNG rendering and the lazy preview dialog. CSS lives in
 `src/styles`, reproducible geography scripts in `scripts`, and tests in `tests`.

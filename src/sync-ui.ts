@@ -78,7 +78,8 @@ export function createGoogleSync(
       choose.addEventListener('click', () => { closeDialog(); void sync.resolve(option.key); });
       const description = document.createElement('p');
       const changed = option.entries.filter((entry) => entry.status !== store.status(entry.id)).length;
-      description.textContent = `${changed} place statuses differ from the current map. Timestamps and subdivisions are also preserved.`;
+      const favourites = option.entries.filter((entry) => (entry.favourite ?? false) !== store.isFavourite(entry.id)).length;
+      description.textContent = `${changed} place statuses and ${favourites} favourite flags differ from the current map. Timestamps and subdivisions are also preserved.`;
       const backup = document.createElement('button');
       backup.className = 'text-button';
       backup.textContent = 'Download this version';

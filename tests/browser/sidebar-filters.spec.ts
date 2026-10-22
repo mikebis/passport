@@ -347,7 +347,7 @@ for (const theme of ['classic', 'dark', 'medieval']) {
         const { x, y, width, height } = button.getBoundingClientRect();
         return { x, y, width, height };
       }));
-      expect(controls).toHaveLength(5);
+      expect(controls).toHaveLength(6);
       expect(new Set(controls.map((rect) => rect.y)).size).toBe(1);
       const label = page.locator('.status-filters-label');
       await expect(label).toHaveText('Filters');

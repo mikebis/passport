@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { LEGACY_STORAGE_KEY, loadInitialState, normalizeData, parseData, STORAGE_KEY, TravelStore, type StorageAccess } from '../src/store';
-import type { LocationEntry, Territory } from '../src/types';
+import { STATUSES, type LocationEntry, type Territory } from '../src/types';
 import registryData from '../data/registry.json';
 import { validateRegistry } from '../src/geography';
 
@@ -49,6 +49,9 @@ describe('data validation and normalization', () => {
     [[{ ...entry, updatedAt: '2025-02-30T12:00:00Z' }], 'timestamp'],
     [[{ ...entry, updatedAt: '2025-01-01T24:00:00Z' }], 'timestamp'],
     [[{ ...entry, subdivisions: {} }], 'must be an array'],
+    [[{ ...entry, favourite: 'true' }], 'Favourite flag'],
+    [[{ ...entry, favourite: 1 }], 'Favourite flag'],
+    [[{ ...entry, favourite: null }], 'Favourite flag'],
     [[{ ...entry, subdivisions: [{ ...region, id: 'CA-ON' }] }], 'Invalid subdivision'],
     [[{ ...entry, subdivisions: [region, region] }], 'Duplicate'],
   ])('rejects malformed data %#', (value, message) => {
@@ -243,6 +246,89 @@ describe('passport storage migration', () => {
 });
 
 describe('TravelStore', () => {
+  it('defaults old saves to not favourited without rewriting them', async () => {
+    const raw = JSON.stringify([entry]);
+    const local = storage(raw);
+    const set = vi.spyOn(local, 'setItem');
+    const initial = await loadInitialState(registry, local, vi.fn());
+    const store = new TravelStore(initial.entries, registry, local, vi.fn());
+    expect(store.isFavourite('USA')).toBe(false);
+    expect(store.isFavourite('EST')).toBe(false);
+    expect(set).not.toHaveBeenCalled();
+    expect(local.value).toBe(raw);
+  });
+  it('keeps favourites independent of every status, including resetting to unvisited', () => {
+    const store = new TravelStore([{ ...entry, subdivisions: [region] }], registry, storage(), vi.fn());
+    store.setFavourite('USA', true);
+    for (const status of STATUSES) {
+      store.setStatus('USA', status);
+      expect(store.isFavourite('USA')).toBe(true);
+      expect(store.status('USA')).toBe(status);
+    }
+    store.setFavourite('USA', false);
+    expect(store.status('USA')).toBe('unvisited');
+    expect(store.snapshot()[1]?.subdivisions).toEqual([region]);
+  });
+  it('persists true/false favourites, timestamps and notifications, with no-op protection', () => {
+    const local = storage();
+    const set = vi.spyOn(local, 'setItem');
+    const store = new TravelStore([entry], registry, local, vi.fn());
+    const listener = vi.fn();
+    store.subscribe(listener);
+    store.setFavourite('USA', false);
+    expect(set).not.toHaveBeenCalled();
+    store.setFavourite('USA', true);
+    expect(store.snapshot()[1]?.updatedAt).toMatch(/Z$/);
+    expect(parseData(local.value!, registry)[1]?.favourite).toBe(true);
+    const before = store.exportJson();
+    store.setFavourite('USA', true);
+    expect(store.exportJson()).toBe(before);
+    expect(listener).toHaveBeenCalledExactlyOnceWith('local');
+    expect(set).toHaveBeenCalledOnce();
+    store.setFavourite('USA', false);
+    expect(parseData(local.value!, registry)[1]?.favourite).toBe(false);
+    expect(listener).toHaveBeenCalledTimes(2);
+    expect(() => store.isFavourite('BAD')).toThrow('Unknown territory');
+    expect(() => store.setFavourite('BAD', true)).toThrow('Unknown territory');
+  });
+  it('retains favourite changes in memory and export and notifies when saving fails', () => {
+    const warn = vi.fn();
+    const saved = vi.fn();
+    const local = { getItem: () => null, setItem: () => { throw new Error('quota'); }, removeItem: vi.fn() };
+    const store = new TravelStore([entry], registry, local, warn, saved);
+    const listener = vi.fn();
+    store.subscribe(listener);
+    store.setFavourite('USA', true);
+    expect(store.isFavourite('USA')).toBe(true);
+    expect(parseData(store.exportJson(), registry)[1]?.favourite).toBe(true);
+    expect(store.status('USA')).toBe('visited');
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('quota'));
+    expect(saved).not.toHaveBeenCalled();
+    expect(listener).toHaveBeenCalledExactlyOnceWith('local');
+  });
+  it('round-trips flags and recursive subdivisions and replaces favourites with imported data', () => {
+    const data = [{ ...entry, favourite: true, subdivisions: [{ ...region, favourite: false }] }];
+    const store = new TravelStore(data, registry, storage(), vi.fn());
+    expect(parseData(store.exportJson(), registry)[1]).toEqual(data[0]);
+    const listener = vi.fn();
+    store.subscribe(listener);
+    store.replace([{ ...entry, favourite: false }], 'remote');
+    expect(store.isFavourite('USA')).toBe(false);
+    expect(listener).toHaveBeenCalledExactlyOnceWith('remote');
+    store.setFavourite('USA', true);
+    store.replace([entry]);
+    expect(store.isFavourite('USA')).toBe(false);
+  });
+  it('supports custom-place and Antarctic favourites without affecting related countries', () => {
+    const expanded = validateRegistry(registryData);
+    const store = new TravelStore([], expanded, storage(), vi.fn());
+    store.setFavourite('custom:KOS', true);
+    store.setFavourite('ATA', true);
+    expect(store.isFavourite('custom:KOS')).toBe(true);
+    expect(store.isFavourite('SRB')).toBe(false);
+    expect(store.isFavourite('ATA')).toBe(true);
+    expect(store.status('ATA')).toBe('unvisited');
+  });
   it('updates state, timestamps, subscribers and localStorage together', () => {
     const local = storage();
     const saved = vi.fn();

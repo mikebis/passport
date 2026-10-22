@@ -65,6 +65,9 @@ export function normalizeData(value: unknown, registry: readonly Territory[]): L
     if (entry.updatedAt !== undefined && !validTimestamp(entry.updatedAt)) {
       throw new Error(`Invalid ISO timestamp for ${id}.`);
     }
+    if (entry.favourite !== undefined && typeof entry.favourite !== 'boolean') {
+      throw new Error(`Favourite flag for ${id} must be a boolean.`);
+    }
     if (entry.subdivisions !== undefined && !Array.isArray(entry.subdivisions)) {
       throw new Error(`Subdivisions for ${id} must be an array.`);
     }
@@ -76,6 +79,7 @@ export function normalizeData(value: unknown, registry: readonly Territory[]): L
       status: entry.status as TravelStatus,
     };
     if (typeof entry.updatedAt === 'string') result.updatedAt = entry.updatedAt;
+    if (typeof entry.favourite === 'boolean') result.favourite = entry.favourite;
     if (Array.isArray(entry.subdivisions)) {
       result.subdivisions = entry.subdivisions.map((child: unknown) => validate(child, country?.alpha2 ?? alpha2, depth + 1));
     }
@@ -170,6 +174,12 @@ export class TravelStore {
     return entry.status;
   }
 
+  isFavourite(id: string): boolean {
+    const entry = this.byId.get(id);
+    if (!entry) throw new Error(`Unknown territory: ${id}`);
+    return entry.favourite === true;
+  }
+
   subscribe(listener: (origin: 'local' | 'remote') => void): () => void {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
@@ -181,6 +191,17 @@ export class TravelStore {
     if (!STATUSES.includes(status)) throw new Error(`Invalid travel status: ${status}`);
     if (entry.status === status) return;
     entry.status = status;
+    entry.updatedAt = new Date().toISOString();
+    this.persist();
+    this.listeners.forEach((listener) => listener('local'));
+  }
+
+  setFavourite(id: string, favourite: boolean): void {
+    const entry = this.byId.get(id);
+    if (!entry) throw new Error(`Unknown territory: ${id}`);
+    if (typeof favourite !== 'boolean') throw new Error(`Invalid favourite flag for ${id}.`);
+    if (this.isFavourite(id) === favourite) return;
+    entry.favourite = favourite;
     entry.updatedAt = new Date().toISOString();
     this.persist();
     this.listeners.forEach((listener) => listener('local'));

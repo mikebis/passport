@@ -2,16 +2,18 @@ import type { TravelStore } from './store';
 import { continentProgress } from './statistics';
 import { CONTINENTS, NON_ISO_LABEL, territorySymbol, STATUSES, STATUS_LABELS, type Continent, type SelectTerritory, type Territory, type TravelStatus } from './types';
 
-interface StatusFilter {
+interface TerritoryFilter {
   selected: ReadonlySet<TravelStatus>;
   status: (id: string) => TravelStatus;
+  favourite?: (id: string) => boolean;
 }
 
-export function filterTerritories(registry: readonly Territory[], query: string, statuses?: StatusFilter): Territory[] {
+export function filterTerritories(registry: readonly Territory[], query: string, filters?: TerritoryFilter): Territory[] {
   const needle = query.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('en');
   return registry.filter((country) =>
     `${country.name} ${country.id} ${country.alpha2 ?? ''}`.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('en').includes(needle)
-    && (!statuses?.selected.size || statuses.selected.has(statuses.status(country.id))),
+    && (!filters?.selected.size || filters.selected.has(filters.status(country.id)))
+    && (!filters?.favourite || filters.favourite(country.id)),
   ).sort((a, b) => a.name.localeCompare(b.name, 'en'));
 }
 
@@ -21,6 +23,7 @@ export function createSidebar(
   store: TravelStore,
   select: SelectTerritory,
   preview: (id: string | undefined) => void,
+  announce: (message: string) => void,
 ): { focusSearch: () => void; clearPreview: () => void } {
   const label = document.createElement('label');
   label.className = 'search-box';
@@ -32,10 +35,11 @@ export function createSidebar(
   input.setAttribute('aria-controls', 'country-groups');
   label.append(input);
   const selected = new Set<TravelStatus>();
+  let favouritesOnly = false;
   const filters = document.createElement('div');
   filters.className = 'status-filters';
   filters.setAttribute('role', 'group');
-  filters.setAttribute('aria-label', 'Filter places by travel status');
+  filters.setAttribute('aria-label', 'Filter places');
   filters.setAttribute('aria-describedby', 'status-filter-hint');
   const filterLabel = document.createElement('span');
   filterLabel.className = 'status-filters-label';
@@ -43,7 +47,7 @@ export function createSidebar(
   const hint = document.createElement('span');
   hint.id = 'status-filter-hint';
   hint.className = 'sr-only';
-  hint.textContent = 'Combine statuses to include either. No selected statuses shows all places. Text search narrows the results.';
+  hint.textContent = 'Combine statuses to include either. No selected statuses includes all statuses. The star shows only favourites. Text search narrows the results.';
   filters.append(filterLabel, hint);
   const filterButtons = new Map<TravelStatus, HTMLButtonElement>();
   for (const status of STATUSES) {
@@ -67,6 +71,22 @@ export function createSidebar(
     filterButtons.set(status, button);
     filters.append(button);
   }
+  const favouriteFilter = document.createElement('button');
+  favouriteFilter.type = 'button';
+  favouriteFilter.className = 'favourite-filter';
+  const star = document.createElement('span');
+  star.textContent = '\u2605';
+  star.setAttribute('aria-hidden', 'true');
+  favouriteFilter.append(star);
+  favouriteFilter.title = 'Filter by Favourites';
+  favouriteFilter.setAttribute('aria-label', 'Filter by Favourites');
+  favouriteFilter.setAttribute('aria-pressed', 'false');
+  favouriteFilter.setAttribute('aria-controls', 'country-groups');
+  favouriteFilter.addEventListener('click', () => {
+    favouritesOnly = !favouritesOnly;
+    updateFilters();
+  });
+  filters.append(favouriteFilter);
   const reset = document.createElement('button');
   reset.type = 'button';
   reset.className = 'status-filter-reset';
@@ -88,7 +108,9 @@ export function createSidebar(
   container.append(label, filters, meta, groups);
   const continents = [...CONTINENTS, 'Antarctica'] as const;
   const expanded = new Map<Continent, boolean>(continents.map((name) => [name, false]));
-  const rows = new Map<string, { button: HTMLButtonElement; badge: HTMLElement; country: Territory }>();
+  const rows = new Map<string, {
+    item: HTMLElement; button: HTMLButtonElement; favourite: HTMLButtonElement; badge: HTMLElement; country: Territory;
+  }>();
   const progressElements = new Map<Continent, { count: HTMLElement; label: HTMLElement }>();
   const continentElements = new Map<Continent, HTMLDetailsElement>();
   const empty = document.createElement('p');
@@ -107,21 +129,25 @@ export function createSidebar(
   }
 
   function isFiltering(): boolean {
-    return input.value.trim().length > 0 || selected.size > 0;
+    return input.value.trim().length > 0 || selected.size > 0 || favouritesOnly;
   }
 
   function updateFilters(): void {
     for (const [status, button] of filterButtons) button.setAttribute('aria-pressed', String(selected.has(status)));
+    favouriteFilter.setAttribute('aria-pressed', String(favouritesOnly));
     updateMembership(true);
   }
 
   function updateMembership(revealGroups = false): void {
-    const matching = new Set(filterTerritories(registry, input.value, { selected, status: (id) => store.status(id) })
+    const matching = new Set(filterTerritories(registry, input.value, {
+      selected, status: (id) => store.status(id), favourite: (id) => !favouritesOnly || store.isFavourite(id),
+    })
       .map((country) => country.id));
     let focusExcluded = false;
-    for (const [id, { button }] of rows) {
+    for (const [id, { item, button }] of rows) {
       const excluded = !matching.has(id);
-      if (excluded && document.activeElement === button) focusExcluded = true;
+      if (excluded && item.contains(document.activeElement)) focusExcluded = true;
+      item.hidden = excluded;
       button.hidden = excluded;
       if (excluded && hoveredId === id) hoveredId = undefined;
       if (excluded && focusedId === id) focusedId = undefined;
@@ -137,8 +163,8 @@ export function createSidebar(
     if (focusExcluded) input.focus({ preventScroll: true });
     meta.textContent = isFiltering() ? `${matching.size} matching places` : `${registry.length} places. A world of possibilities.`;
     empty.hidden = matching.size > 0;
-    empty.textContent = selected.size
-      ? 'No places match these filters. Show all statuses or change your search.'
+    empty.textContent = selected.size || favouritesOnly
+      ? 'No places match these filters. Adjust your filters or change your search.'
       : 'No places found. Try a name or an ISO code.';
   }
 
@@ -159,6 +185,8 @@ export function createSidebar(
     const filtered = filterTerritories(registry, input.value);
 
     function addRow(country: Territory, parent: HTMLElement): void {
+      const item = document.createElement('div');
+      item.className = 'country-item';
       const button = document.createElement('button');
       button.className = 'country-row';
       button.dataset.country = country.id;
@@ -184,7 +212,17 @@ export function createSidebar(
       badge.className = 'status-dot';
       badge.setAttribute('aria-hidden', 'true');
       button.append(icon, name, code, badge);
-      button.addEventListener('pointerenter', (event) => {
+      const favourite = document.createElement('button');
+      favourite.type = 'button';
+      favourite.className = 'country-favourite';
+      favourite.dataset.country = country.id;
+      favourite.setAttribute('aria-label', `Favourite ${country.name}`);
+      favourite.addEventListener('click', () => {
+        store.setFavourite(country.id, !store.isFavourite(country.id));
+        announce(`${country.name}: ${store.isFavourite(country.id) ? 'added to' : 'removed from'} favourites.`);
+      });
+      item.append(button, favourite);
+      item.addEventListener('pointerenter', (event) => {
         if (event.pointerType === 'touch') return;
         hoveredId = country.id;
         updatePreview();
@@ -194,13 +232,14 @@ export function createSidebar(
         hoveredId = undefined;
         updatePreview();
       };
-      button.addEventListener('pointerleave', leave);
-      button.addEventListener('pointercancel', leave);
-      button.addEventListener('focus', () => {
+      item.addEventListener('pointerleave', leave);
+      item.addEventListener('pointercancel', leave);
+      item.addEventListener('focusin', () => {
         focusedId = country.id;
         updatePreview();
       });
-      button.addEventListener('blur', () => {
+      item.addEventListener('focusout', (event) => {
+        if (event.relatedTarget instanceof Node && item.contains(event.relatedTarget)) return;
         if (focusedId !== country.id) return;
         focusedId = undefined;
         updatePreview();
@@ -209,8 +248,8 @@ export function createSidebar(
         const rect = button.getBoundingClientRect();
         select(country.id, { x: rect.left, y: rect.top, trigger: button });
       });
-      rows.set(country.id, { button, badge, country });
-      parent.append(button);
+      rows.set(country.id, { item, button, favourite, badge, country });
+      parent.append(item);
     }
 
     for (const continent of continents) {
@@ -250,13 +289,19 @@ export function createSidebar(
       count.title = `${completed} of ${total} official ISO countries and territories visited or lived in`;
       label.setAttribute('aria-description', count.title);
     }
-    for (const [id, { button, badge, country }] of rows) {
+    for (const [id, { item, button, favourite, badge, country }] of rows) {
       const status = store.status(id);
+      const isFavourite = store.isFavourite(id);
       badge.className = `status-dot ${status}`;
+      item.dataset.status = status;
       button.dataset.status = status;
+      button.dataset.favourite = String(isFavourite);
+      favourite.textContent = isFavourite ? '\u2605' : '\u2606';
+      favourite.setAttribute('aria-pressed', String(isFavourite));
+      favourite.title = `${isFavourite ? 'Remove' : 'Add'} ${country.name} ${isFavourite ? 'from' : 'to'} favourites`;
       const kind = country.kind === 'custom' ? `${NON_ISO_LABEL} \u00b7 ` : '';
-      button.setAttribute('aria-label', `${country.name} (${country.id}), ${kind}${STATUS_LABELS[status]}. Change status`);
-      button.title = `${country.name} \u00b7 ${kind}${STATUS_LABELS[status]}`;
+      button.setAttribute('aria-label', `${country.name} (${country.id}), ${kind}${STATUS_LABELS[status]}. ${isFavourite ? 'Favourite. ' : ''}Change status`);
+      button.title = `${country.name} \u00b7 ${kind}${STATUS_LABELS[status]}${isFavourite ? ' \u00b7 Favourite' : ''}`;
     }
     updateMembership();
   }

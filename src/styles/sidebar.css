@@ -1,9 +1,9 @@
 .sidebar { background: var(--surface); background-image: var(--paper); border-left: 1px solid var(--border); display: flex; flex-direction: column; height: 100dvh; min-height: 620px; }
-.sidebar-heading { display: flex; align-items: center; justify-content: space-between; padding: 32px 26px 0; }
+.sidebar-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 32px 26px 0; }
+.sidebar-heading > div { min-width: 0; }
 .sidebar-heading .eyebrow { font-size: 9px; letter-spacing: 1.7px; margin: 0 0 9px; }
 .sidebar-heading h2 { font-size: 28px; font-weight: 600; letter-spacing: -1px; margin: 0; }
 .sidebar-heading h2 span { color: var(--accent-soft); }
-.globe-icon { font-size: 42px; color: var(--accent-soft); line-height: 1; }
 .sidebar-tabs { display: flex; gap: 4px; margin: 16px 22px 0; flex-shrink: 0; }
 .sidebar-tabs > button { flex: 1; min-width: 0; padding: 9px 4px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--muted); font-size: 11px; white-space: nowrap; }
 .sidebar-tabs > button:hover { background: var(--hover); }
@@ -60,9 +60,10 @@
 .search-box input:focus { outline-offset: -3px; }
 .status-filters { display: flex; align-items: center; gap: 6px; margin: 12px 22px 0; }
 .status-filters-label { color: var(--muted); font-size: 11px; white-space: nowrap; }
-.status-filter, .status-filter-reset { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 32px; width: 32px; height: 32px; padding: 0; border: 1px solid var(--input-border); border-radius: var(--radius-small); background: var(--input); color: var(--ink); }
-.status-filter[aria-pressed="true"] { border: 2px solid var(--ink); background: var(--selected); }
-.status-filter:hover, .status-filter-reset:hover { background: var(--hover); }
+.status-filter, .favourite-filter, .status-filter-reset { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 32px; width: 32px; height: 32px; padding: 0; border: 1px solid var(--input-border); border-radius: var(--radius-small); background: var(--input); color: var(--ink); }
+.status-filter[aria-pressed="true"], .favourite-filter[aria-pressed="true"] { border: 2px solid var(--ink); background: var(--selected); }
+.status-filter:hover, .favourite-filter:hover, .status-filter-reset:hover { background: var(--hover); }
+.favourite-filter { color: var(--favourite-text); font-size: 20px; }
 .status-filter-reset { font-size: 20px; }
 .sidebar-meta { font-size: 10px; color: var(--subtle); margin: 8px 26px 12px; }
 .country-groups { overflow: auto; min-height: 0; padding: 0 12px 18px; scrollbar-width: thin; scrollbar-color: var(--scrollbar) transparent; }
@@ -72,11 +73,15 @@
 .continent summary::before { content: '\203A'; color: var(--subtle); font-size: 17px; margin-right: 10px; transform: rotate(0); }
 .continent[open] summary::before { transform: rotate(90deg); }
 .continent-count { font-size: 10px; font-weight: 400; color: var(--subtle); margin-left: auto; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.country-row { display: flex; align-items: center; gap: 9px; width: 100%; padding: 10px 14px; border: 0; border-radius: var(--radius-small); background: transparent; text-align: left; min-height: 42px; }
-.country-row:hover { background: var(--hover); }
-.country-row[data-status="visited"] { background: var(--visited-tint); }
-.country-row[data-status="lived"] { background: var(--lived-tint); }
-.country-row[data-status="want_to_visit"] { background: var(--wishlist-tint); }
+.country-item { display: flex; align-items: center; border-radius: var(--radius-small); }
+.country-item:hover { background: var(--hover); }
+.country-item[data-status="visited"] { background: var(--visited-tint); }
+.country-item[data-status="lived"] { background: var(--lived-tint); }
+.country-item[data-status="want_to_visit"] { background: var(--wishlist-tint); }
+.country-row { display: flex; flex: 1; min-width: 0; align-items: center; gap: 9px; width: 100%; padding: 10px 14px; border: 0; border-radius: var(--radius-small); background: transparent; text-align: left; min-height: 42px; }
+.country-favourite { flex: 0 0 32px; min-height: 36px; padding: 2px; margin-right: 4px; border: 0; border-radius: var(--radius-small); background: transparent; color: var(--muted); font-size: 22px; }
+.country-favourite:hover { background: var(--hover); }
+.country-favourite[aria-pressed="true"] { color: var(--favourite-text); }
 .country-flag { font-size: 17px; width: 24px; flex-shrink: 0; }
 .country-name { font-size: 11px; line-height: 1.5; flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .territory-kind { display: block; font-size: 9px; color: var(--muted); font-weight: 400; margin-top: 2px; }
@@ -88,6 +93,8 @@
 .save-indicator { width: 5px; height: 5px; display: inline-block; border-radius: 50%; background: var(--accent-soft); }
 .data-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .data-actions .button { padding: 10px 12px; }
+#share-picture { width: 40px; height: 40px; padding: 0; flex-shrink: 0; }
+.share-picture-icon { flex-shrink: 0; }
 .data-license { color: var(--subtle); font-size: 8px; line-height: 1.5; margin: 12px 0 0; }
 .data-license a { text-decoration-color: var(--border); text-underline-offset: 2px; }
 .google-sync { margin: 0 0 12px; font-size: 11px; color: var(--muted); }
@@ -108,7 +115,6 @@
   .sidebar-tabs { margin-top: 8px; }
   .sidebar-heading h2 { font-size: 23px; }
   .sidebar-heading .eyebrow { margin-bottom: 4px; }
-  .globe-icon { font-size: 32px; }
   .theme-picker { margin-top: 8px; }
   .theme-picker select { min-height: 30px; }
   .travel-stats { padding-block: 10px 8px; }

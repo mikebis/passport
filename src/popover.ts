@@ -8,6 +8,7 @@ export class StatusPopover {
   private countries: Map<string, Territory>;
   private anchor: SelectionAnchor | undefined;
   private scrollOrigin = { x: 0, y: 0 };
+  private favourite: HTMLButtonElement | undefined;
 
   constructor(
     private store: TravelStore,
@@ -45,6 +46,7 @@ export class StatusPopover {
     });
     window.addEventListener('resize', () => this.close(false));
     window.addEventListener('scroll', () => this.position(), true);
+    store.subscribe(() => this.updateFavourite());
   }
 
   open(id: string, anchor: SelectionAnchor): void {
@@ -91,9 +93,28 @@ export class StatusPopover {
       });
       this.element.append(button);
     }
+    const favourite = document.createElement('button');
+    favourite.type = 'button';
+    favourite.className = 'favourite-choice';
+    favourite.setAttribute('aria-label', `Favourite ${country.name}`);
+    favourite.addEventListener('click', () => {
+      this.store.setFavourite(id, !this.store.isFavourite(id));
+      this.announce(`${country.name}: ${this.store.isFavourite(id) ? 'added to' : 'removed from'} favourites.`);
+    });
+    this.favourite = favourite;
+    this.element.append(favourite);
+    this.updateFavourite();
     this.element.hidden = false;
     this.position();
     this.element.querySelector<HTMLButtonElement>(`[data-status="${this.store.status(id)}"]`)?.focus({ preventScroll: true });
+  }
+
+  private updateFavourite(): void {
+    if (!this.currentId || !this.favourite) return;
+    const favourite = this.store.isFavourite(this.currentId);
+    this.favourite.setAttribute('aria-pressed', String(favourite));
+    this.favourite.textContent = `${favourite ? '\u2605' : '\u2606'} Favourite`;
+    this.favourite.title = favourite ? 'Remove from favourites' : 'Add to favourites';
   }
 
   private position(): void {

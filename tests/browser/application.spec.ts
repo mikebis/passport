@@ -30,7 +30,8 @@ test('loads complete geometry, legend and seven collapsed continent groups', asy
   await ready(page);
   await expect(page.locator('.continent')).toHaveCount(7);
   await expect(page.locator('.continent[open]')).toHaveCount(0);
-  await expect(page.locator('.antarctica [data-country="ATA"]')).toHaveCount(1);
+  await expect(page.locator('.antarctica .country-row[data-country="ATA"]')).toHaveCount(1);
+  await expect(page.locator('.antarctica .country-favourite[data-country="ATA"]')).toHaveCount(1);
   await expect(page.locator('.map-legend')).toContainText('Lived / Living');
   for (const id of ['VAT', 'MCO', 'SMR', 'LIE', 'AND', 'NRU', 'TUV', 'UMI', 'BVT', 'TKL']) {
     await expect(page.locator(`path[data-country="${id}"]`)).toHaveAttribute('d', /M/);
@@ -209,6 +210,8 @@ test('keyboard status controls trap focus, close on Escape and restore focus', a
   await page.keyboard.press('Enter');
   await expect(page.locator('[data-status="unvisited"].status-choice')).toBeFocused();
   await page.keyboard.press('Tab');
+  await expect(page.locator('.favourite-choice')).toBeFocused();
+  await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: 'Close status choices' })).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(row).toBeFocused();
@@ -238,7 +241,9 @@ test('download export round-trips all countries and nested subdivisions', async 
     id: 'USA', name: 'United States', continent: 'North America', status: 'lived',
     subdivisions: [{ id: 'US-CA', name: 'California', continent: 'North America', status: 'visited' }],
   }];
-  await page.locator('#import-file').setInputFiles({ name: 'trip.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(nested)) });
+  const chooserPromise = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Import', exact: true }).click();
+  await (await chooserPromise).setFiles({ name: 'trip.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(nested)) });
   await expect(page.getByRole('dialog', { name: 'Replace your travel data?' })).toBeVisible();
   await page.getByRole('button', { name: 'Replace data', exact: true }).click();
   await expect(page.locator('#lived-count')).toHaveText('1');

@@ -8,3 +8,6 @@
 .status-choice[aria-pressed="true"] { background: var(--selected); font-weight: 650; }
 .status-choice .status-dot { width: 12px; height: 12px; }
 .choice-check { margin-left: auto; color: var(--accent); }
+.favourite-choice { display: block; width: 100%; margin-top: 8px; padding: 10px; min-height: 42px; text-align: left; background: transparent; border: 1px solid var(--border); border-radius: var(--radius-small); font-size: 12px; }
+.favourite-choice:hover { background: var(--hover); }
+.favourite-choice[aria-pressed="true"] { color: var(--favourite-text); background: var(--selected); font-weight: 650; }

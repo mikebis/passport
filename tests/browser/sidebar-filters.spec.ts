@@ -197,7 +197,8 @@ test('failed saves still refilter in memory and report the independent saving er
 test('filtering preserves map nodes, geometry, zoom, travel totals and full-continent progress', async ({ page }) => {
   await ready(page);
   await page.getByRole('button', { name: 'Zoom in', exact: true }).click();
-  await page.waitForTimeout(350);
+  await expect(page.locator('.land-layer')).not.toHaveAttribute('transform', 'translate(0,0) scale(1)');
+  await expect(page.locator('svg.world-map')).not.toHaveAttribute('data-navigating', 'true');
   const identity = await page.evaluateHandle(() => {
     const paths = [...document.querySelectorAll('.country-boundary')];
     const scenery = [...document.querySelectorAll('.scenery-object')];

@@ -4,6 +4,19 @@ A small, local-first travel atlas. Color the places you have visited, called hom
 or want to visit. No required account, backend, API key, analytics, or external map
 service. Optional Google sign-in backs up your map to your private Drive app-data.
 
+**Contents:** [Run](#run) · [Your map](#your-map) ·
+[Favourites](#favourite-places) · [Google sync](#optional-google-sign-in-and-drive-sync) ·
+[Configure Google](#configure-google-optional) ·
+[Tabs and statistics](#sidebar-tabs-and-statistics) ·
+[Share a picture](#share-a-travel-picture) · [Badges](#editing-badges) ·
+[Scenery](#a-little-life-on-the-map) · [Skins](#editing-or-adding-a-skin) ·
+[Additional territories](#additional-territories) ·
+[Persistence](#persistence-recovery-and-moving-data) · [JSON format](#json-format) ·
+[Geography and licensing](#geography-and-licensing) ·
+[Verification](#verification) ·
+[Hosting and Azure](#static-hosting-and-azure-static-web-apps) ·
+[Structure](#structure)
+
 ## Run
 
 Use Node.js 22.12 or newer (Node.js 24 recommended).
@@ -24,7 +37,9 @@ screens the map appears above the sidebar. Geography and scenery fill the entire
 map area, with a floating bottom-center status legend and left-hand controls.
 The informational legend lets clicks, drags and zoom gestures reach the map
 underneath. There is no navigation hint or reserved map footer; boundary
-attribution and the Data sources link sit with the sidebar footer's license credits.
+attribution and the Data sources link sit with the sidebar footer's license credits,
+followed by a **View on GitHub** link to the
+[source repository](https://github.com/mikebis/passport).
 
 On desktop, **Hide sidebar** at the map's bottom-right corner, level with the
 legend, gives the full width to the map; **Show sidebar** restores the same
@@ -43,10 +58,11 @@ in its map/sidebar popover. An outlined star becomes a filled golden star.
 Favourites do not change map boundaries, tiny-place marker rings or map previews.
 All ISO and additional places, including Antarctica, can be favourites.
 The controls support mouse and keyboard without changing map navigation.
+The star button beside the sidebar status filters shows favourites only.
 
 Favourites are independent of travel status: even an Unvisited place can be a
 favourite, and **Reset (Unvisited)** does not remove it. They do not change
-alphabetical ordering, status filters, totals, Stats or badge progress.
+alphabetical ordering, status filter membership, totals, Stats or badge progress.
 They save locally, appear in JSON exports/imports and participate in optional
 Google Drive sync, including favourite-only changes.
 
@@ -676,17 +692,26 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-`check` runs geographic checks, unit tests, strict TypeScript checking, and the
-production build. Browser tests cover map/sidebar/marker synchronization, all
-statuses, reloads, import/export, corrupt state, storage failures, keyboard
-controls, zoom/drag, and mobile layout; screenshots are saved in `test-results`.
+`check` runs geographic checks, ESLint (`npm run lint`), unit tests, strict
+TypeScript checking, and the production build. Browser tests cover
+map/sidebar/marker synchronization, all statuses, reloads, import/export,
+corrupt state, storage failures, keyboard controls, zoom/drag, and mobile
+layout. Playwright keeps traces of failed tests in `test-results`; in CI it also
+writes an HTML report to `playwright-report`.
 Scenery tests cover route interpolation, ship tracks against bundled land,
 motion/visibility controls, reduced motion, background suspension, cleanup,
 click-through selection, and constant-size positioning during map navigation.
 Infographic tests inspect real downloaded PNG dimensions, marked-map/flag
 pixels, decoded QR payloads, preview/download identity, ephemeral text,
 current-state updates, errors/retry and responsive modal behavior.
+`security-headers.spec.ts` applies the production CSP and fails on violations.
 Use `npx playwright install --with-deps chromium` on Linux.
+
+To check production dependencies for known vulnerabilities (as CI does):
+
+```powershell
+npm audit --omit=dev --audit-level=high
+```
 
 To exercise the production build rather than the development server:
 
@@ -695,6 +720,19 @@ $env:TEST_PRODUCTION = '1'
 npm run build
 npm run test:e2e
 Remove-Item Env:TEST_PRODUCTION
+```
+
+Google sync browser tests run only when the build has a client ID; they mock
+every Google request. Use a synthetic ID for such test builds and rebuild
+without it before deploying or sharing `dist`:
+
+```powershell
+$env:VITE_GOOGLE_CLIENT_ID = 'synthetic-test.apps.googleusercontent.com'
+$env:TEST_PRODUCTION = '1'
+npm run build
+npm run test:e2e
+Remove-Item Env:VITE_GOOGLE_CLIENT_ID, Env:TEST_PRODUCTION
+npm run build
 ```
 
 ## Static hosting and Azure Static Web Apps
@@ -753,6 +791,24 @@ is deployed. GitHub Pages actions and permissions are not needed.
 This is the only deployment workflow; remove Azure-generated duplicate workflows
 if reconnecting the resource creates another one.
 
+Third-party actions are pinned to full commit SHAs (with the tag in a comment);
+update the SHA and comment together when upgrading an action.
+`.github/dependabot.yml` opens weekly grouped update PRs for npm packages and
+these actions. The workflow also fails on high-severity production dependency
+advisories (`npm audit`), has a 45-minute timeout, uploads Playwright reports and
+traces as artifacts when a browser suite fails, and cancels superseded runs only
+on non-`main` refs, so a newer push never interrupts a production deployment.
+
+**Security headers:** `public/staticwebapp.config.json` is copied into `dist` and
+makes Azure send a Content-Security-Policy, `X-Content-Type-Options: nosniff`,
+a strict referrer policy and `frame-ancestors 'none'`. The policy allows only
+this origin plus the Google Identity Services and Drive/UserInfo endpoints the
+optional sync uses, and `data:`/`blob:` images for picture generation. If you add
+another external script, font, image or API, update the policy or the browser will
+block it; `tests/browser/security-headers.spec.ts` applies these headers and fails
+on any CSP violation. Other static hosts and `npm run preview` ignore this file,
+so configure equivalent headers there yourself.
+
 **Moving your map:** browser storage belongs to its origin. Export your data
 from the old localhost/hosted address and import it at the Azure address to keep
 your places; deploying the application does not transfer browser-local data.
@@ -772,5 +828,10 @@ shares validated lazy badge loading. `infographic.ts` derives the snapshot
 model; `infographic-assets.ts` provides flags/QR, `infographic-artwork.ts` the
 original collage/stickers, and `infographic-title.ts` local typography.
 `infographic-renderer.ts` and `infographic-ui.ts` provide SVG-to-PNG composition
-and the lazy preview dialog. CSS lives in
+and the lazy preview dialog. `dom.ts` holds shared DOM helpers (unique IDs,
+downloads); `theme.ts` and `sidebar-visibility.ts` own browser-local
+preferences; `sidebar-tabs.ts` the accessible tab strip; `statistics.ts` /
+`statistics-ui.ts` the ISO Stats panel; `badges.ts` / `badges-ui.ts` the
+formula evaluator and Badges panel; `scenery.ts` the decorative animation; and
+`types.ts` shared types. Theme packages live in `src/themes`, CSS in
 `src/styles`, reproducible geography scripts in `scripts`, and tests in `tests`.

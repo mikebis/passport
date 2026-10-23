@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GoogleAuth, GOOGLE_SCOPES, loadGoogleSdk } from '../src/google-auth';
 import { GoogleDrive, DriveError, lineage, snapshotHeads, type Snapshot, type SnapshotFile } from '../src/google-drive';
-import { canonicalData, DISCONNECT_KEY, DriveSync, LINK_KEY, PENDING_PREFIX } from '../src/sync';
+import { canonicalData, DISCONNECT_KEY, DriveSync, LINK_KEY, parseLink, PENDING_PREFIX } from '../src/sync';
 import { normalizeData, TravelStore } from '../src/store';
 import type { LocationEntry, Territory } from '../src/types';
 
@@ -189,6 +189,16 @@ describe('private immutable Drive protocol', () => {
     expect(body).toBeInstanceOf(Blob);
     expect(await (body as Blob).text()).toContain('"parents":["appDataFolder"]');
     expect(request.mock.calls[1]?.[0]).toContain('/fixed-id?alt=media');
+  });
+  it('verifies fixed-ID uploads by normalized content, not local key order', async () => {
+    const value = snapshot();
+    const reordered = { ...value, entries: value.entries.map((entry) => ({ favourite: true, ...entry })) };
+    const stored = { ...value, entries: value.entries.map((entry) => ({ ...entry, favourite: true })) };
+    const signal = new AbortController().signal;
+    const accept = vi.fn<typeof fetch>().mockResolvedValueOnce(json({ error: { errors: [{ reason: 'conflict' }] } }, 409)).mockResolvedValueOnce(json(stored));
+    await expect(new GoogleDrive(registry, accept).upload('fixed-id', reordered, 'token', signal)).resolves.toBeUndefined();
+    const reject = vi.fn<typeof fetch>().mockResolvedValueOnce(json({ error: { errors: [{ reason: 'conflict' }] } }, 409)).mockResolvedValueOnce(json(value));
+    await expect(new GoogleDrive(registry, reject).upload('fixed-id', reordered, 'token', signal)).rejects.toThrow('contains different data');
   });
   it.each([401, 403, 429, 503])('surfaces HTTP %s rather than interpreting failure as empty Drive', async (code) => {
     const drive = new GoogleDrive(registry, vi.fn<typeof fetch>().mockResolvedValue(json({ error: { errors: [{ reason: 'denied' }] } }, code)));
@@ -433,6 +443,23 @@ describe('local-first synchronization', () => {
     expect(sync.state.phase).toBe('synced');
     expect([...drive.files.values()].some((value) => value.entries[0]?.status === 'visited')).toBe(true);
     expect([...drive.files.values()].some((value) => value.entries[0]?.status === 'lived')).toBe(true);
+  });
+  it('skips corrupt saved pending backups with a warning instead of blocking synchronization', async () => {
+    const storage = new MemoryStorage();
+    storage.setItem(`${PENDING_PREFIX}broken`, '{not json');
+    storage.setItem(`${PENDING_PREFIX}mismatch`, JSON.stringify({ owner: 'account-one', source: 'other-tab', snapshot: snapshot('different') }));
+    const { sync } = fixture(undefined, storage);
+    await sync.connect();
+    expect(sync.state.warning).toContain('2 saved pending Drive backups could not be read');
+    await sync.resolve('local');
+    expect(sync.state.phase).toBe('synced');
+  });
+  it('rejects saved links with malformed Drive head identifiers', () => {
+    const link = { version: 1, owner: 'account-one', linked: true, baseline: '[]', heads: ['file-1'] };
+    expect(parseLink(JSON.stringify(link)).heads).toEqual(['file-1']);
+    for (const heads of [['../file'], ['a b'], [''], ['x'.repeat(201)], [42]]) {
+      expect(() => parseLink(JSON.stringify({ ...link, heads }))).toThrow('Invalid saved Google sync settings.');
+    }
   });
   it('honors a server Retry-After longer than the normal bounded exponential delay', async () => {
     vi.useFakeTimers();

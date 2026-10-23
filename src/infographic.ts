@@ -9,9 +9,6 @@ export const INFOGRAPHIC_FORMATS = {
 } as const;
 export type InfographicFormatId = keyof typeof INFOGRAPHIC_FORMATS;
 export const DEFAULT_FORMAT: InfographicFormatId = 'horizontal';
-export const INFOGRAPHIC_WIDTH = INFOGRAPHIC_FORMATS.horizontal.width;
-export const INFOGRAPHIC_HEIGHT = INFOGRAPHIC_FORMATS.horizontal.height;
-export const FLAG_LIMIT = INFOGRAPHIC_FORMATS.horizontal.flagLimit;
 export function infographicFormat(id: string) {
   const format = Object.values(INFOGRAPHIC_FORMATS).find((candidate) => candidate.id === id);
   if (!format) throw new Error(`Unknown picture format: ${id}`);

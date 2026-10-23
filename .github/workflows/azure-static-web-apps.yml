@@ -11,27 +11,41 @@ permissions:
 
 concurrency:
   group: azure-static-web-apps-${{ github.ref }}
-  cancel-in-progress: true
+  # Supersede stale validation runs, but never interrupt a main deployment.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       # Used only with mocked provider requests in validation builds.
       VITE_GOOGLE_CLIENT_ID: passport-validation.apps.googleusercontent.com
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
       - run: npx playwright install --with-deps chromium
       - run: npm run check
       - name: Exercise root production build
         run: npm run test:e2e
         env:
           TEST_PRODUCTION: '1'
+      - name: Upload root browser-test report
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: playwright-root
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
       - name: Build project-subpath variant
         run: npm run build
         env:
@@ -41,6 +55,16 @@ jobs:
         env:
           TEST_PRODUCTION: '1'
           TEST_BASE_PATH: /passport-test/
+      - name: Upload subpath browser-test report
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: playwright-subpath
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
       - name: Check Azure deployment token
         if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
@@ -58,7 +82,7 @@ jobs:
           VITE_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
       - name: Deploy to Azure Static Web Apps
         if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        uses: Azure/static-web-apps-deploy@v1
+        uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9 # v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GREEN_MEADOW_0F3FFA603 }}
           action: upload

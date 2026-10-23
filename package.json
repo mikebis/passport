@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "typecheck": "tsc --noEmit",
@@ -13,7 +15,8 @@
     "data:check": "node ./scripts/check-geography.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "check": "npm run data:check && npm run test && npm run build"
+    "lint": "eslint .",
+    "check": "npm run data:check && npm run lint && npm run test && npm run build"
   },
   "dependencies": {
     "@fontsource/caveat": "^5.3.0",
@@ -23,17 +26,21 @@
     "topojson-client": "^3.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@playwright/test": "^1.56.0",
     "@types/d3": "^7.4.3",
     "@types/geojson": "^7946.0.16",
     "@types/node": "^24.0.0",
     "@types/qrcode": "^1.5.6",
     "@types/topojson-client": "^3.1.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.13.0",
     "i18n-iso-countries": "^7.14.0",
     "jsqr": "^1.4.0",
     "topojson-server": "^3.0.1",
     "topojson-simplify": "^3.0.3",
     "typescript": "~5.9.3",
+    "typescript-eslint": "^8.72.0",
     "vite": "^7.2.0",
     "vitest": "^4.0.0"
   }

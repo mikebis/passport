@@ -5,7 +5,7 @@ export default defineConfig({
   fullyParallel: true,
   workers: 2,
   retries: process.env.CI ? 1 : 0,
-  reporter: 'list',
+  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: `http://127.0.0.1:4173${process.env.TEST_BASE_PATH || '/'}`,
     trace: 'retain-on-failure',

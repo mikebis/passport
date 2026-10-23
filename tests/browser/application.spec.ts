@@ -322,6 +322,12 @@ test('runtime assets and attribution are served locally under the configured bas
   await expect(page.locator('.sidebar-footer').getByRole('link', { name: 'Data sources' })).toHaveAttribute('href', new URL('data/provenance.json', page.url()).pathname);
   await expect(sources).toHaveAttribute('target', '_blank');
   await expect(sources).toHaveAttribute('rel', 'noopener');
+  const repository = page.locator('.sidebar-footer .data-license').getByRole('link', { name: 'View on GitHub', exact: true });
+  await expect(repository).toHaveCount(1);
+  await expect(repository).toHaveAttribute('href', 'https://github.com/mikebis/passport');
+  await expect(repository).toHaveAttribute('target', '_blank');
+  await expect(repository).toHaveAttribute('rel', 'noopener');
+  await expect(repository.locator('svg')).toHaveAttribute('aria-hidden', 'true');
   const favicon = await page.request.get(new URL('favicon.svg', page.url()).toString());
   expect(await favicon.text()).toContain('<svg');
   expect(remote).toEqual([]);
@@ -496,8 +502,8 @@ test('a DMZ source overlay stays above its ISO parent and is directly clickable 
   await page.mouse.move(bounds!.x + bounds!.width / 2, bounds!.y + bounds!.height / 2);
   await page.mouse.wheel(0, -3000);
   await expect(page.locator('.land-layer')).toHaveAttribute('transform', /scale\(24\)/);
-  // D3 ends wheel navigation after its 150 ms idle debounce.
-  await page.waitForTimeout(200);
+  // Wait until D3 ends the wheel gesture (after its idle debounce).
+  await expect(page.locator('svg.world-map')).not.toHaveAttribute('data-navigating', 'true');
   await clickPolygon(page, 'custom:KNX');
   await expect(page.locator('.popover-heading')).toContainText('Korean DMZ (south)');
   await page.getByRole('button', { name: 'Lived / Living', exact: true }).click();

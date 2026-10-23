@@ -198,6 +198,7 @@ export class GoogleDrive {
       if (!(error instanceof DriveError) || error.status !== 409) throw error;
     }
     const actual = await this.read(id, token, signal, snapshot);
-    if (JSON.stringify(actual) !== JSON.stringify(snapshot)) throw new Error('A Drive file ID contains different data. Sync paused; no file was overwritten.');
+    // read() returns normalized data, so normalize the local snapshot the same way before comparing.
+    if (JSON.stringify(actual) !== JSON.stringify(this.parse(snapshot))) throw new Error('A Drive file ID contains different data. Sync paused; no file was overwritten.');
   }
 }

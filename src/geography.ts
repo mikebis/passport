@@ -68,9 +68,13 @@ export function validateRegistry(value: unknown): Territory[] {
 }
 
 export async function loadJson(filename: string): Promise<unknown> {
-  const response = await fetch(`${import.meta.env.BASE_URL}data/${filename}`);
+  const response = await fetch(`${import.meta.env.BASE_URL}data/${filename}`, { signal: AbortSignal.timeout(30_000) });
   if (!response.ok) throw new Error(`Could not load ${filename} (HTTP ${response.status}).`);
-  return response.json();
+  try {
+    return await response.json();
+  } catch {
+    throw new Error(`${filename} is not valid JSON.`);
+  }
 }
 
 function isWorldTopology(value: unknown): value is WorldTopology {

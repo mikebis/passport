@@ -461,4 +461,26 @@ describe('TravelStore', () => {
     expect(() => store.status('BAD')).toThrow('Unknown territory');
     expect(() => store.setStatus('BAD', 'visited')).toThrow('Unknown territory');
   });
+  it('keeps notifying remaining views and warns when one subscriber fails', () => {
+    const warn = vi.fn();
+    const store = new TravelStore(normalizeData([], registry), registry, storage(), warn);
+    const later = vi.fn();
+    store.subscribe(() => { throw new Error('render failed'); });
+    store.subscribe(later);
+    expect(() => store.setStatus('USA', 'visited')).not.toThrow();
+    expect(later).toHaveBeenCalledWith('local');
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('render failed'), true);
+    expect(store.status('USA')).toBe('visited');
+  });
+  it('counts status and favourite differences against another dataset', () => {
+    const store = new TravelStore(normalizeData([entry], registry), registry, storage(), vi.fn());
+    expect(store.differences(normalizeData([entry], registry))).toEqual({ statuses: 0, favourites: 0 });
+    const other = normalizeData([{ ...entry, status: 'lived', favourite: true }, { id: 'EST', name: 'Estonia', continent: 'Europe', status: 'visited' }], registry);
+    expect(store.differences(other)).toEqual({ statuses: 2, favourites: 1 });
+  });
+  it('rejects overlong subdivision names', () => {
+    const long = { ...region, name: 'x'.repeat(201) };
+    expect(() => normalizeData([{ ...entry, subdivisions: [long] }], registry)).toThrow('longer than 200');
+    expect(normalizeData([{ ...entry, subdivisions: [{ ...region, name: 'x'.repeat(200) }] }], registry)[1]?.subdivisions?.[0]?.name).toHaveLength(200);
+  });
 });

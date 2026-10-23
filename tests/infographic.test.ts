@@ -4,7 +4,7 @@ import worldJson from '../data/world-10m.json';
 import { createBadgeCatalog } from '../src/badge-catalog';
 import { parseBadges } from '../src/badges';
 import { decodeWorld, validateRegistry } from '../src/geography';
-import { currentAppAddress, DEFAULT_FORMAT, FLAG_LIMIT, infographicData, infographicFormat, INFOGRAPHIC_FORMATS, isLocalAddress, TEXT_LIMITS, validatePersonalization } from '../src/infographic';
+import { currentAppAddress, DEFAULT_FORMAT, infographicData, infographicFormat, INFOGRAPHIC_FORMATS, isLocalAddress, TEXT_LIMITS, validatePersonalization } from '../src/infographic';
 import { flagAssetUrls, qrSvg } from '../src/infographic-assets';
 import { escapeSvg, fitLines, infographicSvg } from '../src/infographic-renderer';
 import { normalizeData } from '../src/store';
@@ -42,8 +42,8 @@ describe('infographic snapshot model', () => {
   it('limits each alphabetic strip to 18 and reports exact overflow, including all 266 favourites', () => {
     const data = infographicData(registry, entries(registry.map(({ id }) => ({ id, status: 'visited', favourite: true }))), []);
     expect(data.groups[0]!.total).toBe(registry.length);
-    expect(data.groups[0]!.countries).toHaveLength(FLAG_LIMIT);
-    expect(data.groups[0]!.hidden).toBe(registry.length - FLAG_LIMIT);
+    expect(data.groups[0]!.countries).toHaveLength(INFOGRAPHIC_FORMATS.horizontal.flagLimit);
+    expect(data.groups[0]!.hidden).toBe(registry.length - INFOGRAPHIC_FORMATS.horizontal.flagLimit);
     expect(data.groups[0]!.countries.map((country) => country.name)).toEqual(
       [...registry].sort((a, b) => a.name.localeCompare(b.name, 'en')).slice(0, 18).map((country) => country.name));
     expect(data.favourites).toBe(249);

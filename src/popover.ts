@@ -20,6 +20,7 @@ export class StatusPopover {
     this.element.className = 'status-popover';
     this.element.hidden = true;
     this.element.setAttribute('role', 'dialog');
+    this.element.setAttribute('aria-modal', 'true');
     this.element.setAttribute('aria-label', 'Change travel status');
     document.body.append(this.element);
     document.addEventListener('pointerdown', (event) => {
@@ -62,6 +63,7 @@ export class StatusPopover {
     const title = document.createElement('strong');
     title.textContent = `${territorySymbol(country)} ${country.name}`;
     const close = document.createElement('button');
+    close.type = 'button';
     close.className = 'icon-button close-popover';
     close.textContent = '\u00d7';
     close.setAttribute('aria-label', 'Close status choices');
@@ -73,6 +75,7 @@ export class StatusPopover {
     this.element.append(heading, code);
     for (const status of STATUSES) {
       const button = document.createElement('button');
+      button.type = 'button';
       button.className = 'status-choice';
       button.dataset.status = status;
       button.setAttribute('aria-pressed', String(this.store.status(id) === status));

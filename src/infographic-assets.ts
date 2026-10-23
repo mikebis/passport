@@ -12,8 +12,9 @@ export async function loadInfographicFlags(countries: readonly Territory[]): Pro
   const codes = [...new Set(countries.flatMap((country) => country.kind === 'iso' ? [country.alpha2] : []))];
   const result = new Map<string, string>();
   let next = 0;
+  let failed = false;
   await Promise.all(Array.from({ length: Math.min(6, codes.length) }, async () => {
-    while (next < codes.length) {
+    while (!failed && next < codes.length) {
       const code = codes[next++]!;
       let pending = loaded.get(code);
       if (!pending) {
@@ -32,7 +33,12 @@ export async function loadInfographicFlags(countries: readonly Territory[]): Pro
         }).catch((error: unknown) => { loaded.delete(code); throw error; });
         loaded.set(code, pending);
       }
-      result.set(code, await pending);
+      try {
+        result.set(code, await pending);
+      } catch (error) {
+        failed = true;
+        throw error;
+      }
     }
   }));
   return result;

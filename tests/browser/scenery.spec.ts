@@ -124,6 +124,8 @@ test('show resumes a previously running scene and hiding stops frame work comple
   await page.getByRole('button', { name: 'Hide map scenery', exact: true }).click();
   const frozen = await poses(page);
   const requests = await page.evaluate(() => window.animationProbe.requested);
+  await expect.poll(() => page.evaluate(() => window.animationProbe.pending.size)).toBe(0);
+  // Intentional observation window: proves no frame is requested while hidden.
   await page.waitForTimeout(150);
   expect(await page.evaluate(() => window.animationProbe.requested)).toBe(requests);
   await page.getByRole('button', { name: 'Show map scenery', exact: true }).click();

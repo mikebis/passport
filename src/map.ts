@@ -160,6 +160,7 @@ export function createMap(
     .duration(window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 250)
     .on('start', () => {
       navigationActive = true;
+      svg.attr('data-navigating', 'true');
       hideTooltip();
       onNavigate();
     })
@@ -169,7 +170,10 @@ export function createMap(
       positionMarkers();
       scenery.updateView({ projection, transform, width, height });
     })
-    .on('end', () => { navigationActive = false; });
+    .on('end', () => {
+      navigationActive = false;
+      svg.attr('data-navigating', null);
+    });
   svg.call(behavior);
 
   function resize(): void {

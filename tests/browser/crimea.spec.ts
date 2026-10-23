@@ -50,8 +50,8 @@ async function zoomCrimea(page: Page): Promise<void> {
   await page.mouse.move(point.x, point.y);
   await page.mouse.wheel(0, -3000);
   await expect(page.locator('.land-layer')).toHaveAttribute('transform', /scale\(24\)/);
-  // D3 ends its wheel gesture after 150 ms of inactivity.
-  await page.waitForTimeout(200);
+  // Wait until D3 ends the wheel gesture (after its idle debounce).
+  await expect(page.locator('svg.world-map')).not.toHaveAttribute('data-navigating', 'true');
 }
 
 async function countryAt(page: Page, coordinates: [number, number]): Promise<{ id: string | null; fill: string }> {

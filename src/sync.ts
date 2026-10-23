@@ -1,5 +1,5 @@
 import { GoogleAuth, type GoogleAccount } from './google-auth';
-import { DriveError, GoogleDrive, snapshotHeads, type PendingSnapshot, type Snapshot, type SnapshotFile } from './google-drive';
+import { DriveError, GoogleDrive, snapshotHeads, type PendingSnapshot, type SnapshotFile } from './google-drive';
 import { STORAGE_KEY, TravelStore } from './store';
 import { errorMessage, type LocationEntry } from './types';
 
@@ -28,22 +28,38 @@ export function canonicalData(entries: readonly LocationEntry[]): string {
   });
   return JSON.stringify(ordered(entries));
 }
+const DRIVE_ID = /^[\w-]{1,200}$/;
 function isRecord(value: unknown): value is Record<string, unknown> { return !!value && typeof value === 'object' && !Array.isArray(value); }
-function parseLink(text: string): Link {
+export function parseLink(text: string): Link {
   const value: unknown = JSON.parse(text);
   if (!isRecord(value) || value.version !== 1 || typeof value.owner !== 'string'
     || typeof value.linked !== 'boolean' || typeof value.baseline !== 'string' || !Array.isArray(value.heads)
-    || !value.heads.every((id: unknown) => typeof id === 'string')
+    || !value.heads.every((id: unknown) => typeof id === 'string' && DRIVE_ID.test(id))
     || (value.lastSync !== undefined && typeof value.lastSync !== 'string')) throw new Error('Invalid saved Google sync settings.');
   return { version: 1, owner: value.owner, linked: value.linked, heads: value.heads, baseline: value.baseline,
     ...(typeof value.lastSync === 'string' ? { lastSync: value.lastSync } : {}) };
 }
 
+/**
+ * Local-first Google Drive synchronization.
+ *
+ * Flow: store edits bump `revision` and `schedule()` a debounced `check()`.
+ * `check()` lists immutable Drive snapshots, compares their heads with the
+ * local map and the accepted `link.baseline`, then either records a baseline,
+ * `commit()`s a new snapshot (persisted to `pending` first so retries reuse the
+ * same file ID), or pauses with a `choice()` the user resolves via `resolve()`.
+ *
+ * Guards: `generation` changes on connect/sign-out/account switch and makes
+ * stale async completions no-ops; `revision` detects edits made while a job
+ * was in flight (the job is re-queued instead of acknowledging older data);
+ * `running`/`queued` serialize jobs within this controller.
+ */
 export class DriveSync {
   state: SyncState = { phase: 'local', message: 'Local only. Google Drive sync is optional.' };
   private listeners = new Set<(state: SyncState) => void>();
   private link: Link | undefined;
   private pending = new Map<string, PendingSnapshot>();
+  private completed = new Set<string>();
   private source = crypto.randomUUID();
   private draft: string | undefined;
   private generation = 0;
@@ -105,6 +121,7 @@ export class DriveSync {
     }
   }
   private removePending(operationId: string): void {
+    this.completed.add(operationId);
     try {
       if (this.storage) this.storage.removeItem(PENDING_PREFIX + operationId);
       this.pending.delete(operationId);
@@ -135,22 +152,34 @@ export class DriveSync {
       this.remember(pending);
     }
   }
+  /**
+   * Loads pending snapshots saved by this or other tabs. This controller's own in-memory
+   * entries are never replaced (they may be newer than storage if a write failed), entries this controller
+   * already completed are not resurrected, and unreadable entries are skipped with a
+   * warning instead of blocking synchronization for every account.
+   */
   private restorePending(owner: string): void {
     if (!this.storage) return;
+    let skipped = 0;
     for (let index = 0; index < this.storage.length; index++) {
       const key = this.storage.key(index);
       if (!key?.startsWith(PENDING_PREFIX)) continue;
-      const raw = this.storage.getItem(key);
-      if (!raw || raw.length > 6 * 1024 * 1024) throw new Error('Unreadable pending Drive backup. Export your map before recovery.');
-      const value: unknown = JSON.parse(raw);
-      if (!isRecord(value) || typeof value.owner !== 'string' || typeof value.source !== 'string') throw new Error('Invalid pending Drive backup.');
-      if (value.owner !== owner) continue;
-      if (value.fileId !== undefined && (typeof value.fileId !== 'string' || !/^[\w-]{1,200}$/.test(value.fileId))) throw new Error('Invalid pending Drive file ID.');
-      const snapshot = this.drive.parse(value.snapshot);
-      if (key !== PENDING_PREFIX + snapshot.operationId) throw new Error('Pending Drive backup identifier mismatch.');
-      this.pending.set(snapshot.operationId, { owner, source: value.source, snapshot,
-        ...(typeof value.fileId === 'string' ? { fileId: value.fileId } : {}) });
+      const id = key.slice(PENDING_PREFIX.length);
+      if (this.pending.get(id)?.source === this.source || this.completed.has(id)) continue;
+      try {
+        const raw = this.storage.getItem(key);
+        if (!raw || raw.length > 6 * 1024 * 1024) throw new Error('Unreadable pending Drive backup.');
+        const value: unknown = JSON.parse(raw);
+        if (!isRecord(value) || typeof value.owner !== 'string' || typeof value.source !== 'string') throw new Error('Invalid pending Drive backup.');
+        if (value.owner !== owner) continue;
+        if (value.fileId !== undefined && (typeof value.fileId !== 'string' || !DRIVE_ID.test(value.fileId))) throw new Error('Invalid pending Drive file ID.');
+        const snapshot = this.drive.parse(value.snapshot);
+        if (id !== snapshot.operationId) throw new Error('Pending Drive backup identifier mismatch.');
+        this.pending.set(snapshot.operationId, { owner, source: value.source, snapshot,
+          ...(typeof value.fileId === 'string' ? { fileId: value.fileId } : {}) });
+      } catch { skipped++; }
     }
+    if (skipped) this.storageWarning = `${skipped} saved pending Drive backup${skipped === 1 ? '' : 's'} could not be read and ${skipped === 1 ? 'was' : 'were'} skipped. Export your map if you expected unsynced changes.`;
   }
   async prepare(): Promise<void> {
     const generation = this.generation;
@@ -307,6 +336,7 @@ export class DriveSync {
     const selected = conflict?.options.find((option) => option.key === key);
     if (!conflict || !selected) return;
     if (conflict.generation !== this.revision) { this.pauseConflict(); return; }
+    if (this.running) return;
     this.paused = false;
     this.running = true;
     const generation = this.generation;

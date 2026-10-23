@@ -2,6 +2,7 @@ import { errorMessage, STATUSES, type LocationEntry, type Territory, type Travel
 
 export const STORAGE_KEY = 'passport:locations:v1';
 export const LEGACY_STORAGE_KEY = 'visited:locations:v1';
+const MAX_TEXT = 200;
 export type StorageAccess = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 type SaveResult = { saved: false; warning: string } | { saved: true; cleanupWarning?: string };
@@ -58,6 +59,9 @@ export function normalizeData(value: unknown, registry: readonly Territory[]): L
     if (typeof entry.name !== 'string' || !entry.name.trim()
       || typeof entry.continent !== 'string' || !entry.continent.trim()) {
       throw new Error(`${id} needs a name and continent.`);
+    }
+    if (entry.name.length > MAX_TEXT || entry.continent.length > MAX_TEXT) {
+      throw new Error(`Name or continent for ${id} is longer than ${MAX_TEXT} characters.`);
     }
     if (typeof entry.status !== 'string' || !STATUSES.includes(entry.status as TravelStatus)) {
       throw new Error(`Invalid travel status for ${id}.`);
@@ -180,9 +184,29 @@ export class TravelStore {
     return entry.favourite === true;
   }
 
+  /** Counts top-level status and favourite differences between this map and another dataset. */
+  differences(entries: readonly LocationEntry[]): { statuses: number; favourites: number } {
+    let statuses = 0;
+    let favourites = 0;
+    for (const entry of entries) {
+      const current = this.byId.get(entry.id);
+      if (!current) continue;
+      if (entry.status !== current.status) statuses++;
+      if ((entry.favourite ?? false) !== (current.favourite === true)) favourites++;
+    }
+    return { statuses, favourites };
+  }
+
   subscribe(listener: (origin: 'local' | 'remote') => void): () => void {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
+  }
+
+  private notify(origin: 'local' | 'remote'): void {
+    // Isolate subscribers so one failing view cannot stop the map, sidebar or sync from updating.
+    for (const listener of [...this.listeners]) {
+      try { listener(origin); } catch (error) { this.warn(`A view failed to update: ${errorMessage(error)}`, true); }
+    }
   }
 
   setStatus(id: string, status: TravelStatus): void {
@@ -193,7 +217,7 @@ export class TravelStore {
     entry.status = status;
     entry.updatedAt = new Date().toISOString();
     this.persist();
-    this.listeners.forEach((listener) => listener('local'));
+    this.notify('local');
   }
 
   setFavourite(id: string, favourite: boolean): void {
@@ -204,7 +228,7 @@ export class TravelStore {
     entry.favourite = favourite;
     entry.updatedAt = new Date().toISOString();
     this.persist();
-    this.listeners.forEach((listener) => listener('local'));
+    this.notify('local');
   }
 
   replace(entries: LocationEntry[], origin: 'local' | 'remote' = 'local'): void {
@@ -212,7 +236,7 @@ export class TravelStore {
     this.entries = normalized;
     this.byId = new Map(normalized.map((entry) => [entry.id, entry]));
     this.persist();
-    this.listeners.forEach((listener) => listener(origin));
+    this.notify(origin);
   }
 
   persist(): void {

@@ -97,6 +97,8 @@
 .share-picture-icon { flex-shrink: 0; }
 .data-license { color: var(--subtle); font-size: 8px; line-height: 1.5; margin: 12px 0 0; }
 .data-license a { text-decoration-color: var(--border); text-underline-offset: 2px; }
+.data-license .repo-link { display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; }
+.data-license .repo-link svg { flex: none; }
 .google-sync { margin: 0 0 12px; font-size: 11px; color: var(--muted); }
 .google-sync summary { cursor: pointer; padding: 5px 0; color: var(--ink); }
 .google-sync-panel { max-height: 220px; overflow: auto; padding: 4px 2px; }

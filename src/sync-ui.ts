@@ -3,13 +3,7 @@ import { GoogleDrive } from './google-drive';
 import { DriveSync, type SyncConflict } from './sync';
 import type { TravelStore } from './store';
 import type { Territory } from './types';
-
-function downloadVersion(entries: unknown): void {
-  const url = URL.createObjectURL(new Blob([JSON.stringify(entries, null, 2) + '\n'], { type: 'application/json' }));
-  const link = document.createElement('a');
-  link.href = url; link.download = 'passport-sync-backup.json'; link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
+import { downloadText, uniqueId } from './dom';
 
 export function createGoogleSync(
   host: HTMLElement, store: TravelStore, registry: readonly Territory[], storage: Storage | undefined, beforeReplace: () => void,
@@ -62,10 +56,10 @@ export function createGoogleSync(
     dialog = modal;
     modal.className = 'confirmation-dialog sync-conflict';
     const heading = document.createElement('h2');
-    heading.id = 'sync-conflict-heading';
+    heading.id = uniqueId('sync-conflict-heading');
     heading.textContent = 'Choose your travel map';
     const message = document.createElement('p');
-    message.id = 'sync-conflict-message';
+    message.id = uniqueId('sync-conflict-message');
     message.textContent = `${conflict.message} Account: ${sync.state.account?.email ?? 'your selected Google account'}.`;
     const options = document.createElement('div');
     options.className = 'sync-versions';
@@ -77,14 +71,13 @@ export function createGoogleSync(
       choose.textContent = option.label;
       choose.addEventListener('click', () => { closeDialog(); void sync.resolve(option.key); });
       const description = document.createElement('p');
-      const changed = option.entries.filter((entry) => entry.status !== store.status(entry.id)).length;
-      const favourites = option.entries.filter((entry) => (entry.favourite ?? false) !== store.isFavourite(entry.id)).length;
+      const { statuses: changed, favourites } = store.differences(option.entries);
       description.textContent = `${changed} place statuses and ${favourites} favourite flags differ from the current map. Timestamps and subdivisions are also preserved.`;
       const backup = document.createElement('button');
       backup.className = 'text-button';
       backup.textContent = 'Download this version';
       backup.setAttribute('aria-label', `Download ${option.label}`);
-      backup.addEventListener('click', () => downloadVersion(option.entries));
+      backup.addEventListener('click', () => downloadText(JSON.stringify(option.entries, null, 2) + '\n', 'passport-sync-backup.json'));
       row.append(choose, description, backup);
       options.append(row);
     }

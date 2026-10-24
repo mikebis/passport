@@ -52,13 +52,13 @@ export function rasterTitle(
     let descent: number;
     let height: number;
     do {
-      lines = wrap(value, box.width - 12, size, 2, measure);
+      lines = wrap(value, box.width - 12, size, size > 24 ? Array.from(value).length : 2, measure);
       context.font = titleFont(size);
       const metrics = lines.map((line) => context.measureText(line));
       ascent = Math.max(...metrics.map((metric) => metric.actualBoundingBoxAscent));
       descent = Math.max(0, ...metrics.map((metric) => metric.actualBoundingBoxDescent));
       height = Math.ceil(ascent + descent + (lines.length - 1) * size * 1.12 + 8);
-      if (height <= box.height) break;
+      if (lines.length <= 2 && height <= box.height) break;
       size--;
     } while (size >= 24);
     if (height > box.height) throw new Error('The handwritten title does not fit this picture format.');

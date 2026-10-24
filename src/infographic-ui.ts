@@ -98,7 +98,7 @@ export function createInfographic(
       previewUrl = candidateUrl;
       candidateUrl = undefined;
       preview.src = previewUrl;
-      preview.alt = `${personal.name ? `${personal.name}. ` : ''}${data.stats.completed} of ${data.stats.total} ISO places visited or lived in; ${data.earnedCount} badges earned. Four flag groups: Visited, Lived, Want to Visit and Favourites. ${format.label}, ${format.width} by ${format.height} PNG.`;
+      preview.alt = `${personal.name ? `${personal.name}. ` : ''}${data.stats.completed} of ${data.stats.total} places visited or lived in; ${data.earnedCount} badges earned. Four flag groups: Visited, Lived, Want to Visit and Favourites. ${format.label}, ${format.width} by ${format.height} PNG.`;
       preview.hidden = false;
       rendered = blob;
       download.disabled = false;

@@ -3,7 +3,7 @@ import type { TravelStore } from './store';
 import { STATUSES, STATUS_LABELS, type Territory } from './types';
 
 export function createStatistics(container: HTMLElement, registry: readonly Territory[], store: TravelStore): void {
-  container.innerHTML = '<h3>Travel statistics</h3><p class="insight-note">Official ISO countries and territories only. Includes Antarctica; excludes additional non-ISO places and subdivisions.</p>';
+  container.innerHTML = '<h3>Travel statistics</h3><p class="insight-note">All tracked countries and territories, including additional places and Antarctica. Each place counts once; subdivisions are excluded.</p>';
   const metrics = document.createElement('dl');
   metrics.className = 'statistics-grid';
   const counts = new Map<string, HTMLElement>();
@@ -32,7 +32,7 @@ export function createStatistics(container: HTMLElement, registry: readonly Terr
     const value = document.createElement('span');
     const progress = document.createElement('progress');
     progress.className = 'insight-progress';
-    progress.setAttribute('aria-label', `${continent}: ISO places visited or lived in`);
+    progress.setAttribute('aria-label', `${continent}: places visited or lived in`);
     row.append(name, value, progress);
     list.append(row);
     rows.set(continent, { value, progress });

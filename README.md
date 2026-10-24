@@ -40,6 +40,9 @@ underneath. There is no navigation hint or reserved map footer; boundary
 attribution and the Data sources link sit with the sidebar footer's license credits,
 followed by a **View on GitHub** link to the
 [source repository](https://github.com/mikebis/passport).
+The shared footer uses larger, higher-contrast text and clearly underlined links
+with visible keyboard focus. It scrolls independently on short desktop windows
+so data actions and credits remain reachable without crowding out the country list.
 
 On desktop, **Hide sidebar** at the map's bottom-right corner, level with the
 legend, gives the full width to the map; **Show sidebar** restores the same
@@ -249,10 +252,12 @@ Sidebar hiding and mobile transitions retain the active tab.
 
 Stats reports the four status counts, combined visited-or-lived count and
 percentage, continent coverage, and per-continent completed/total percentages.
-It counts **official ISO countries and territories only** (currently 249),
-including Antarctica as the seventh continent. Additional non-ISO places and
-subdivisions do not count. Its denominators come from the full registry, not
-Manage's filters. Existing Manage totals still cover all 266 tracked places.
+It counts **all tracked countries and territories** (currently 266), including
+additional non-ISO places and Antarctica as the seventh continent. Each catalog
+entry counts once, even where geometries overlap; subdivisions do not count.
+Its denominators come from the full registry, not Manage's filters.
+Manage's continent-summary ratios remain ISO-only; its global totals cover
+all tracked places.
 Statistics and badges update on edits, imports and accepted Drive versions,
 even when local saving fails; they do not change the map or travel JSON.
 
@@ -280,17 +285,17 @@ over illustrated mountain/coast postcards, a blue handwritten heading, compact
 icon statistics, a prominent textured-blue world, taped flag cards and
 decorative stamps, without a corner passport illustration. The exported styling
 is independent of the app theme.
-The header shows the larger fixed **My Travel Passport** title with your smaller
-handwritten name directly below it, both in blue **Caveat** at slight, individual
-angles for a hand-lettered look. Only the name is
+The header shows a single blue **Caveat** handwritten title at a slight angle:
+**Alex Morgan's Travel Passport**, or **James' Travel Passport** for names ending
+in s (case-insensitive), using typographic apostrophes in the picture. Only the name is
 editable; there is no subtitle, byline or placeholder slogan. Leave the name
-blank to show just the title.
+blank to show **My Travel Passport**.
 The font is bundled locally, loaded only when generating
 a picture and embedded as a transparent raster for reliable PNG rendering.
 The button uses the active theme's filled accent color and a local SVG camera.
 The optional name is limited to 60 characters. Long text is wrapped or shortened to fit.
 
-The picture includes a separately fitted whole-world map, ISO-only status and
+The picture includes a separately fitted whole-world map, all-place status and
 favourite statistics, visited-or-lived world progress, continent coverage, and
 the three highest-point **currently earned** badges. Equal-point badges retain
 catalog order; the total earned count/points includes all earned badges.
@@ -304,8 +309,11 @@ uses the full registry, alphabetical names, its format's display limit and an
 exact **+N more** count. Favourites are independent and may repeat a place in
 another strip. Additional non-ISO places use neutral code symbols instead of
 invented flags. Subdivisions are excluded; sidebar filters do not affect the
-picture. As in Stats, the summary counts ISO countries and territories only.
+picture. As in Stats, the summary counts every tracked country and territory,
+including additional non-ISO places, once.
 
+Below the QR, **Scan to create yours!** and the displayed URL are centered
+with matching typography.
 The **non-editable QR destination** is the current app origin and deployment
 base path, without incidental query strings or fragments. It opens the app,
 **not a published copy of your personal map**. Localhost/private addresses
@@ -831,7 +839,7 @@ original collage/stickers, and `infographic-title.ts` local typography.
 and the lazy preview dialog. `dom.ts` holds shared DOM helpers (unique IDs,
 downloads); `theme.ts` and `sidebar-visibility.ts` own browser-local
 preferences; `sidebar-tabs.ts` the accessible tab strip; `statistics.ts` /
-`statistics-ui.ts` the ISO Stats panel; `badges.ts` / `badges-ui.ts` the
+`statistics-ui.ts` the all-place Stats panel; `badges.ts` / `badges-ui.ts` the
 formula evaluator and Badges panel; `scenery.ts` the decorative animation; and
 `types.ts` shared types. Theme packages live in `src/themes`, CSS in
 `src/styles`, reproducible geography scripts in `scripts`, and tests in `tests`.

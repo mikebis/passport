@@ -3,7 +3,7 @@ import type { Boundaries } from './geography';
 import { loadInfographicFlags, qrSvg } from './infographic-assets';
 import { metricIcon, scrapbook, SCRAPBOOK_DEFS, stamp, sticker, tape } from './infographic-artwork';
 import { loadTitleFont, rasterTitle, type TitleBox, type TitleRaster } from './infographic-title';
-import { validatePersonalization, type InfographicData, type InfographicFormatId, type Personalization } from './infographic';
+import { infographicHeading, type InfographicData, type InfographicFormatId, type Personalization } from './infographic';
 import { formatPercentage } from './statistics';
 import { STATUSES, type Territory, type TravelStatus } from './types';
 
@@ -16,13 +16,7 @@ const TITLE_BOXES: Record<InfographicFormatId, TitleBox> = {
   feed: { x: 48, y: 62, width: 984, height: 140, size: 110 },
   story: { x: 48, y: 184, width: 984, height: 190, size: 135 },
 };
-const NAME_BOXES: Record<InfographicFormatId, TitleBox> = {
-  horizontal: { ...TITLE_BOXES.horizontal, height: 100, size: 90 },
-  feed: { ...TITLE_BOXES.feed, height: 75, size: 64 },
-  story: { ...TITLE_BOXES.story, height: 95, size: 82 },
-};
 const TITLE_ANGLE = -2;
-const NAME_ANGLE = -1.2;
 function angledHeight(raster: TitleRaster, angle: number): number {
   const radians = Math.abs(angle) * Math.PI / 180;
   return raster.width * Math.sin(radians) + raster.height * Math.cos(radians);
@@ -65,13 +59,16 @@ function text(value: string, x: number, y: number, size: number, extra = ''): st
 function multiline(value: string, x: number, y: number, width: number, size: number, lines: number, measure: Measure): string {
   return fitLines(value, width, size, lines, measure).map((line, index) => text(line, x, y + index * size * 1.22, size)).join('');
 }
-function titleArtwork(source: InfographicSource, title: TitleRaster, name: TitleRaster): string {
+function titleArtwork(source: InfographicSource, title: TitleRaster): string {
   const box = TITLE_BOXES[source.data.format.id];
   const titleY = box.y + title.width * Math.sin(-TITLE_ANGLE * Math.PI / 180);
-  const nameTop = box.y + angledHeight(title, TITLE_ANGLE) + 16;
-  const nameY = nameTop + name.width * Math.sin(-NAME_ANGLE * Math.PI / 180);
-  return `<image data-handwritten-title="My Travel Passport" aria-label="My Travel Passport" x="${box.x}" y="${titleY}" width="${title.width}" height="${title.height}" transform="rotate(${TITLE_ANGLE} ${box.x} ${titleY})" href="${escapeSvg(title.href)}"/>`
-    + (source.personal.name.trim() ? `<image data-handwritten-name="${escapeSvg(source.personal.name)}" aria-label="${escapeSvg(source.personal.name)}" x="${box.x}" y="${nameY}" width="${name.width}" height="${name.height}" transform="rotate(${NAME_ANGLE} ${box.x} ${nameY})" href="${escapeSvg(name.href)}"/>` : '');
+  const heading = escapeSvg(infographicHeading(source.personal));
+  return `<image data-handwritten-title="${heading}" aria-label="${heading}" x="${box.x}" y="${titleY}" width="${title.width}" height="${title.height}" transform="rotate(${TITLE_ANGLE} ${box.x} ${titleY})" href="${escapeSvg(title.href)}"/>`;
+}
+function qrCaption(address: string, x: number, y: number, size: number, measure: Measure): string {
+  const label = fitLines(address, 300, size, 1, measure)[0]!;
+  return text('Scan to create yours!', x, y, size, 'data-qr-caption="" text-anchor="middle"')
+    + text(label, x, y + size * 1.5, size, 'data-qr-url="" text-anchor="middle"');
 }
 function compass(x: number, y: number, size: number): string {
   return `<g data-decoration="compass" transform="translate(${x},${y}) scale(${size / 100})" fill="none" stroke="#43667b" stroke-width="1.5">
@@ -157,11 +154,11 @@ function start(source: InfographicSource): string[] {
   return [`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img"><title>Personal travel passport infographic</title>`,
     SCRAPBOOK_DEFS, scrapbook(width, height), '<g font-family="Arial,sans-serif" fill="#263f4c">'];
 }
-function portraitSvg(source: InfographicSource, flags: ReadonlyMap<string, string>, measure: Measure, title: TitleRaster, name: TitleRaster): string {
+function portraitSvg(source: InfographicSource, flags: ReadonlyMap<string, string>, measure: Measure, title: TitleRaster): string {
   const { data, address } = source;
   const story = data.format.id === 'story';
   const titleBox = TITLE_BOXES[data.format.id];
-  const divider = titleBox.y + angledHeight(title, TITLE_ANGLE) + (name.height ? angledHeight(name, NAME_ANGLE) + 16 : 0) + 28;
+  const divider = titleBox.y + angledHeight(title, TITLE_ANGLE) + 28;
   const statsY = divider + (story ? 49 : 36);
   const statsStep = story ? 88 : 64;
   const mapY = divider + (story ? 238 : 194);
@@ -169,7 +166,7 @@ function portraitSvg(source: InfographicSource, flags: ReadonlyMap<string, strin
   const qrY = story ? 1370 : 970;
   const badgeY = story ? 1440 : 1044;
   const pieces = start(source);
-  pieces.push(titleArtwork(source, title, name),
+  pieces.push(titleArtwork(source, title),
     `<path d="M48 ${divider}H1032" stroke="#c6baa2"/>`);
   for (const [index, [value, label]] of summaryMetrics(data).entries()) {
     const x = 48 + index % 3 * 328;
@@ -180,7 +177,6 @@ function portraitSvg(source: InfographicSource, flags: ReadonlyMap<string, strin
   }
   const progressY = statsY + statsStep + (story ? 44 : 32);
   pieces.push(`<rect x="376" y="${progressY}" width="265" height="4" rx="2" fill="#d8d3bc"/><rect x="376" y="${progressY}" width="${265 * data.stats.percentage / 100}" height="4" rx="2" fill="#6b9b58"/>`,
-    text('ISO countries and territories only. Flags also include additional places.', 48, progressY + 24, 13, 'fill="#77796c"'),
     text('THE PLACES IN YOUR STORY', 48, mapY - 14, 15, 'letter-spacing="1.7"'),
     mapPanel(source, 48, mapY, 984, mapBottom - mapY, true),
     flagCards(data, flags, true, story),
@@ -199,19 +195,18 @@ function portraitSvg(source: InfographicSource, flags: ReadonlyMap<string, strin
   pieces.push(
     text(`${data.earnedCount} earned \u00b7 ${data.earnedPoints} total points`, 48, story ? 1680 : 1267, 16, 'fill="#657568"'),
     qrSvg(address, { x: 732, y: qrY, size: 300 }),
-    text('SCAN TO OPEN THE APP', 882, qrY + 324, 12, 'text-anchor="middle" letter-spacing="1"'),
-    multiline(address, 732, qrY + 344, 300, 11, 1, measure),
+    qrCaption(address, 882, qrY + 324, 12, measure),
     text('QR opens the app, not your personal map.', 48, story ? 1701 : 1293, 12, 'fill="#6f746a"'),
     text('Natural Earth \u00b7 flag-icons (MIT) \u00b7 Caveat (OFL)', 48, story ? 1718 : 1316, 10, 'fill="#6f746a"'),
     story ? stamp(90, 1830, 37) : stamp(26, 28, 10));
   pieces.push('</g></svg>');
   return pieces.join('');
 }
-export function infographicSvg(source: InfographicSource, flags: ReadonlyMap<string, string>, measure: Measure, title: TitleRaster, name: TitleRaster): string {
-  if (source.data.format.id !== 'horizontal') return portraitSvg(source, flags, measure, title, name);
+export function infographicSvg(source: InfographicSource, flags: ReadonlyMap<string, string>, measure: Measure, title: TitleRaster): string {
+  if (source.data.format.id !== 'horizontal') return portraitSvg(source, flags, measure, title);
   const { data, address } = source;
   const pieces = start(source);
-  pieces.push(titleArtwork(source, title, name));
+  pieces.push(titleArtwork(source, title));
   for (const [index, [value, label]] of summaryMetrics(data).entries()) {
     const x = 940 + index % 3 * 328;
     const y = 205 + Math.floor(index / 3) * 116;
@@ -220,10 +215,8 @@ export function infographicSvg(source: InfographicSource, flags: ReadonlyMap<str
   }
   pieces.push(
     `<rect x="1268" y="366" width="270" height="5" rx="2.5" fill="#d8d3bc"/><rect x="1268" y="366" width="${270 * data.stats.percentage / 100}" height="5" rx="2.5" fill="#6b9b58"/>`,
-    text('ISO countries and territories only. Flags also include additional places.', 940, 415, 16, 'fill="#77796c"'),
     qrSvg(address, { x: 1990, y: 100, size: 300 }),
-    text('SCAN TO OPEN THE APP', 2140, 423, 16, 'text-anchor="middle" letter-spacing="1.4"'),
-    multiline(address, 1990, 447, 300, 14, 1, measure),
+    qrCaption(address, 2140, 423, 16, measure),
     '<path d="M112 470H2290" stroke="#c6baa2"/>',
     mapPanel(source, 112, 510, 1428, 768, false),
     text('TOP BADGES', 1580, 500, 23, 'font-weight="600"'),
@@ -250,9 +243,7 @@ export function infographicSvg(source: InfographicSource, flags: ReadonlyMap<str
 export async function renderInfographic(source: InfographicSource): Promise<Blob> {
   await Promise.all([loadTitleFont(), document.fonts.ready]);
   const flags = await loadInfographicFlags(source.data.groups.flatMap((group) => [...group.countries]));
-  const personal = validatePersonalization(source.personal);
-  const title = rasterTitle('My Travel Passport', TITLE_BOXES[source.data.format.id], fitLines);
-  const name = rasterTitle(personal.name, NAME_BOXES[source.data.format.id], fitLines);
+  const title = rasterTitle(infographicHeading(source.personal), TITLE_BOXES[source.data.format.id], fitLines);
   const canvas = document.createElement('canvas');
   canvas.width = source.data.format.width;
   canvas.height = source.data.format.height;
@@ -265,7 +256,7 @@ export async function renderInfographic(source: InfographicSource): Promise<Blob
   let url: string | undefined;
   const image = new Image();
   try {
-    const svg = infographicSvg(source, flags, measure, title, name);
+    const svg = infographicSvg(source, flags, measure, title);
     url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }));
     image.src = url;
     await image.decode();

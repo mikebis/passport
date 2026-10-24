@@ -76,26 +76,31 @@ test('tabs share only heading/footer and have complete keyboard and panel semant
   await expect(tab(page, 'Manage countries')).toHaveAttribute('aria-selected', 'true');
 });
 
-test('Stats calculates ISO-only counts, coverage and percentages independently of Manage filters', async ({ page }) => {
+test('Stats counts all places independently of filters while Manage retains ISO-only continent ratios', async ({ page }) => {
   await ready(page);
   await expect(page.locator('#visited-count')).toHaveText('4');
   await page.getByRole('searchbox').fill('SVK');
   await page.getByRole('button', { name: 'Filter by Visited', exact: true }).click();
   await tab(page, 'Stats').click();
-  for (const [key, text] of Object.entries({ visited: '3', lived: '1', want_to_visit: '1', unvisited: '244', completed: '4/249 (1.6%)', continents: '2/7' })) {
+  for (const [key, text] of Object.entries({ visited: '4', lived: '1', want_to_visit: '1', unvisited: '260', completed: '5/266 (1.9%)', continents: '2/7' })) {
     await expect(page.locator(`[data-stat="${key}"]`)).toHaveText(text);
   }
   await expect(page.locator('.continent-statistic')).toHaveCount(7);
-  await expect(page.locator('.continent-statistic[data-continent="Europe"] > span')).toHaveText('3/52 (5.8%)');
+  await expect(page.locator('.continent-statistic[data-continent="Europe"] > span')).toHaveText('4/57 (7%)');
   await expect(page.locator('.continent-statistic[data-continent="Antarctica"] > span')).toHaveText('1/1 (100%)');
-  await expect(page.getByRole('progressbar', { name: 'Europe: ISO places visited or lived in' })).toHaveAttribute('max', '52');
+  await expect(page.getByRole('progressbar', { name: 'Europe: places visited or lived in' })).toHaveAttribute('max', '57');
+  await expect(page.locator('#panel-stats .insight-note')).not.toContainText('ISO');
   await mapStatus(page, 'CZE', 'lived');
   await expect(page.locator('[data-stat="lived"]')).toHaveText('2');
-  await expect(page.locator('[data-stat="completed"]')).toHaveText('5/249 (2%)');
+  await expect(page.locator('[data-stat="completed"]')).toHaveText('6/266 (2.3%)');
   await mapStatus(page, 'custom:SOL', 'visited');
-  await expect(page.locator('[data-stat="completed"]')).toHaveText('5/249 (2%)');
+  await expect(page.locator('[data-stat="completed"]')).toHaveText('7/266 (2.6%)');
+  await expect(page.locator('[data-stat="continents"]')).toHaveText('3/7');
+  await tab(page, 'Manage countries').click();
+  await expect(page.locator('.continent').filter({ has: page.locator('summary', { hasText: 'Europe' }) }).locator('.continent-count')).toHaveText('(4/52)');
+  await tab(page, 'Stats').click();
   await replace(page, []);
-  await expect(page.locator('[data-stat="completed"]')).toHaveText('0/249 (0%)');
+  await expect(page.locator('[data-stat="completed"]')).toHaveText('0/266 (0%)');
   await expect(page.locator('[data-stat="continents"]')).toHaveText('0/7');
   await expect(tab(page, 'Stats')).toHaveAttribute('aria-selected', 'true');
   await tab(page, 'Manage countries').click();
@@ -205,7 +210,7 @@ test('badge evaluation uses in-memory changes even when saving fails', async ({ 
   await expect(card(page, 'Either').locator('.badge-country[data-country="SVK"]')).toHaveAttribute('data-status', 'unvisited');
   await expect(page.locator('#save-status')).toContainText('Not saved');
   await tab(page, 'Stats').click();
-  await expect(page.locator('[data-stat="visited"]')).toHaveText('2');
+  await expect(page.locator('[data-stat="visited"]')).toHaveText('3');
 });
 
 test('switching panels and updating badge cards preserves independent scroll positions', async ({ page }) => {
@@ -259,7 +264,7 @@ for (const failure of ['missing', 'json', 'formula', 'schema']) {
     await expect(page.locator('.badge-message')).toContainText('Could not load badges.');
     if (failure === 'formula') await expect(page.locator('.badge-message')).toContainText('GER');
     await tab(page, 'Stats').click();
-    await expect(page.locator('[data-stat="visited"]')).toHaveText('3');
+    await expect(page.locator('[data-stat="visited"]')).toHaveText('4');
     await tab(page, 'Manage countries').click();
     await expect(page.getByRole('searchbox')).toBeVisible();
     await tab(page, 'Badges').click();

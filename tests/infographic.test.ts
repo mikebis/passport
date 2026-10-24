@@ -4,7 +4,7 @@ import worldJson from '../data/world-10m.json';
 import { createBadgeCatalog } from '../src/badge-catalog';
 import { parseBadges } from '../src/badges';
 import { decodeWorld, validateRegistry } from '../src/geography';
-import { currentAppAddress, DEFAULT_FORMAT, infographicData, infographicFormat, INFOGRAPHIC_FORMATS, isLocalAddress, TEXT_LIMITS, validatePersonalization } from '../src/infographic';
+import { currentAppAddress, DEFAULT_FORMAT, infographicData, infographicFormat, infographicHeading, INFOGRAPHIC_FORMATS, isLocalAddress, TEXT_LIMITS, validatePersonalization } from '../src/infographic';
 import { flagAssetUrls, qrSvg } from '../src/infographic-assets';
 import { escapeSvg, fitLines, infographicSvg } from '../src/infographic-renderer';
 import { normalizeData } from '../src/store';
@@ -18,7 +18,7 @@ const entries = (changes: Partial<LocationEntry>[] = []) => normalizeData(change
 })), registry);
 
 describe('infographic snapshot model', () => {
-  it('uses exact ISO statistics and all-place independent flag groups without modifying the snapshot', () => {
+  it('uses exact all-place statistics and independent flag groups without modifying the snapshot', () => {
     const snapshot = entries([
       { id: 'SVK', status: 'visited', favourite: true, subdivisions: [{ id: 'SK-BL', name: 'Bratislava', continent: 'Europe', status: 'lived' }] },
       { id: 'AUT', status: 'lived' }, { id: 'CZE', status: 'want_to_visit' },
@@ -27,12 +27,12 @@ describe('infographic snapshot model', () => {
     ]);
     const original = structuredClone(snapshot);
     const data = infographicData(registry, snapshot, parseBadges([definition], registry));
-    expect(data.stats.counts).toEqual({ visited: 1, lived: 2, want_to_visit: 1, unvisited: 245 });
-    expect(data.stats.total).toBe(249);
-    expect(data.stats.completed).toBe(3);
-    expect(data.stats.percentage).toBe(3 / 249 * 100);
+    expect(data.stats.counts).toEqual({ visited: 2, lived: 2, want_to_visit: 1, unvisited: 261 });
+    expect(data.stats.total).toBe(registry.length);
+    expect(data.stats.completed).toBe(4);
+    expect(data.stats.percentage).toBe(4 / registry.length * 100);
     expect(data.stats.continentsCompleted).toBe(2);
-    expect(data.favourites).toBe(3);
+    expect(data.favourites).toBe(4);
     expect(data.groups.map((group) => group.total)).toEqual([2, 2, 1, 4]);
     expect(data.groups[3]!.countries.map((country) => country.id)).toEqual(['ATA', 'FRA', 'custom:KOS', 'SVK']);
     expect(data.earnedCount).toBe(1);
@@ -46,7 +46,7 @@ describe('infographic snapshot model', () => {
     expect(data.groups[0]!.hidden).toBe(registry.length - INFOGRAPHIC_FORMATS.horizontal.flagLimit);
     expect(data.groups[0]!.countries.map((country) => country.name)).toEqual(
       [...registry].sort((a, b) => a.name.localeCompare(b.name, 'en')).slice(0, 18).map((country) => country.name));
-    expect(data.favourites).toBe(249);
+    expect(data.favourites).toBe(registry.length);
     expect(data.groups[3]!.total).toBe(266);
   });
   it('uses only earned badges, ranks by points with stable ties and never fabricates three awards', () => {
@@ -108,19 +108,19 @@ describe('picture formats', () => {
       const svg = infographicSvg({
         data, registry, countries: decodeWorld(worldJson, registry).countries,
         personal: { name: '<Traveller>' }, address: 'https://example.test/',
-      }, flags, (value, size) => value.length * size * .6, titleRaster, titleRaster);
+      }, flags, (value, size) => value.length * size * .6, titleRaster);
       expect(svg).toContain(`width="1080" height="${format.height}" viewBox="0 0 1080 ${format.height}"`);
       expect(svg.match(/data-country="/g)).toHaveLength(266);
       expect(svg.match(/data-flag-group="/g)).toHaveLength(4);
-      expect(svg).toContain('>249/249</text>');
+      expect(svg).toContain(`>${registry.length}/${registry.length}</text>`);
       expect(svg).toContain('>7/7</text>');
       expect(svg).toContain(`>+${266 - format.flagLimit} more</text>`);
       expect(svg).toContain('First steps');
       expect(svg).toContain('>10 points</text>');
-      expect(svg).toContain('data-handwritten-name="&lt;Traveller&gt;"');
+      expect(svg).not.toContain('data-handwritten-name');
       expect(svg).not.toContain('Prepared for');
       expect(svg).not.toContain('Every journey leaves a story.');
-      expect(svg).toContain('data-handwritten-title="My Travel Passport"');
+      expect(svg).toContain('data-handwritten-title="&lt;Traveller&gt;\u2019s Travel Passport"');
       expect(svg).toContain(`transform="translate(732,${id === 'feed' ? 970 : 1370})"`);
       expect(svg).toContain('width="300" height="300"');
       expect(svg).toContain('QR opens the app, not your personal map.');
@@ -131,7 +131,7 @@ describe('picture formats', () => {
       expect(svg).not.toContain('data-decoration="passport"');
       expect(svg).toContain('data-handwritten-title=');
       expect(svg).toContain('transform="rotate(-2 ');
-      expect(svg).toContain('transform="rotate(-1.2 ');
+      expect(svg).not.toContain('transform="rotate(-1.2 ');
       expect(svg).not.toContain('foreignObject');
       expect(svg.match(/data-flag="/g)).toHaveLength(data.groups.flatMap((group) => group.countries).filter((country) => country.kind === 'iso').length);
     });
@@ -166,6 +166,15 @@ describe('shared badge loading', () => {
 });
 
 describe('picture personalization and fixed QR address', () => {
+  it.each([
+    ['', 'My Travel Passport'], [' \n ', 'My Travel Passport'],
+    [' Alex  Morgan ', 'Alex Morgan\u2019s Travel Passport'],
+    ['James', 'James\u2019 Travel Passport'], ['CHRIS', 'CHRIS\u2019 Travel Passport'],
+    ['Zo\u00eb <Traveller>', 'Zo\u00eb <Traveller>\u2019s Travel Passport'],
+    ['\u{1f30d}'.repeat(60), `${'\u{1f30d}'.repeat(60)}\u2019s Travel Passport`],
+  ])('composes the possessive heading for %j', (name, heading) => {
+    expect(infographicHeading({ name })).toBe(heading);
+  });
   it('normalizes the optional name and bounds its Unicode character count', () => {
     expect(validatePersonalization({ name: '  A\nTraveller  ' })).toEqual({ name: 'A Traveller' });
     expect(validatePersonalization({ name: ' ' })).toEqual({ name: '' });
@@ -189,15 +198,33 @@ describe('picture personalization and fixed QR address', () => {
 });
 
 describe('self-contained infographic artwork', () => {
+  it.each(['horizontal', 'feed', 'story'] as const)('%s centers and bounds a long QR URL label without changing the QR', (format) => {
+    const address = `https://example.test/${'long-path-'.repeat(35)}/`;
+    const svg = infographicSvg({
+      data: infographicData(registry, entries(), [], format), registry,
+      countries: decodeWorld(worldJson, registry).countries, personal: { name: '' }, address,
+    }, new Map(), (value, size) => value.length * size * .6, titleRaster);
+    const label = svg.match(/font-size="(\d+)" data-qr-url="" text-anchor="middle">([^<]+)<\/text>/)!;
+    expect(label).not.toBeNull();
+    expect(label[2]).toMatch(/\u2026$/);
+    expect(label[2]!.length * Number(label[1]) * .6).toBeLessThanOrEqual(300);
+    expect(svg).toContain(qrSvg(address, { x: format === 'horizontal' ? 1990 : 732, y: format === 'horizontal' ? 100 : format === 'feed' ? 970 : 1370, size: 300 }));
+  });
   it.each(['horizontal', 'feed', 'story'] as const)('%s keeps the fixed title without a name placeholder when blank', (format) => {
     const svg = infographicSvg({
       data: infographicData(registry, entries(), [], format), registry,
       countries: decodeWorld(worldJson, registry).countries, personal: { name: '' }, address: 'https://example.test/',
-    }, new Map(), (value, size) => value.length * size * .6, titleRaster, { href: '', width: 800, height: 0 });
+    }, new Map(), (value, size) => value.length * size * .6, titleRaster);
     expect(svg).toContain('data-handwritten-title="My Travel Passport"');
     expect(svg).not.toContain('data-handwritten-name');
     expect(svg).not.toContain('Prepared for');
     expect(svg).not.toContain('Every journey leaves a story.');
+    expect(svg).toContain('>Scan to create yours!</text>');
+    expect(svg).not.toContain('SCAN TO OPEN THE APP');
+    expect(svg).not.toContain('ISO countries and territories only');
+    expect(svg).not.toContain('Flags also include additional places');
+    const center = format === 'horizontal' ? 2140 : 882;
+    expect(svg).toContain(`x="${center}" y="${format === 'horizontal' ? 447 : format === 'feed' ? 1312 : 1712}" font-size="${format === 'horizontal' ? 16 : 12}" data-qr-url="" text-anchor="middle"`);
     expect(svg.match(/data-country="/g)).toHaveLength(266);
     expect(svg.match(/data-flag-group="/g)).toHaveLength(4);
   });
@@ -218,7 +245,7 @@ describe('self-contained infographic artwork', () => {
     const svg = infographicSvg({
       data, registry, countries: decodeWorld(worldJson, registry).countries,
       personal: { name: '<script> "Traveller"' }, address: 'https://example.test/',
-    }, new Map([['SK', 'data:image/svg+xml,%3Csvg%2F%3E']]), (value, size) => value.length * size * .6, titleRaster, titleRaster);
+    }, new Map([['SK', 'data:image/svg+xml,%3Csvg%2F%3E']]), (value, size) => value.length * size * .6, titleRaster);
     expect(svg).toContain('width="2400" height="1600"');
     expect(svg.match(/data-country="/g)).toHaveLength(266);
     expect(svg).toContain('data-country="ATA"');
@@ -226,13 +253,13 @@ describe('self-contained infographic artwork', () => {
     expect(svg).toContain('&lt;script&gt; &quot;Traveller&quot;');
     expect(svg).not.toContain('Prepared for');
     expect(svg).not.toContain('Every journey leaves a story.');
-    expect(svg).toContain('data-handwritten-title="My Travel Passport"');
+    expect(svg).toContain('data-handwritten-title="&lt;script&gt; &quot;Traveller&quot;\u2019s Travel Passport"');
     expect(svg).not.toContain('<script>');
     expect(svg).toContain('data-flag="SVK"');
     expect(svg).not.toContain('data-flag="custom:KOS"');
     expect(svg).toContain('>KOS</text>');
     expect(svg).toContain('First steps');
-    expect(svg).toContain('>1/249</text>');
+    expect(svg).toContain(`>1/${registry.length}</text>`);
     expect(svg).toContain('QR links to the app, not this personal map.');
     expect(svg).not.toContain('foreignObject');
     expect(svg).toContain('shape-rendering="crispEdges"');
@@ -243,9 +270,9 @@ describe('self-contained infographic artwork', () => {
     expect(svg.match(/data-decoration="tape"/g)).toHaveLength(5);
     expect(svg).not.toContain('data-decoration="passport"');
     expect(svg).toContain('data-decoration="stamp"');
-    expect(svg).toContain('data-handwritten-name="&lt;script&gt; &quot;Traveller&quot;"');
+    expect(svg).not.toContain('data-handwritten-name');
     expect(svg).toContain('transform="rotate(-2 ');
-    expect(svg).toContain('transform="rotate(-1.2 ');
+    expect(svg).not.toContain('transform="rotate(-1.2 ');
     expect(svg).toContain('fill="url(#water)"');
     expect(svg).not.toContain('<filter');
     expect(svg).not.toContain('<script');

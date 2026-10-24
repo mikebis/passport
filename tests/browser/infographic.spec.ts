@@ -77,6 +77,10 @@ async function pictureLayout(page: Page, height: number, story: boolean, width =
       const texts = [...root.querySelectorAll<SVGGraphicsElement>('text, [data-handwritten-title], [data-handwritten-name]')].map(bounds);
       const handwrittenNames = [...root.querySelectorAll<SVGGraphicsElement>('[data-handwritten-name]')].map(bounds);
       const titles = [...root.querySelectorAll<SVGGraphicsElement>('[data-handwritten-title]')].map(bounds);
+      const qrCaption = bounds(root.querySelector<SVGGraphicsElement>('[data-qr-caption]')!);
+      const qrUrl = bounds(root.querySelector<SVGGraphicsElement>('[data-qr-url]')!);
+      const captionStyle = getComputedStyle(root.querySelector('[data-qr-caption]')!);
+      const urlStyle = getComputedStyle(root.querySelector('[data-qr-url]')!);
       const outside = texts.filter((box) => box.x < 40 || box.x + box.width > width - 40
         || box.y < (story ? 160 : 30) || box.y + box.height > (story ? 1720 : height - 24));
       const overlaps: string[] = [];
@@ -98,7 +102,11 @@ async function pictureLayout(page: Page, height: number, story: boolean, width =
         }
       }
       const groups = [...root.querySelectorAll('[data-flag-group]')];
-      return { outside, overlaps, decorationOverlaps, passportCount, handwrittenNames, titles, text: texts.map((box) => box.label).join('\n'),
+      return { outside, overlaps, decorationOverlaps, passportCount, handwrittenNames, titles, qrCaption, qrUrl,
+        qrTypography: [captionStyle.fontFamily, captionStyle.fontSize, captionStyle.letterSpacing],
+        urlTypography: [urlStyle.fontFamily, urlStyle.fontSize, urlStyle.letterSpacing],
+        metrics: [...root.querySelectorAll('g[font-family="Arial,sans-serif"] > text')].slice(0, 12).map((node) => node.textContent),
+        text: texts.map((box) => box.label).join('\n'),
         paths: root.querySelectorAll('[data-country]').length,
         groups: groups.map((group) => group.getAttribute('data-flag-group')),
         strips: groups.map((group) => ({
@@ -107,6 +115,17 @@ async function pictureLayout(page: Page, height: number, story: boolean, width =
         })) };
     } finally { root.remove(); }
   }, { height, story, width });
+}
+
+function expectQrCaption(layout: Awaited<ReturnType<typeof pictureLayout>>, center: number): void {
+  expect(layout.text).not.toMatch(/ISO countries and territories only|Flags also include additional places/);
+  expect(layout.qrCaption.label).toBe('Scan to create yours!');
+  for (const box of [layout.qrCaption, layout.qrUrl]) {
+    expect(box.x + box.width / 2).toBeCloseTo(center, 0);
+    expect(box.width).toBeLessThanOrEqual(300);
+  }
+  expect(layout.qrUrl.y).toBeGreaterThan(layout.qrCaption.y + layout.qrCaption.height);
+  expect(layout.qrTypography).toEqual(layout.urlTypography);
 }
 
 test('downloads the exact preview PNG with a decodable app-only QR, actual flag pixels and marked geography', async ({ page }) => {
@@ -125,7 +144,7 @@ test('downloads the exact preview PNG with a decodable app-only QR, actual flag 
   await open(page);
   await picture(page).getByLabel('Name (optional)').fill('Alex Morgan');
   await expect(downloadButton(page)).toBeEnabled();
-  await expect(image(page)).toHaveAttribute('alt', /3 of 249 ISO places.*4 badges earned/);
+  await expect(image(page)).toHaveAttribute('alt', /4 of 266 places.*4 badges earned/);
   await expect(picture(page).locator('input')).toHaveCount(1);
   await expect(picture(page).locator('.infographic-local-warning')).toBeVisible();
   expect(await image(page).evaluate((node) => node.getBoundingClientRect().height <= innerHeight * .6 + 1)).toBe(true);
@@ -205,14 +224,13 @@ test('downloads the exact preview PNG with a decodable app-only QR, actual flag 
   expect(layout.overlaps).toEqual([]);
   expect(layout.decorationOverlaps).toEqual([]);
   expect(layout.passportCount).toBe(0);
-  expect(layout.handwrittenNames).toHaveLength(1);
-  expect(layout.handwrittenNames[0]!.label).toBe('Alex Morgan');
+  expect(layout.handwrittenNames).toHaveLength(0);
   expect(layout.titles).toHaveLength(1);
-  expect(layout.titles[0]!.label).toBe('My Travel Passport');
-  expect(layout.titles[0]!.height).toBeGreaterThan(layout.handwrittenNames[0]!.height);
+  expect(layout.titles[0]!.label).toBe('Alex Morgan\u2019s Travel Passport');
   expect(layout.titles[0]!.transform).toMatch(/^rotate\(-2 /);
-  expect(layout.handwrittenNames[0]!.transform).toMatch(/^rotate\(-1\.2 /);
-  expect(layout.handwrittenNames[0]!.y).toBeGreaterThan(layout.titles[0]!.y + layout.titles[0]!.height);
+  expectQrCaption(layout, 2140);
+  expect(layout.metrics).toEqual(['3', 'Visited', '1', 'Lived / Living', '1', 'Want to Visit', '3', 'Favourites',
+    '4/266', 'Visited or lived \u00b7 1.5%', '2/7', 'Continents explored']);
   expect(layout.text).not.toMatch(/Prepared for|Every journey leaves a story/);
   expect(await page.evaluate(() => ({ ...localStorage }))).toEqual(storage);
   expect(external).toEqual([]);
@@ -355,34 +373,32 @@ test('PNG encoding failures are explicit and retry uses a fresh render', async (
   await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
 });
 
-for (const failedCall of [1, 2]) {
-  test(`${failedCall === 1 ? 'title' : 'name'} raster encoding failures retain explicit errors and retry releases the failed canvas`, async ({ page }) => {
-    await ready(page);
-    await open(page);
-    await picture(page).getByLabel('Name (optional)').fill('Alex Morgan');
-    await expect(downloadButton(page)).toBeEnabled();
-    await page.evaluate((failedCall) => {
-      const original = HTMLCanvasElement.prototype.toDataURL;
-      let calls = 0;
-      HTMLCanvasElement.prototype.toDataURL = function (...args) {
-        if (++calls === failedCall) {
-          Reflect.set(window, '__failedTitleCanvas', this);
-          return 'data:,';
-        }
-        return original.apply(this, args);
-      };
-    }, failedCall);
-    await picture(page).getByLabel('Picture format').selectOption('feed');
-    await expect(picture(page).getByRole('alert')).toContainText('could not encode the handwritten title');
-    await expect(downloadButton(page)).toBeDisabled();
-    expect(await page.evaluate(() => {
-      const canvas: unknown = Reflect.get(window, '__failedTitleCanvas');
-      return canvas instanceof HTMLCanvasElement && canvas.width === 0 && canvas.height === 0;
-    })).toBe(true);
-    await picture(page).getByRole('button', { name: 'Retry picture' }).click();
-    await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
+test('personalized title raster encoding failures retain explicit errors and retry releases the failed canvas', async ({ page }) => {
+  await ready(page);
+  await open(page);
+  await picture(page).getByLabel('Name (optional)').fill('Alex Morgan');
+  await expect(downloadButton(page)).toBeEnabled();
+  await page.evaluate(() => {
+    const original = HTMLCanvasElement.prototype.toDataURL;
+    let calls = 0;
+    HTMLCanvasElement.prototype.toDataURL = function (...args) {
+      if (++calls === 1) {
+        Reflect.set(window, '__failedTitleCanvas', this);
+        return 'data:,';
+      }
+      return original.apply(this, args);
+    };
   });
-}
+  await picture(page).getByLabel('Picture format').selectOption('feed');
+  await expect(picture(page).getByRole('alert')).toContainText('could not encode the handwritten title');
+  await expect(downloadButton(page)).toBeDisabled();
+  expect(await page.evaluate(() => {
+    const canvas: unknown = Reflect.get(window, '__failedTitleCanvas');
+    return canvas instanceof HTMLCanvasElement && canvas.width === 0 && canvas.height === 0;
+  })).toBe(true);
+  await picture(page).getByRole('button', { name: 'Retry picture' }).click();
+  await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
+});
 
 test('closing or editing during a delayed load ignores stale work and renders only the latest inputs and snapshot', async ({ page }) => {
   await ready(page);
@@ -402,7 +418,7 @@ test('closing or editing during a delayed load ignores stale work and renders on
   await picture(page).getByLabel('Name (optional)').fill('Latest name');
   await picture(page).getByLabel('Picture format').selectOption('story');
   await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
-  await expect(image(page)).toHaveAttribute('alt', /^Latest name\. 4 of 249 ISO places.*5 badges earned/);
+  await expect(image(page)).toHaveAttribute('alt', /^Latest name\. 5 of 266 places.*5 badges earned/);
   await expect(image(page)).toHaveJSProperty('naturalHeight', 1920);
   await expect(page.locator('.status-popover')).toBeHidden();
 });
@@ -417,8 +433,58 @@ test('accepted replacement imports update an open picture from one current snaps
   });
   await page.getByRole('button', { name: 'Replace data', exact: true }).click();
   await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
-  await expect(image(page)).toHaveAttribute('alt', /0 of 249 ISO places.*0 badges earned/);
+  await expect(image(page)).toHaveAttribute('alt', /0 of 266 places.*0 badges earned/);
   expect(await page.evaluate(() => Object.keys(localStorage))).toEqual(['passport:locations:v1']);
+});
+
+test('custom-only edits and imports keep Stats and pictures consistent even when saving fails', async ({ page }) => {
+  await captureSvg(page);
+  const customs: LocationEntry[] = [
+    { id: 'custom:KOS', name: 'Kosovo', continent: 'Europe', status: 'visited', favourite: true },
+    { id: 'custom:CYN', name: 'Northern Cyprus', continent: 'Europe', status: 'lived' },
+    { id: 'custom:SOL', name: 'Somaliland', continent: 'Africa', status: 'want_to_visit' },
+    { id: 'custom:BRT', name: 'Bir Tawil', continent: 'Africa', status: 'unvisited', favourite: true },
+  ];
+  await ready(page, customs);
+  await page.getByRole('tab', { name: 'Stats', exact: true }).click();
+  await expect(page.locator('[data-stat="completed"]')).toHaveText('2/266 (0.8%)');
+  await expect(page.locator('[data-stat="continents"]')).toHaveText('1/7');
+  await page.getByRole('tab', { name: 'Manage countries', exact: true }).click();
+  await page.evaluate(() => {
+    const original = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      if (key === 'passport:locations:v1') throw new Error('Storage denied');
+      return original.call(this, key, value);
+    };
+  });
+  await page.locator('path.country-boundary[data-country="custom:SOL"]').dispatchEvent('click', { clientX: 100, clientY: 100 });
+  await page.locator('.status-choice[data-status="visited"]').click();
+  await expect(page.locator('#save-status')).toContainText(/not saved/i);
+  await page.getByRole('tab', { name: 'Stats', exact: true }).click();
+  await expect(page.locator('[data-stat="completed"]')).toHaveText('3/266 (1.1%)');
+  await expect(page.locator('[data-stat="continents"]')).toHaveText('2/7');
+  await open(page);
+  await expect(image(page)).toHaveAttribute('alt', /3 of 266 places/);
+  const edited = await pictureLayout(page, 1600, false, 2400);
+  expect(edited.metrics).toEqual(['2', 'Visited', '1', 'Lived / Living', '0', 'Want to Visit', '2', 'Favourites',
+    '3/266', 'Visited or lived \u00b7 1.1%', '2/7', 'Continents explored']);
+  await page.locator('#import-file').setInputFiles({
+    name: 'custom-only.json', mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify([{ ...customs[2], status: 'lived', favourite: true }])),
+  });
+  await page.getByRole('button', { name: 'Replace data', exact: true }).click();
+  await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
+  await expect(image(page)).toHaveAttribute('alt', /1 of 266 places/);
+  const imported = await pictureLayout(page, 1600, false, 2400);
+  expect(imported.metrics).toEqual(['0', 'Visited', '1', 'Lived / Living', '0', 'Want to Visit', '1', 'Favourites',
+    '1/266', 'Visited or lived \u00b7 0.4%', '1/7', 'Continents explored']);
+  await page.keyboard.press('Escape');
+  await expect(page.locator('[data-stat="completed"]')).toHaveText('1/266 (0.4%)');
+  await page.getByRole('tab', { name: 'Manage countries', exact: true }).click();
+  for (const [continent, total] of [['Europe', 52], ['Africa', 60]]) {
+    await expect(page.locator('.continent').filter({ has: page.locator('summary', { hasText: String(continent) }) })
+      .locator('.continent-count')).toHaveText(`(0/${total})`);
+  }
 });
 
 test('failed local saves still export the current in-memory map', async ({ page }) => {
@@ -436,7 +502,7 @@ test('failed local saves still export the current in-memory map', async ({ page 
   await open(page);
   await picture(page).getByLabel('Picture format').selectOption('story');
   await expect(downloadButton(page)).toBeEnabled();
-  await expect(image(page)).toHaveAttribute('alt', /4 of 249 ISO places.*5 badges earned/);
+  await expect(image(page)).toHaveAttribute('alt', /5 of 266 places.*5 badges earned/);
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('passport:locations:v1')!).find((entry: LocationEntry) => entry.id === 'CZE').status)).toBe('want_to_visit');
 });
 
@@ -480,17 +546,16 @@ for (const format of [
     expect(layout.overlaps).toEqual([]);
     expect(layout.decorationOverlaps).toEqual([]);
     expect(layout.passportCount).toBe(0);
-    expect(layout.handwrittenNames).toHaveLength(1);
-    expect(layout.handwrittenNames[0]!.label).toBe('Alex Morgan');
+    expect(layout.handwrittenNames).toHaveLength(0);
     expect(layout.titles).toHaveLength(1);
-    expect(layout.titles[0]!.label).toBe('My Travel Passport');
-    expect(layout.titles[0]!.height).toBeGreaterThan(layout.handwrittenNames[0]!.height);
+    expect(layout.titles[0]!.label).toBe('Alex Morgan\u2019s Travel Passport');
     expect(layout.titles[0]!.transform).toMatch(/^rotate\(-2 /);
-    expect(layout.handwrittenNames[0]!.transform).toMatch(/^rotate\(-1\.2 /);
-    expect(layout.handwrittenNames[0]!.y).toBeGreaterThan(layout.titles[0]!.y + layout.titles[0]!.height);
+    expectQrCaption(layout, 882);
+    expect(layout.metrics).toEqual(['3', 'Visited', '1', 'Lived / Living', '1', 'Want to Visit', '3', 'Favourites',
+      '4/266', 'Visited or lived \u00b7 1.5%', '2/7', 'Continents explored']);
     expect(layout.paths).toBe(266);
     expect(layout.groups).toEqual(['visited', 'lived', 'want_to_visit', 'favourite']);
-    for (const text of ['3/249', '2/7', '4 earned', '50 points', 'Southern explorer', 'Equal points', 'Favourites', 'KOS']) expect(layout.text).toContain(text);
+    for (const text of ['4/266', '2/7', '4 earned', '50 points', 'Southern explorer', 'Equal points', 'Favourites', 'KOS']) expect(layout.text).toContain(text);
     expect(layout.text).not.toContain('First steps');
     expect(await page.evaluate(() => ({ ...localStorage }))).toEqual(stored);
   });
@@ -533,7 +598,7 @@ test('all-place overflow and zero groups render successfully without fetching un
   }));
   await ready(page, dense);
   await open(page);
-  await expect(image(page)).toHaveAttribute('alt', /150 of 249 ISO places/);
+  await expect(image(page)).toHaveAttribute('alt', /150 of 266 places/);
   await picture(page).getByLabel('Name (optional)').fill('W'.repeat(60));
   await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
   await expect(image(page)).toHaveJSProperty('naturalWidth', 2400);
@@ -589,12 +654,13 @@ test('every ISO flag can be loaded, validated and embedded from the deployed loc
     });
     await page.getByRole('button', { name: 'Replace data', exact: true }).click();
     await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
-    await expect(image(page)).toHaveAttribute('alt', new RegExp(`${Math.min(batch.length, 36)} of 249 ISO places`));
+    await expect(image(page)).toHaveAttribute('alt', new RegExp(`${Math.min(batch.length, 36)} of 266 places`));
   }
   expect([...fetched].sort()).toEqual(iso.map((country) => country.alpha2!.toLowerCase()).sort());
 });
 
 async function checkFooterActions(page: Page): Promise<void> {
+  await page.mouse.move(0, 0);
   const actions = page.locator('.sidebar-footer > .data-actions > button');
   await expect(actions).toHaveText(['Export data', 'Copy JSON', 'Import']);
   for (const action of await actions.all()) {
@@ -695,7 +761,7 @@ for (const theme of ['classic', 'dark', 'medieval'] as const) {
     for (const tab of ['Stats', 'Badges', 'Manage countries']) {
       await page.getByRole('tab', { name: tab, exact: true }).click();
       await open(page);
-      await expect(image(page)).toHaveAttribute('alt', /0 of 249 ISO places.*0 badges earned/);
+      await expect(image(page)).toHaveAttribute('alt', /0 of 266 places.*0 badges earned/);
       await picture(page).getByRole('button', { name: 'Close', exact: true }).focus();
       await page.keyboard.press('Tab');
       if (await page.evaluate(() => document.activeElement === document.body)) await page.keyboard.press('Tab');
@@ -749,7 +815,33 @@ test('maximum badge names and Unicode personalization remain within their text r
     expect(layout.overlaps).toEqual([]);
     expect(layout.decorationOverlaps).toEqual([]);
     expect(layout.text).toContain('Zo\u00eb <Traveller>');
-    expect(layout.text).toContain('My Travel Passport');
+    expect(layout.titles[0]!.label).toBe('Zo\u00eb <Traveller>\u2019s Travel Passport');
     expect(layout.text).not.toMatch(/Prepared for|Every journey leaves a story/);
+  }
+});
+
+test('possessive and maximum-length headings fit all formats without a separate name', async ({ page }) => {
+  await captureSvg(page);
+  await ready(page);
+  await open(page);
+  for (const [name, heading] of [
+    ['James', 'James\u2019 Travel Passport'], ['CHRIS', 'CHRIS\u2019 Travel Passport'],
+    ['W'.repeat(60), `${'W'.repeat(60)}\u2019s Travel Passport`],
+    ['\u{1f30d}'.repeat(30), `${'\u{1f30d}'.repeat(30)}\u2019s Travel Passport`],
+  ]) {
+    await picture(page).getByLabel('Name (optional)').fill(name!);
+    for (const [id, height, width] of [['horizontal', 1600, 2400], ['feed', 1350, 1080], ['story', 1920, 1080]] as const) {
+      await picture(page).getByLabel('Picture format').selectOption(id);
+      await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
+      const layout = await pictureLayout(page, height, id === 'story', width);
+      expect(layout.titles).toHaveLength(1);
+      expect(layout.titles[0]!.label).toBe(heading);
+      expect(layout.handwrittenNames).toEqual([]);
+      expect(layout.outside).toEqual([]);
+      expect(layout.overlaps).toEqual([]);
+      expect(layout.decorationOverlaps).toEqual([]);
+      expectQrCaption(layout, id === 'horizontal' ? 2140 : 882);
+      await png(page, [width, height], `passport-heading-${name === 'James' ? 'james' : name === 'CHRIS' ? 'chris' : name!.startsWith('W') ? 'long' : 'unicode'}-${id}.png`);
+    }
   }
 });

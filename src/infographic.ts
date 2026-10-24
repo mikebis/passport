@@ -52,7 +52,7 @@ export function infographicData(
     .sort((a, b) => b.value - a.value);
   return {
     format, stats, groups, status,
-    favourites: registry.filter((country) => country.kind === 'iso' && byId.get(country.id)?.favourite === true).length,
+    favourites: registry.filter((country) => byId.get(country.id)?.favourite === true).length,
     badges: earned.slice(0, 3), earnedCount: earned.length, earnedPoints: earned.reduce((sum, badge) => sum + badge.value, 0),
   };
 }
@@ -61,6 +61,11 @@ export type InfographicData = ReturnType<typeof infographicData>;
 export function validatePersonalization(input: Personalization): Personalization {
   if (Array.from(input.name).length > TEXT_LIMITS.name) throw new Error(`name must be ${TEXT_LIMITS.name} characters or fewer.`);
   return { name: input.name.replace(/\s+/g, ' ').trim() };
+}
+
+export function infographicHeading(personal: Personalization): string {
+  const { name } = validatePersonalization(personal);
+  return name ? `${name}\u2019${/s$/i.test(name) ? '' : 's'} Travel Passport` : 'My Travel Passport';
 }
 
 export function currentAppAddress(origin: string, base: string): string {

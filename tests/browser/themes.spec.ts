@@ -59,6 +59,11 @@ async function checkContrast(page: Page): Promise<void> {
     const a = luminance(credits.color.match(/[\d.]+/g)!.map(Number));
     const b = luminance(sidebar.backgroundColor.match(/[\d.]+/g)!.map(Number));
     ratios.push({ foreground: 'sidebar credits', background: 'sidebar', ratio: (Math.max(a, b) + .05) / (Math.min(a, b) + .05) });
+    for (const node of document.querySelectorAll('.sidebar-footer #save-status, .sidebar-footer summary, .sidebar-footer .text-button, .sidebar-footer .google-sync-status, .sidebar-footer .google-sync-last, .sidebar-footer .google-account, .data-license a')) {
+      const value = luminance(getComputedStyle(node).color.match(/[\d.]+/g)!.map(Number));
+      ratios.push({ foreground: node.id || node.className || node.textContent || 'footer text', background: 'sidebar',
+        ratio: (Math.max(value, b) + .05) / (Math.min(value, b) + .05) });
+    }
     const share = getComputedStyle(document.querySelector('#share-picture')!);
     const shareInk = luminance(share.color.match(/[\d.]+/g)!.map(Number));
     const shareFill = luminance(share.backgroundColor.match(/[\d.]+/g)!.map(Number));
@@ -179,6 +184,73 @@ for (const skin of skins) {
     await page.keyboard.press('Escape');
     await page.getByRole('button', { name: 'Export data', exact: false }).scrollIntoViewIfNeeded();
     await expect(page.getByRole('button', { name: 'Export data', exact: false })).toBeInViewport();
+  });
+
+  test(`${skin.id} footer has readable type, contrasting links and reachable keyboard controls at narrow sizes`, async ({ page }, testInfo) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await ready(page);
+    await page.locator('#theme-picker').selectOption(skin.id);
+    await page.locator('.google-sync summary').click();
+    const footer = page.locator('.sidebar-footer');
+    for (const [width, height] of [[1440, 900], [1000, 620], [740, 620], [320, 800]]) {
+      await page.setViewportSize({ width: width!, height: height! });
+      const type = await footer.evaluate((node) => {
+        return [...node.querySelectorAll<HTMLElement>('#save-status, .google-sync, .google-sync-last, .data-license, button, summary, a')]
+          .map((element) => {
+            const style = getComputedStyle(element);
+            return { label: element.className || element.tagName, font: parseFloat(style.fontSize),
+              line: parseFloat(style.lineHeight), small: element.matches('.google-sync-last, .data-license, .data-license a') };
+          });
+      });
+      for (const item of type) {
+        expect(item.font, item.label).toBeGreaterThanOrEqual(item.small ? 11 : 12);
+        expect(item.line / item.font, item.label).toBeGreaterThanOrEqual(1.59);
+      }
+      await checkContrast(page);
+      for (const link of await footer.locator('a').all()) {
+        await expect(link).toHaveCSS('text-decoration-line', 'underline');
+        await expect(link).toHaveCSS('text-decoration-color', await link.evaluate((node) => getComputedStyle(node).color));
+        await link.scrollIntoViewIfNeeded();
+        await expect(link).toBeInViewport();
+        await link.hover();
+        await expect(link).toHaveCSS('text-decoration-thickness', '2px');
+        await checkContrast(page);
+      }
+      await page.locator('#export-data').focus();
+      for (const selector of ['#copy-data', '#import-data', '.data-license a:first-of-type', '.data-license a:nth-of-type(2)', '.data-license a:nth-of-type(3)', '.repo-link']) {
+        await page.keyboard.press('Tab');
+        const control = page.locator(selector);
+        await expect(control).toBeFocused();
+        await expect(control).toBeInViewport();
+        await expect(control).toHaveCSS('outline-width', '3px');
+        await expect(control).toHaveCSS('outline-style', 'solid');
+        const clipped = await control.evaluate((node) => {
+          const box = node.getBoundingClientRect();
+          const style = getComputedStyle(node);
+          const outline = parseFloat(style.outlineWidth) + parseFloat(style.outlineOffset);
+          for (let parent = node.parentElement; parent; parent = parent.parentElement) {
+            if (!['auto', 'scroll', 'hidden'].includes(getComputedStyle(parent).overflowY)) continue;
+            const bounds = parent.getBoundingClientRect();
+            if (box.top - outline < bounds.top || box.bottom + outline > bounds.bottom) return true;
+          }
+          return false;
+        });
+        expect(clipped, `${selector} focus outline`).toBe(false);
+      }
+      expect(await footer.evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      if (width! > 720) expect(await page.locator('.country-groups').evaluate((node) => node.clientHeight)).toBeGreaterThan(90);
+      if (width === 1000 || width === 320) {
+        await footer.screenshot({ path: testInfo.outputPath(`footer-${skin.id}-${width}.png`) });
+      }
+    }
+    await page.addStyleTag({ content: '.sidebar-footer { font-size: 24px; } .data-license, .google-sync-last { font-size: 22px; }' });
+    for (const control of await footer.locator(':is(a, button:not(:disabled), summary):visible').all()) {
+      await control.scrollIntoViewIfNeeded();
+      await expect(control).toBeInViewport();
+    }
+    expect(await footer.evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 }
 

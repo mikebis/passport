@@ -167,6 +167,9 @@ test('accepted Drive data refreshes an open travel picture without upload echo',
   await ready(page);
   await backup(page);
   addRemote(drive);
+  drive.files.get('remote-version')!.snapshot.entries.push({
+    id: 'custom:SOL', name: 'Somaliland', continent: 'Africa', status: 'visited', favourite: true,
+  });
   await page.getByRole('button', { name: 'Sync now', exact: true }).click();
   const conflict = page.getByRole('dialog', { name: 'Choose your travel map' });
   await expect(conflict).toBeVisible();
@@ -176,15 +179,19 @@ test('accepted Drive data refreshes an open travel picture without upload echo',
   await expect(picture.getByRole('button', { name: 'Download PNG' })).toBeEnabled({ timeout: 20000 });
   await picture.getByLabel('Picture format').selectOption('story');
   await expect(picture.getByRole('button', { name: 'Download PNG' })).toBeEnabled({ timeout: 20000 });
-  await expect(picture.locator('img')).toHaveAttribute('alt', /0 of 249 ISO places.*0 badges earned/);
+  await expect(picture.locator('img')).toHaveAttribute('alt', /0 of 266 places.*0 badges earned/);
   await page.getByRole('button', { name: 'Sync now', exact: true }).dispatchEvent('click');
   await expect(conflict).toBeVisible();
   const count = drive.files.size;
   await conflict.getByRole('button', { name: /^Google Drive version/ }).click();
   await expect(picture.getByRole('button', { name: 'Download PNG' })).toBeEnabled({ timeout: 20000 });
-  await expect(picture.locator('img')).toHaveAttribute('alt', /1 of 249 ISO places.*1 badges earned/);
+  await expect(picture.locator('img')).toHaveAttribute('alt', /2 of 266 places.*1 badges earned/);
   await expect(picture.locator('img')).toHaveJSProperty('naturalHeight', 1920);
   expect(drive.files.size).toBe(count);
+  await page.keyboard.press('Escape');
+  await page.getByRole('tab', { name: 'Stats', exact: true }).click();
+  await expect(page.locator('[data-stat="completed"]')).toHaveText('2/266 (0.8%)');
+  await expect(page.locator('[data-stat="continents"]')).toHaveText('2/7');
 });
 
 test('favourite-only changes save to Drive and remote replacements update stars without upload echo', async ({ page }) => {
@@ -406,19 +413,27 @@ test('conflict choices fit desktop and narrow Medieval without moving the map', 
   await page.screenshot({ path: testInfo.outputPath('sync-conflict-medieval-mobile.png'), fullPage: true });
 });
 
-test('expanded Google status leaves countries clickable in short desktop windows', async ({ page }) => {
-  await mockGoogle(page);
-  await page.setViewportSize({ width: 1100, height: 620 });
-  await ready(page);
-  await backup(page);
-  await status(page, 'EST', 'visited');
-  await expect(page.locator('path[data-country="EST"]')).toHaveAttribute('data-status', 'visited');
-  for (const name of ['Data sources', 'mledoze/countries', 'ODbL']) {
-    const link = page.locator('.sidebar-footer').getByRole('link', { name, exact: true });
-    await link.scrollIntoViewIfNeeded();
-    await expect(link).toBeInViewport();
-  }
-  await page.getByRole('button', { name: 'Sign out', exact: true }).click();
-  await status(page, 'USA', 'lived');
-  await expect(page.locator('path[data-country="USA"]')).toHaveAttribute('data-status', 'lived');
-});
+for (const theme of ['classic', 'dark', 'medieval']) {
+  test(`${theme}: expanded Google status leaves countries clickable with a long account in short desktop windows`, async ({ page }) => {
+    const drive = await mockGoogle(page);
+    drive.owner = 'a-long-account-name-for-testing-footer-wrapping-without-truncating-the-identity';
+    await page.setViewportSize({ width: 1100, height: 620 });
+    await ready(page);
+    await page.locator('#theme-picker').selectOption(theme);
+    await backup(page);
+    await expect(page.locator('.google-account')).toContainText(`${drive.owner}@example.test`);
+    expect(await page.locator('.google-sync-panel').evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
+    await expect(page.locator('.google-account')).toHaveCSS('font-size', '12px');
+    await expect(page.locator('.google-sync-last').last()).toHaveCSS('font-size', '11px');
+    await status(page, 'EST', 'visited');
+    await expect(page.locator('path[data-country="EST"]')).toHaveAttribute('data-status', 'visited');
+    for (const name of ['Data sources', 'mledoze/countries', 'ODbL', 'View on GitHub']) {
+      const link = page.locator('.sidebar-footer').getByRole('link', { name, exact: true });
+      await link.scrollIntoViewIfNeeded();
+      await expect(link).toBeInViewport();
+    }
+    await page.getByRole('button', { name: 'Sign out', exact: true }).click();
+    await status(page, 'USA', 'lived');
+    await expect(page.locator('path[data-country="USA"]')).toHaveAttribute('data-status', 'lived');
+  });
+}

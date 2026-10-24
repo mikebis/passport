@@ -90,7 +90,7 @@ test('star filter intersects favourites with status and search, supports keyboar
   await page.getByRole('searchbox').clear();
   await expectVisible(page, favourites);
   await page.getByRole('tab', { name: 'Stats', exact: true }).click();
-  await expect(page.locator('[data-stat="completed"]')).toHaveText('2/249 (0.8%)');
+  await expect(page.locator('[data-stat="completed"]')).toHaveText('2/266 (0.8%)');
   await page.getByRole('tab', { name: 'Manage countries', exact: true }).click();
   await page.locator('#theme-picker').selectOption('dark');
   await page.getByRole('button', { name: 'Hide sidebar', exact: true }).click();
@@ -193,7 +193,7 @@ test('all statuses, additional places and Antarctica can be favourited without c
   await expect(page.locator('#lived-count')).toHaveText('1');
   await expect(page.locator('#wish-count')).toHaveText('1');
   await page.getByRole('tab', { name: 'Stats', exact: true }).click();
-  await expect(page.locator('[data-stat="completed"]')).toHaveText('2/249 (0.8%)');
+  await expect(page.locator('[data-stat="completed"]')).toHaveText('2/266 (0.8%)');
   await page.getByRole('tab', { name: 'Badges', exact: true }).click();
   await expect(page.locator('.badge-progress-text')).toHaveText('1/2');
   await expect(page.locator('#badge-summary')).toContainText('0/10 points');

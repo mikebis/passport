@@ -21,6 +21,7 @@ jobs:
     env:
       # Used only with mocked provider requests in validation builds.
       VITE_GOOGLE_CLIENT_ID: passport-validation.apps.googleusercontent.com
+      VITE_GOOGLE_ANALYTICS_ID: G-0000000000
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -36,6 +37,7 @@ jobs:
         run: npm run test:e2e
         env:
           TEST_PRODUCTION: '1'
+          TEST_ANALYTICS_MODE: configured
       - name: Upload root browser-test report
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -55,11 +57,36 @@ jobs:
         env:
           TEST_PRODUCTION: '1'
           TEST_BASE_PATH: /passport-test/
+          TEST_ANALYTICS_MODE: configured
       - name: Upload subpath browser-test report
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: playwright-subpath
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+      - name: Build without analytics configuration
+        run: npm run build
+        env:
+          BASE_PATH: /
+          VITE_GOOGLE_ANALYTICS_ID: ''
+      - name: Exercise unconfigured public-origin analytics
+        run: npx playwright test analytics.spec.ts --grep "disabled analytics builds"
+        env:
+          TEST_PRODUCTION: '1'
+          TEST_ANALYTICS_MODE: unconfigured
+      - name: Exercise development analytics exclusion
+        run: npx playwright test analytics.spec.ts --grep "disabled analytics builds"
+        env:
+          TEST_ANALYTICS_MODE: development
+      - name: Upload analytics exclusion report
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: playwright-analytics-exclusion
           path: |
             playwright-report/
             test-results/
@@ -80,6 +107,7 @@ jobs:
         env:
           BASE_PATH: /
           VITE_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+          VITE_GOOGLE_ANALYTICS_ID: ${{ vars.GOOGLE_ANALYTICS_ID }}
       - name: Deploy to Azure Static Web Apps
         if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9 # v1

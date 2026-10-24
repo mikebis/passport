@@ -1,12 +1,15 @@
 # passport
 
 A small, local-first travel atlas. Color the places you have visited, called home,
-or want to visit. No required account, backend, API key, analytics, or external map
-service. Optional Google sign-in backs up your map to your private Drive app-data.
+or want to visit. No required account, backend, API key, or external map service.
+Optional Google sign-in backs up your map to your private Drive app-data.
+Optional, separately configured Google Analytics measures basic public-site
+traffic without receiving your travel data.
 
 **Contents:** [Run](#run) · [Your map](#your-map) ·
 [Favourites](#favourite-places) · [Google sync](#optional-google-sign-in-and-drive-sync) ·
 [Configure Google](#configure-google-optional) ·
+[Analytics and privacy](#optional-google-analytics-and-privacy) ·
 [Tabs and statistics](#sidebar-tabs-and-statistics) ·
 [Share a picture](#share-a-travel-picture) · [Badges](#editing-badges) ·
 [Scenery](#a-little-life-on-the-map) · [Skins](#editing-or-adding-a-skin) ·
@@ -80,7 +83,8 @@ do not understand the field and can discard it when saving or synchronizing.
 
 Open **Google Drive sync** in the sidebar footer and choose **Connect Google
 Drive**, then **Continue with Google**. Google resources are loaded only after
-this opt-in; local map use never contacts Google. The connection requires a
+this opt-in for sign-in/Drive. Separately configured usage analytics can contact
+Google on eligible public production visits without connecting Drive. The connection requires a
 configured public OAuth client ID (setup below).
 
 The first connection asks before backing up or replacing a map. If Drive and
@@ -254,6 +258,86 @@ within the initial map extent. Pan/zoom to explore.
 Flags depend on platform emoji support; ISO country codes are always present.
 Additional areas use a generic symbol and an explicit non-ISO label instead of
 an invented national flag or ISO code.
+
+### Optional Google Analytics and privacy
+
+Analytics is **disabled by default**. When a public GA4 measurement ID is
+configured, production visits automatically send basic traffic data without a
+consent prompt. Development, recognized localhost/private-address previews,
+Do Not Track and Global Privacy Control are excluded. Local hostname detection
+does not perform DNS lookups or prove that a hostname resolves to a public IP.
+An invalid ID or blocked/timed-out script produces a developer-console warning
+without blocking map use. No GA account or analytics permission is needed to use
+the app.
+
+GA4 can report **Sessions** (visits), **Views**, **Total users** and **Active
+users**, device categories (desktop/mobile/tablet) and approximate visitor
+countries. Total users is an estimate based on browser identifiers, not exact
+unique people across devices, cleared cookies or private browsing. Active users
+is a different engagement-based metric. Privacy exclusions, blockers and
+network failures reduce measured traffic; VPNs can change inferred countries.
+
+The app sends a fixed `passport` title, its origin/base URL without query/hash
+or incidental paths, and at most a referring site's origin. It sends one
+deliberate page view per document; tabs, themes, projections, map edits,
+exports and picture generation do not send custom events or extra page views.
+GA's normal first-visit, session and engagement events still apply. No travel
+statuses, favourites, picture names/images, exports or Google sign-in identity
+are passed to analytics. Advertising signals are disabled.
+
+Google receives network/browser information and can set first-party analytics
+cookies with pseudonymous browser identifiers. This is **not anonymous or
+cookie-free tracking**. The shared footer's **Privacy** link opens an untracked
+same-origin page describing local storage, optional Drive and analytics.
+Browser privacy signals must be enabled before loading the app; clearing
+cookies removes existing identifiers, not Google's historical data or future
+collection on eligible visits.
+
+**Before enabling:** always-on analytics without prior consent may not comply
+with your jurisdiction's requirements. The operator must resolve applicable
+consent, disclosure and retention requirements first. The Privacy link and
+DNT/GPC exclusions do not replace legally required prior consent.
+
+#### Create and configure GA4
+
+1. At [Google Analytics](https://analytics.google.com/), create an account if
+   needed, then **Admin > Create > Property**. Choose the reporting time zone
+   and the relevant business objectives.
+2. Under **Admin > Data collection and modification > Data streams**, create a
+   **Web** stream for your public HTTPS app, for example
+   `https://green-meadow.4.azurestaticapps.net`.
+3. **Turn Enhanced Measurement off**, including history-based page views,
+   scrolling, outbound links, site search, downloads and form interactions.
+   In the stream's **Google tag > Configure tag settings > Manage automatic
+   event detection**, also disable automatic interaction detection. Do not
+   enable user-provided-data collection, Google Signals, advertising
+   personalization or Ads integrations. Keep these settings disabled:
+   `send_page_view: false` alone does not disable remote interaction collection.
+4. Copy the stream's **Measurement ID**, such as `G-ABC1234567`. This is a
+   public identifier, not an OAuth client ID, `GTM-` container, API secret or
+   client secret. Do not paste Google's extra HTML snippet into this app.
+5. For the existing deployment, add the **repository Actions variable**
+   `GOOGLE_ANALYTICS_ID` in **Settings > Secrets and variables > Actions >
+   Variables**. The main-only deployment rebuild reads it as
+   `VITE_GOOGLE_ANALYTICS_ID`. Leave it empty to disable analytics; changing
+   the variable requires a fresh build/deployment.
+6. For other static deployments set `VITE_GOOGLE_ANALYTICS_ID` at build time,
+   or in ignored `.env.local`, then rebuild. Merely configuring it does not
+   enable analytics on development or localhost/private previews.
+
+On the deployed site, use a browser with DNT/GPC off and analytics unblocked,
+then check **Realtime** in your property. Normal processed reports may take
+24-48 hours. Use **Traffic acquisition** for sessions, **Pages and screens**
+for views, **Tech details** with Device category, and **Demographic details**
+with Country. Report collections/names vary with property objectives; use an
+Exploration with **Total users** if the default report shows **Active users**.
+There is no backfill before configuration. Confirm actual property reporting
+yourself: automated checks mock Google and cannot verify real delivery or
+future changes to Google's tag/property settings.
+
+See Google's [GA4 setup](https://support.google.com/analytics/answer/9304153),
+[Enhanced Measurement](https://support.google.com/analytics/answer/9216061)
+and [configuration reference](https://developers.google.com/analytics/devguides/collection/ga4/reference/config).
 
 ### Sidebar tabs and statistics
 
@@ -711,7 +795,8 @@ The 17 additions are checked separately against the explicit catalog, including
 ID/metadata uniqueness, genuine geometry, and the absence of invented flag codes.
 Checks reject missing, inverted, degenerate, nonfinite, or unrenderable polygons.
 Source licensing and geometry must be reviewed when updating pinned revisions.
-The app does not fetch upstream data or load fonts/CDNs at runtime.
+The app does not fetch upstream geographic data or remote fonts at runtime.
+Optional Google sign-in and configured usage analytics use Google's services.
 
 ## Verification
 
@@ -734,6 +819,10 @@ Infographic tests inspect real downloaded PNG dimensions, marked-map/flag
 pixels, decoded QR payloads, preview/download identity, ephemeral text,
 current-state updates, errors/retry and responsive modal behavior.
 `security-headers.spec.ts` applies the production CSP and fails on violations.
+`analytics.spec.ts` intercepts every external request, serves an isolated public
+HTTPS test origin from the owned preview, and checks safe tag configuration,
+DNT/GPC and private-host exclusions, script failures and Privacy-page behavior.
+No real property receives automated traffic.
 Use `npx playwright install --with-deps chromium` on Linux.
 
 To check production dependencies for known vulnerabilities (as CI does):
@@ -761,6 +850,26 @@ $env:TEST_PRODUCTION = '1'
 npm run build
 npm run test:e2e
 Remove-Item Env:VITE_GOOGLE_CLIENT_ID, Env:TEST_PRODUCTION
+npm run build
+```
+
+To exercise the analytics-specific configured cases (never use a real ID):
+
+```powershell
+$env:VITE_GOOGLE_ANALYTICS_ID = 'G-0000000000'
+$env:TEST_PRODUCTION = '1'
+$env:TEST_ANALYTICS_MODE = 'configured'
+npm run build
+npx playwright test analytics.spec.ts security-headers.spec.ts
+$env:VITE_GOOGLE_ANALYTICS_ID = ''
+$env:TEST_ANALYTICS_MODE = 'unconfigured'
+npm run build
+npx playwright test analytics.spec.ts --grep "disabled analytics builds"
+Remove-Item Env:TEST_PRODUCTION
+$env:VITE_GOOGLE_ANALYTICS_ID = 'G-0000000000'
+$env:TEST_ANALYTICS_MODE = 'development'
+npx playwright test analytics.spec.ts --grep "disabled analytics builds"
+Remove-Item Env:VITE_GOOGLE_ANALYTICS_ID, Env:TEST_ANALYTICS_MODE
 npm run build
 ```
 
@@ -832,7 +941,10 @@ on non-`main` refs, so a newer push never interrupts a production deployment.
 makes Azure send a Content-Security-Policy, `X-Content-Type-Options: nosniff`,
 a strict referrer policy and `frame-ancestors 'none'`. The policy allows only
 this origin plus the Google Identity Services and Drive/UserInfo endpoints the
-optional sync uses, and `data:`/`blob:` images for picture generation. If you add
+optional sync uses, and `data:`/`blob:` images for picture generation.
+For configured usage analytics, the policy also permits Google's direct `gtag.js` and
+non-advertising analytics collection/regional endpoints. It does not allow
+arbitrary scripts, inline/eval scripts or Ads/DoubleClick endpoints. If you add
 another external script, font, image or API, update the policy or the browser will
 block it; `tests/browser/security-headers.spec.ts` applies these headers and fails
 on any CSP violation. Other static hosts and `npm run preview` ignore this file,
@@ -847,6 +959,8 @@ local builds alone do not confirm a live deployment.
 ## Structure
 
 `src/main.ts` wires the shell, recovery, import/export, and counters;
+`analytics.ts` initializes optional basic GA4 with privacy exclusions and safe
+metadata; `address.ts` shares local-address classification with picture QR warnings;
 `store.ts` owns validation and persistence; `geography.ts` loads bundled data;
 `google-auth.ts` handles optional Google authorization, `google-drive.ts` the
 immutable private snapshot protocol, and `sync.ts` / `sync-ui.ts` cloud

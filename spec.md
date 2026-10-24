@@ -11,6 +11,38 @@ The goal is to build a minimal, modern, and aesthetic interactive world map SPA 
 Google sign-in and Drive synchronization are optional. Without an account or a
 configured public OAuth client ID, the entire local travel-map experience remains
 available. Only explicit Google opt-in loads external Google Identity Services.
+Optional separately configured GA4 usage analytics may contact Google on public
+production visits without signing in; travel data remains separate from analytics.
+
+### Basic usage analytics and privacy
+
+* Optional public `VITE_GOOGLE_ANALYTICS_ID` (`G-...`); missing disables collection,
+  invalid configuration warns without blocking the app. Use official asynchronous
+  gtag.js with no dependency, backend, GTM container or inline script.
+* Automatically collect basic traffic without a consent prompt only in production
+  on HTTP(S) non-local hosts. Skip recognized private/loopback addresses, development,
+  affirmative Do Not Track (including legacy signals) and Global Privacy Control.
+* Report sessions, page views, estimated browser-based users, devices and approximate
+  visitor countries, not destinations marked on the map. Do not promise exact unique
+  people or complete traffic coverage.
+* One deliberate page view per document; fixed title, origin/base page URL without
+  credentials/query/hash/incidental paths, HTTP(S) referrer origin only. No custom
+  map/filter/tab/export/picture events, user identity/properties, travel data or names.
+  Retain GA's standard session/first-visit/engagement behavior; disable advertising
+  signals. Operators must disable Enhanced Measurement, history views, automatic
+  interaction detection, user-provided-data collection, Signals and ad integrations.
+* Analytics errors/timeouts warn explicitly in the developer console, clean up and
+  never block map use or masquerade as travel-save failures. Initialize only once.
+* Add an accessible shared-footer Privacy link to an untracked same-origin page
+  explaining local data, optional Drive, conditional Google cookies/network/browser
+  metadata and privacy controls. Do not claim anonymous/cookie-free operation or
+  that notice/DNT/GPC replaces legally required prior consent. Operators must resolve
+  jurisdiction-dependent consent/disclosure/retention requirements before enabling.
+* Extend hosting CSP only for direct Google tag and non-Ads analytics endpoints.
+  Keep existing protections, sync and local PNG/font behavior. Document GA4 setup,
+  report interpretation, optional public Actions `GOOGLE_ANALYTICS_ID`, no local
+  tracking, and live-property verification. Mock all provider calls in configured
+  root/subpath and missing-config/development checks; never deploy synthetic IDs.
 
 ---
 

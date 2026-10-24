@@ -106,7 +106,7 @@ describe('picture formats', () => {
       const data = infographicData(registry, entries(registry.map(({ id }) => ({ id, status: 'visited', favourite: true }))), parseBadges([definition], registry), id);
       const flags = new Map(registry.flatMap((country) => country.kind === 'iso' ? [[country.alpha2, 'data:image/svg+xml,%3Csvg%2F%3E'] as const] : []));
       const svg = infographicSvg({
-        data, registry, countries: decodeWorld(worldJson, registry).countries,
+        data, registry, countries: decodeWorld(worldJson, registry).countries, projection: 'equal-earth',
         personal: { name: '<Traveller>' }, address: 'https://example.test/',
       }, flags, (value, size) => value.length * size * .6, titleRaster);
       expect(svg).toContain(`width="1080" height="${format.height}" viewBox="0 0 1080 ${format.height}"`);
@@ -202,7 +202,7 @@ describe('self-contained infographic artwork', () => {
     const address = `https://example.test/${'long-path-'.repeat(35)}/`;
     const svg = infographicSvg({
       data: infographicData(registry, entries(), [], format), registry,
-      countries: decodeWorld(worldJson, registry).countries, personal: { name: '' }, address,
+      countries: decodeWorld(worldJson, registry).countries, personal: { name: '' }, address, projection: 'equal-earth',
     }, new Map(), (value, size) => value.length * size * .6, titleRaster);
     const label = svg.match(/font-size="(\d+)" data-qr-url="" text-anchor="middle">([^<]+)<\/text>/)!;
     expect(label).not.toBeNull();
@@ -213,7 +213,7 @@ describe('self-contained infographic artwork', () => {
   it.each(['horizontal', 'feed', 'story'] as const)('%s keeps the fixed title without a name placeholder when blank', (format) => {
     const svg = infographicSvg({
       data: infographicData(registry, entries(), [], format), registry,
-      countries: decodeWorld(worldJson, registry).countries, personal: { name: '' }, address: 'https://example.test/',
+      countries: decodeWorld(worldJson, registry).countries, personal: { name: '' }, address: 'https://example.test/', projection: 'equal-earth',
     }, new Map(), (value, size) => value.length * size * .6, titleRaster);
     expect(svg).toContain('data-handwritten-title="My Travel Passport"');
     expect(svg).not.toContain('data-handwritten-name');
@@ -243,7 +243,7 @@ describe('self-contained infographic artwork', () => {
   it('renders the full geometry, accurate labels, escaped personalization, neutral custom symbols and a QR', () => {
     const data = infographicData(registry, entries([{ id: 'SVK', status: 'visited' }, { id: 'custom:KOS', favourite: true }]), parseBadges([definition], registry));
     const svg = infographicSvg({
-      data, registry, countries: decodeWorld(worldJson, registry).countries,
+      data, registry, countries: decodeWorld(worldJson, registry).countries, projection: 'equal-earth',
       personal: { name: '<script> "Traveller"' }, address: 'https://example.test/',
     }, new Map([['SK', 'data:image/svg+xml,%3Csvg%2F%3E']]), (value, size) => value.length * size * .6, titleRaster);
     expect(svg).toContain('width="2400" height="1600"');

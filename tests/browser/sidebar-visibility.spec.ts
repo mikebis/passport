@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { geoMercator } from 'd3';
+import { findProjection, liveProjection, PROJECTIONS } from '../../src/projection';
 
 declare global {
   interface Window {
@@ -23,10 +23,11 @@ async function mapView(page: Page) {
     const land = element.querySelector('.land-layer');
     if (!(land instanceof SVGGraphicsElement)) throw new Error('Missing land layer');
     const matrix = land.transform.baseVal.consolidate()!.matrix;
-    return { width: element.viewBox.baseVal.width, height: element.viewBox.baseVal.height, k: matrix.a, x: matrix.e, y: matrix.f };
+    return { width: element.viewBox.baseVal.width, height: element.viewBox.baseVal.height, k: matrix.a, x: matrix.e, y: matrix.f, projectionId: element.dataset.projection };
   });
-  const projection = geoMercator().scale(Math.min(view.width / (2 * Math.PI), view.height / 3.1) * .94)
-    .translate([view.width / 2, view.height * .58]);
+  const selected = findProjection(view.projectionId ?? '');
+  if (!selected) throw new Error('Missing map projection');
+  const projection = liveProjection(selected.id, view.width, view.height);
   return { ...view, center: projection.invert!([(view.width / 2 - view.x) / view.k, (view.height / 2 - view.y) / view.k])! };
 }
 
@@ -140,7 +141,9 @@ test('all seven groups start collapsed and search restores independent Europe an
   await expect(summary(page, 'Antarctica').locator('.continent-count')).toHaveText('(1/1)');
 });
 
-test('hiding preserves zoomed geographic center, nodes, search, group choices and selected country without stale previews', async ({ page }) => {
+for (const projection of PROJECTIONS) {
+test(`${projection.label}: hiding preserves zoomed geographic center, nodes, search, group choices and selected country without stale previews`, async ({ page }) => {
+  await page.addInitScript(id => localStorage.setItem('passport:projection:v1', id), projection.id);
   await page.setViewportSize({ width: 1280, height: 800 });
   await ready(page);
   await summary(page, 'Europe').click();
@@ -183,6 +186,7 @@ test('hiding preserves zoomed geographic center, nodes, search, group choices an
   expect(await page.evaluate(() => localStorage.getItem('passport:locations:v1'))).toBe(data);
   await identity.dispose();
 });
+}
 
 test('invalid and unreadable preferences visibly fall back to shown without affecting travel or theme warnings', async ({ page }) => {
   await page.addInitScript(key => localStorage.setItem(key, 'unknown'), sidebarKey);

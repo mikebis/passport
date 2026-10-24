@@ -11,6 +11,8 @@ import { errorMessage, type LocationEntry, type SelectTerritory } from './types'
 import type { SceneryState } from './scenery';
 import { applyTheme, ThemePreference } from './theme';
 import { THEMES } from './themes';
+import { PROJECTIONS } from './projection';
+import { ProjectionPreference } from './projection-preference';
 import { createGoogleSync } from './sync-ui';
 import { createSidebarTabs } from './sidebar-tabs';
 import { createStatistics } from './statistics-ui';
@@ -20,6 +22,7 @@ import { downloadText as download, uniqueId } from './dom';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const themePreference = new ThemePreference(() => window.localStorage);
+const projectionPreference = new ProjectionPreference(() => window.localStorage);
 const sidebarPreference = new SidebarPreference(() => window.localStorage);
 applyTheme(themePreference.current);
 app.innerHTML = `
@@ -121,8 +124,12 @@ async function boot(): Promise<void> {
             <button id="tab-badges" role="tab" aria-selected="false" aria-controls="panel-badges" tabindex="-1">Badges</button>
           </div>
           <section id="panel-manage" class="sidebar-panel manage-panel" role="tabpanel" aria-labelledby="tab-manage">
-          <label class="theme-picker" for="theme-picker">Theme<select id="theme-picker" aria-describedby="theme-message"></select></label>
+          <div class="display-settings">
+            <label class="theme-picker" for="theme-picker">Theme<select id="theme-picker" aria-describedby="theme-message"></select></label>
+            <label class="projection-picker" for="projection-picker">Projection<select id="projection-picker" aria-describedby="projection-message"></select></label>
+          </div>
           <p id="theme-message" class="theme-message" role="status" hidden></p>
+          <p id="projection-message" class="projection-message" role="status" hidden></p>
           <div class="travel-stats" aria-label="Your travel totals">
             <div><strong id="visited-count">0</strong><span><i class="status-dot visited"></i>visited</span></div>
             <div><strong id="lived-count">0</strong><span><i class="status-dot lived"></i>called home</span></div>
@@ -219,7 +226,7 @@ async function boot(): Promise<void> {
         : 'Pause freezes them; hide removes them completely.';
     element('#scenery-description').textContent = `${themePreference.current.sceneryDescription} ${explanation}`;
   }
-  const map = createMap(element('#map-canvas'), world.countries, world.background, registry, store, selectCountry, () => popover.close(false), syncSceneryControls, themePreference.current.artwork);
+  const map = createMap(element('#map-canvas'), world.countries, world.background, registry, store, selectCountry, () => popover.close(false), syncSceneryControls, themePreference.current.artwork, projectionPreference.current);
   const themePicker = element<HTMLSelectElement>('#theme-picker');
   for (const theme of THEMES) {
     const option = document.createElement('option');
@@ -241,6 +248,26 @@ async function boot(): Promise<void> {
     map.setThemeArtwork(themePreference.current.artwork);
     if (sceneryState) syncSceneryControls(sceneryState);
     showThemeWarning();
+  });
+  const projectionPicker = element<HTMLSelectElement>('#projection-picker');
+  for (const projection of PROJECTIONS) {
+    const option = document.createElement('option');
+    option.value = projection.id;
+    option.textContent = projection.label;
+    projectionPicker.append(option);
+  }
+  projectionPicker.value = projectionPreference.current;
+  const projectionMessage = element('#projection-message');
+  function showProjectionWarning(): void {
+    projectionMessage.textContent = projectionPreference.warning ?? '';
+    projectionMessage.hidden = !projectionPreference.warning;
+  }
+  showProjectionWarning();
+  projectionPicker.addEventListener('change', () => {
+    popover.close(false);
+    projectionPreference.choose(projectionPicker.value);
+    map.setProjection(projectionPreference.current);
+    showProjectionWarning();
   });
   const sidebar = createSidebar(element('#country-sidebar'), registry, store, selectCountry, map.previewCountry, announce);
   createStatistics(element('#panel-stats'), registry, store);
@@ -318,7 +345,7 @@ async function boot(): Promise<void> {
     try {
       if (!openPicture) {
         const { createInfographic } = await import('./infographic-ui');
-        openPicture = createInfographic(store, registry, world.countries, loadCatalog, sharePicture, focusSidebar);
+        openPicture = createInfographic(store, registry, world.countries, loadCatalog, sharePicture, focusSidebar, projectionPreference);
       }
       popover.close(false);
       sidebar.clearPreview();

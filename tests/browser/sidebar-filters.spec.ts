@@ -120,6 +120,8 @@ test('status choices refilter immediately, recover focus and clear stale preview
   await page.locator('.status-choice[data-status="lived"]').click();
   await expect(row(page, 'EST')).toBeHidden();
   await expect(page.getByRole('searchbox')).toBeFocused();
+  await expect(page.locator('.sidebar-country-preview')).not.toHaveAttribute('data-preview-country', 'EST');
+  await page.mouse.move(0, 0);
   await expect(page.locator('.sidebar-country-preview')).toBeHidden();
   await expect(page.locator('path[data-country="EST"]')).toHaveClass(/is-selected/);
   await expectIds(page, ['AUS', 'custom:KOS']);

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { geoMercator } from 'd3';
+import { findProjection, liveProjection, PROJECTIONS } from '../../src/projection';
 import registry from '../../data/registry.json' with { type: 'json' };
 import { CONTINENTS, type LocationEntry } from '../../src/types';
 
@@ -29,12 +29,13 @@ async function ready(page: Page): Promise<void> {
 }
 
 async function screenPoint(page: Page, coordinates: [number, number]): Promise<{ x: number; y: number }> {
-  const { width, height } = await page.locator('.world-map').evaluate((element) => {
+  const { width, height, projectionId } = await page.locator('.world-map').evaluate((element) => {
     if (!(element instanceof SVGSVGElement)) throw new Error('Missing map SVG');
-    return { width: element.viewBox.baseVal.width, height: element.viewBox.baseVal.height };
+    return { width: element.viewBox.baseVal.width, height: element.viewBox.baseVal.height, projectionId: element.dataset.projection };
   });
-  const projected = geoMercator().scale(Math.min(width / (2 * Math.PI), height / 3.1) * .94)
-    .translate([width / 2, height * .58])(coordinates);
+  const projection = findProjection(projectionId ?? '');
+  if (!projection) throw new Error('Missing map projection');
+  const projected = liveProjection(projection.id, width, height)(coordinates);
   if (!projected) throw new Error('Cannot project Crimean test point');
   return page.locator('.land-layer').evaluate((element, [x, y]) => {
     if (!(element instanceof SVGGraphicsElement)) throw new Error('Missing land layer');
@@ -71,6 +72,12 @@ test.beforeEach(async ({ page }) => {
 });
 test.afterEach(({ page }) => {
   expect(pageErrors.get(page)).toEqual([]);
+});
+
+for (const projection of PROJECTIONS) {
+test.describe(projection.label, () => {
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(id => localStorage.setItem('passport:projection:v1', id), projection.id);
 });
 
 test('Crimean cities, including Sevastopol, hit Ukraine and open its tooltip and status controls', async ({ page }) => {
@@ -143,3 +150,5 @@ test('Ukraine and Russia sidebar previews use the corrected boundaries without m
     }
   }
 });
+});
+}

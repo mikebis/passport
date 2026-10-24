@@ -1,8 +1,9 @@
-import { geoMercator, geoPath, select, zoom, zoomIdentity, type D3ZoomEvent } from 'd3';
+import { geoPath, select, zoom, zoomIdentity, type D3ZoomEvent } from 'd3';
 import type { Boundaries } from './geography';
 import type { TravelStore } from './store';
 import { NON_ISO_LABEL, territorySymbol, STATUS_LABELS, type SelectTerritory, type Territory } from './types';
 import { createScenery, type SceneryState } from './scenery';
+import { DEFAULT_PROJECTION, liveProjection, markerPoint, type ProjectionId } from './projection';
 
 export interface MapControls {
   zoomIn: () => void;
@@ -13,6 +14,7 @@ export interface MapControls {
   toggleSceneryMotion: () => void;
   toggleSceneryVisibility: () => void;
   setThemeArtwork: (artwork: string) => void;
+  setProjection: (id: ProjectionId) => void;
 }
 
 export function createMap(
@@ -25,6 +27,7 @@ export function createMap(
   onNavigate: () => void,
   onSceneryState: (state: SceneryState) => void,
   artwork?: string,
+  projectionId: ProjectionId = DEFAULT_PROJECTION,
 ): MapControls {
   const territories = new Map(registry.map((country) => [country.id, country]));
   function getTerritory(id: string): Territory {
@@ -61,7 +64,7 @@ export function createMap(
   tooltip.setAttribute('role', 'tooltip');
   document.body.append(tooltip);
 
-  const projection = geoMercator();
+  let projection = liveProjection(projectionId, 1, 1);
   const path = geoPath(projection);
   let transform = zoomIdentity;
   let width = 0;
@@ -147,9 +150,7 @@ export function createMap(
 
   function positionMarkers(): void {
     markers.attr('transform', (country) => {
-      const point = projection(country.marker);
-      if (!point) throw new Error(`Could not project marker for ${country.id}`);
-      if (country.id === 'ATA') point[1] = Math.min(point[1], height - 18);
+      const point = markerPoint(projection, country.marker, country.id, projectionId, height - 18);
       const [x, y] = transform.apply(point);
       markerPositions.set(country.id, [x, y]);
       return `translate(${x},${y})`;
@@ -176,25 +177,25 @@ export function createMap(
     });
   svg.call(behavior);
 
-  function resize(): void {
+  function resize(force = false, resetView = false): void {
     const bounds = container.getBoundingClientRect();
     const nextWidth = Math.max(bounds.width, 1);
     const nextHeight = Math.max(bounds.height, 1);
-    if (nextWidth === width && nextHeight === height) return;
+    if (!force && nextWidth === width && nextHeight === height) return;
     hideTooltip();
     const previousCenter = width && height ? projection.invert?.(transform.invert([width / 2, height / 2])) : null;
     width = nextWidth;
     height = nextHeight;
-    projection.scale(Math.min(width / (2 * Math.PI), height / 3.1) * 0.94)
-      .translate([width / 2, height * 0.58]);
-    svg.attr('viewBox', `0 0 ${width} ${height}`);
+    projection = liveProjection(projectionId, width, height);
+    path.projection(projection);
+    svg.attr('viewBox', `0 0 ${width} ${height}`).attr('data-projection', projectionId);
     paths.attr('d', (boundary) => path(boundary));
     updatePreviewGeometry();
     backgroundPaths.attr('d', (boundary) => path(boundary));
     behavior.extent([[0, 0], [width, height]])
       .translateExtent([[-width * 0.4, -height * 0.5], [width * 1.4, height * 1.5]]);
     const center = previousCenter ? projection(previousCenter) : null;
-    const next = center && transform.k > 1
+    const next = !resetView && center && transform.k > 1
       ? zoomIdentity.translate(width / 2 - center[0] * transform.k, height / 2 - center[1] * transform.k).scale(transform.k)
       : zoomIdentity;
     svg.call(behavior.transform, next);
@@ -211,7 +212,7 @@ export function createMap(
     if (hoveredId) hideTooltip();
   }
   store.subscribe(update);
-  new ResizeObserver(resize).observe(container);
+  new ResizeObserver(() => resize()).observe(container);
   resize();
   update();
 
@@ -224,6 +225,11 @@ export function createMap(
     setThemeArtwork: (next) => {
       hideTooltip();
       scenery.setArtwork(next);
+    },
+    setProjection: (id) => {
+      if (id === projectionId) return;
+      projectionId = id;
+      resize(true, true);
     },
     focusCountry: (id: string) => {
       activeId = id;

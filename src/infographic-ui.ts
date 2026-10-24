@@ -5,10 +5,13 @@ import { currentAppAddress, DEFAULT_FORMAT, infographicData, infographicFormat, 
 import { renderInfographic } from './infographic-renderer';
 import type { TravelStore } from './store';
 import { errorMessage, type Territory } from './types';
+import { findProjection } from './projection';
+import type { ProjectionSource } from './projection-preference';
 
 export function createInfographic(
   store: TravelStore, registry: readonly Territory[], countries: Boundaries,
   loadCatalog: BadgeCatalogLoader, trigger: HTMLButtonElement, focusFallback: () => void,
+  projection: ProjectionSource,
 ): () => void {
   const dialog = document.createElement('dialog');
   dialog.className = 'infographic-dialog';
@@ -54,6 +57,7 @@ export function createInfographic(
   let generation = 0;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let unsubscribe: (() => void) | undefined;
+  let unsubscribeProjection: (() => void) | undefined;
   let previewUrl: string | undefined;
   let rendered: Blob | undefined;
   let address = '';
@@ -84,10 +88,11 @@ export function createInfographic(
         name: nameInput.value,
       });
       const entries = store.snapshot();
+      const projectionId = projection.current;
       const catalog = await loadCatalog();
       if (!dialog.open || job !== generation) return;
       const data = infographicData(registry, entries, catalog, format.id);
-      const blob = await renderInfographic({ data, countries, registry, personal, address });
+      const blob = await renderInfographic({ data, countries, registry, personal, address, projection: projectionId });
       if (!dialog.open || job !== generation) return;
       candidateUrl = URL.createObjectURL(blob);
       const image = new Image();
@@ -98,7 +103,7 @@ export function createInfographic(
       previewUrl = candidateUrl;
       candidateUrl = undefined;
       preview.src = previewUrl;
-      preview.alt = `${personal.name ? `${personal.name}. ` : ''}${data.stats.completed} of ${data.stats.total} places visited or lived in; ${data.earnedCount} badges earned. Four flag groups: Visited, Lived, Want to Visit and Favourites. ${format.label}, ${format.width} by ${format.height} PNG.`;
+      preview.alt = `${personal.name ? `${personal.name}. ` : ''}${data.stats.completed} of ${data.stats.total} places visited or lived in; ${data.earnedCount} badges earned. Four flag groups: Visited, Lived, Want to Visit and Favourites. ${format.label}, ${format.width} by ${format.height} PNG. ${findProjection(projectionId)!.label} projection.`;
       preview.hidden = false;
       rendered = blob;
       download.disabled = false;
@@ -151,6 +156,8 @@ export function createInfographic(
     clearTimeout(timer);
     unsubscribe?.();
     unsubscribe = undefined;
+    unsubscribeProjection?.();
+    unsubscribeProjection = undefined;
     clearPreview();
     if (trigger.isConnected && trigger.checkVisibility() && trigger.getClientRects().length) trigger.focus({ preventScroll: true });
     else focusFallback();
@@ -161,6 +168,7 @@ export function createInfographic(
     dialog.showModal();
     nameInput.focus({ preventScroll: true });
     unsubscribe = store.subscribe(() => refresh());
+    unsubscribeProjection = projection.subscribe(() => refresh());
     refresh(0);
   };
 }

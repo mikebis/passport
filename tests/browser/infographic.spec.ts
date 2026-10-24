@@ -4,6 +4,7 @@ import { expect, test, type Page } from '@playwright/test';
 import jsQR from 'jsqr';
 import registry from '../../data/registry.json' with { type: 'json' };
 import type { LocationEntry, TravelStatus } from '../../src/types';
+import { PROJECTIONS } from '../../src/projection';
 
 const catalog = [
   { name: 'First steps', description: 'Visit Slovakia.', condition: 'SVK', value: 10 },
@@ -844,4 +845,98 @@ test('possessive and maximum-length headings fit all formats without a separate 
       await png(page, [width, height], `passport-heading-${name === 'James' ? 'james' : name === 'CHRIS' ? 'chris' : name!.startsWith('W') ? 'long' : 'unicode'}-${id}.png`);
     }
   }
+});
+
+for (const projection of PROJECTIONS) {
+  for (const [format, width, height] of [['horizontal', 2400, 1600], ['feed', 1080, 1350], ['story', 1080, 1920]] as const) {
+    test(`${projection.id} ${format} picture has bounded real geography, Antarctic marker and identical preview/download QR`, async ({ page }) => {
+      await captureSvg(page);
+      const dense: LocationEntry[] = registry.map(({ id, name, continent }) => ({
+        id, name, continent, status: 'visited', favourite: true,
+      }));
+      await ready(page, dense);
+      await page.getByRole('combobox', { name: 'Projection', exact: true }).selectOption(projection.id);
+      const state = await page.evaluate(() => localStorage.getItem('passport:locations:v1'));
+      await open(page);
+      await picture(page).getByLabel('Picture format').selectOption(format);
+      await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
+      await expect(image(page)).toHaveAttribute('alt', new RegExp(`${projection.label} projection`));
+      const geometry = await page.evaluate(async () => {
+        const svg: unknown = await Reflect.get(window, '__pictureSvg');
+        if (typeof svg !== 'string') throw new Error('Missing picture SVG');
+        const root = new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement;
+        root.style.cssText = 'position:absolute;left:-10000px;visibility:hidden';
+        document.body.append(root);
+        try {
+          const panel = root.querySelector<SVGGraphicsElement>('[data-section="world-map"] > rect')!.getBBox();
+          const map = root.querySelector<SVGGraphicsElement>('#infographic-map')!;
+          const box = map.getBBox();
+          const marker = root.querySelector<SVGCircleElement>('[data-marker="ATA"]')!;
+          return { projection: map.getAttribute('data-projection'), count: map.querySelectorAll('path[data-country]').length,
+            outside: box.x < panel.x || box.x + box.width > panel.x + panel.width
+              || box.y < panel.y || box.y + box.height > panel.y + panel.height - 45,
+            finite: !/NaN|Infinity/.test(map.innerHTML), markerY: marker.cy.baseVal.value,
+            top: panel.y, bottom: panel.y + panel.height - 45 };
+        } finally { root.remove(); }
+      });
+      expect(geometry).toMatchObject({ projection: projection.id, count: registry.length, outside: false, finite: true });
+      expect(geometry.markerY).toBeGreaterThan(geometry.top);
+      expect(geometry.markerY).toBeLessThan(geometry.bottom);
+      const previewHash = await image(page).evaluate(async (node: HTMLImageElement) => {
+        const bytes = await (await fetch(node.src)).arrayBuffer();
+        return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), byte => byte.toString(16).padStart(2, '0')).join('');
+      });
+      const bytes = await png(page, [width, height], `passport-${projection.id}-${format}.png`);
+      expect(createHash('sha256').update(bytes).digest('hex')).toBe(previewHash);
+      const pixels = await page.evaluate(async ({ base64, format }) => {
+        const image = new Image();
+        image.src = `data:image/png;base64,${base64}`;
+        await image.decode();
+        const canvas = document.createElement('canvas');
+        canvas.width = image.width; canvas.height = image.height;
+        const context = canvas.getContext('2d')!;
+        context.drawImage(image, 0, 0);
+        const data = context.getImageData(0, 0, image.width, image.height).data;
+        let land = 0;
+        for (let i = 0; i < data.length; i += 4) if (data[i] === 105 && data[i + 1] === 173 && data[i + 2] === 60) land++;
+        return { land, qr: Array.from(context.getImageData(format === 'horizontal' ? 1990 : 732,
+          format === 'horizontal' ? 100 : format === 'feed' ? 970 : 1370, 300, 300).data) };
+      }, { base64: bytes.toString('base64'), format });
+      expect(pixels.land).toBeGreaterThan(1000);
+      expect(jsQR(Uint8ClampedArray.from(pixels.qr), 300, 300)?.data).toBe(await picture(page).locator('.infographic-address span').innerText());
+      const layout = await pictureLayout(page, height, format === 'story', width);
+      expect(layout.outside).toEqual([]);
+      expect(layout.overlaps).toEqual([]);
+      expect(layout.metrics).toContain('266/266');
+      expect(await page.evaluate(() => localStorage.getItem('passport:locations:v1'))).toBe(state);
+    });
+  }
+}
+
+test('projection changes invalidate pending picture work and apply after closing and reopening the lazy generator', async ({ page }) => {
+  await captureSvg(page);
+  await ready(page);
+  let release: () => void = () => { throw new Error('Catalog gate not initialized'); };
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/data/badges.json', async route => {
+    await gate;
+    await route.fulfill({ json: catalog });
+  });
+  const request = page.waitForRequest('**/data/badges.json');
+  await page.getByRole('button', { name: 'Share picture', exact: true }).click();
+  await request;
+  await page.locator('#projection-picker').evaluate((node: HTMLSelectElement) => {
+    node.value = 'mercator';
+    node.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  await expect(downloadButton(page)).toBeDisabled();
+  release();
+  await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
+  await expect(image(page)).toHaveAttribute('alt', /Mercator projection/);
+  expect(await page.evaluate(async () => String(await Reflect.get(window, '__pictureSvg')))).toContain('data-projection="mercator"');
+  await picture(page).getByRole('button', { name: 'Close', exact: true }).click();
+  await page.getByRole('combobox', { name: 'Projection', exact: true }).selectOption('equal-earth');
+  await open(page);
+  await expect(image(page)).toHaveAttribute('alt', /Equal Earth projection/);
+  expect(await page.evaluate(async () => String(await Reflect.get(window, '__pictureSvg')))).toContain('data-projection="equal-earth"');
 });

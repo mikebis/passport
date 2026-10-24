@@ -260,6 +260,8 @@ test('favourite edits preserve filtered membership, row identity, search and map
   await expect(page.getByRole('button', { name: 'Filter by Visited', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button', { name: 'Hide sidebar', exact: true }).click();
   await page.getByRole('button', { name: 'Show sidebar', exact: true }).click();
+  await expect.poll(() => page.locator('.world-map').evaluate((node: SVGSVGElement) =>
+    Math.abs(node.viewBox.baseVal.width - node.getBoundingClientRect().width) < .1)).toBe(true);
   await expect(star(page, 'SVK')).toHaveAttribute('aria-pressed', 'true');
   await mapStatus(page, 'SVK', 'unvisited');
   await expect(row(page, 'SVK')).toBeHidden();

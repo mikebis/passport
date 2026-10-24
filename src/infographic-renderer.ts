@@ -1,4 +1,4 @@
-import { geoNaturalEarth1, geoPath } from 'd3';
+import { geoPath } from 'd3';
 import type { Boundaries } from './geography';
 import { loadInfographicFlags, qrSvg } from './infographic-assets';
 import { metricIcon, scrapbook, SCRAPBOOK_DEFS, stamp, sticker, tape } from './infographic-artwork';
@@ -6,6 +6,7 @@ import { loadTitleFont, rasterTitle, type TitleBox, type TitleRaster } from './i
 import { infographicHeading, type InfographicData, type InfographicFormatId, type Personalization } from './infographic';
 import { formatPercentage } from './statistics';
 import { STATUSES, type Territory, type TravelStatus } from './types';
+import { fitProjection, markerPoint, type ProjectionId } from './projection';
 
 const PALETTE: Record<TravelStatus, string> = {
   visited: '#69ad3c', lived: '#edbd49', want_to_visit: '#b18ad0', unvisited: '#c8c9c3',
@@ -28,6 +29,7 @@ export interface InfographicSource {
   registry: readonly Territory[];
   personal: Personalization;
   address: string;
+  projection: ProjectionId;
 }
 export function escapeSvg(text: string): string {
   return text.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[character]!);
@@ -86,9 +88,9 @@ function summaryMetrics(data: InfographicData): [string, string][] {
 }
 function worldMap(source: InfographicSource, extent: [[number, number], [number, number]]): string {
   const { data, countries, registry } = source;
-  const projection = geoNaturalEarth1().fitExtent(extent, countries);
+  const projection = fitProjection(source.projection, extent);
   const path = geoPath(projection);
-  const pieces = ['<g id="infographic-map">'];
+  const pieces = [`<g id="infographic-map" data-projection="${source.projection}">`];
   for (const boundary of countries.features) {
     const id = String(boundary.id);
     const geometry = path(boundary);
@@ -96,9 +98,10 @@ function worldMap(source: InfographicSource, extent: [[number, number], [number,
     pieces.push(`<path data-country="${escapeSvg(id)}" data-status="${data.status(id)}" d="${geometry}" fill="${PALETTE[data.status(id)]}" stroke="#faf8ed" stroke-width=".8" stroke-linejoin="round"/>`);
   }
   for (const country of registry.filter((entry) => entry.microstate)) {
-    const position = projection(country.marker);
-    if (!position) throw new Error(`Could not render infographic marker ${country.id}.`);
-    pieces.push(`<circle cx="${position[0]}" cy="${position[1]}" r="2.3" fill="${PALETTE[data.status(country.id)]}" stroke="#faf8ed" stroke-width=".7"/>`);
+    const position = markerPoint(projection, country.marker, country.id, source.projection, extent[1][1] - 3);
+    const x = Math.max(extent[0][0] + 3, Math.min(extent[1][0] - 3, position[0]));
+    const y = Math.max(extent[0][1] + 3, Math.min(extent[1][1] - 3, position[1]));
+    pieces.push(`<circle data-marker="${escapeSvg(country.id)}" cx="${x}" cy="${y}" r="2.3" fill="${PALETTE[data.status(country.id)]}" stroke="#faf8ed" stroke-width=".7"/>`);
   }
   return `${pieces.join('')}</g>`;
 }

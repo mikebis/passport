@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs';
-import { geoBounds, geoContains, geoMercator, zoomIdentity } from 'd3';
+import { geoBounds, geoContains, zoomIdentity } from 'd3';
 import { describe, expect, it } from 'vitest';
 import { createRouteSampler, projectedHeading, SCENERY_ROUTES, SceneryClock } from '../src/scenery';
 import { decodeWorld, validateRegistry } from '../src/geography';
 import registryJson from '../data/registry.json';
+import { liveProjection, PROJECTIONS } from '../src/projection';
 
 describe('scenery routes', () => {
   it('has a bounded, deterministic desktop and mobile scene', () => {
@@ -34,8 +35,8 @@ describe('scenery routes', () => {
     expect(() => createRouteSampler([[0, 0], [10, 0]])(Infinity)).toThrow('finite');
   });
 
-  it('has finite projected positions and headings throughout every track without date-line jumps', () => {
-    const projection = geoMercator().scale(150).translate([450, 250]);
+  it.each(PROJECTIONS)('has finite $label positions and local headings throughout every track without date-line jumps', ({ id }) => {
+    const projection = liveProjection(id, 1000, 650);
     for (const route of SCENERY_ROUTES) {
       const sample = createRouteSampler(route.points);
       let previousLongitude = sample(0)[0];
@@ -47,7 +48,9 @@ describe('scenery routes', () => {
         const projected = projection(position)!;
         const next = projection(sample(Math.min(1, progress + .001)))!;
         expect(projected.every(Number.isFinite)).toBe(true);
-        expect(Number.isFinite(projectedHeading(projected, next, 300 * Math.PI))).toBe(true);
+        const heading = projectedHeading(projected, next);
+        expect(Number.isFinite(heading)).toBe(true);
+        expect(heading).toBe(Math.atan2(next[1] - projected[1], next[0] - projected[0]) * 180 / Math.PI);
         const zoomed = zoomIdentity.translate(-20, 40).scale(24).apply(projected);
         expect(zoomed.every(Number.isFinite)).toBe(true);
       }

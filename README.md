@@ -191,6 +191,19 @@ Switching skins preserves pan/zoom, selected territory, search/continent state,
 travel data, and scenery pause/visibility/phase. It dismisses open status popovers
 and map tooltips, without moving keyboard focus away from the picker.
 
+The neighboring **Projection** picker switches between **Equal Earth** (the
+default equal-area world view) and **Mercator**. It applies to both the live map
+and generated shared pictures. Switching resets the map's pan/zoom to its initial
+world view while preserving the selected place, travel data, filters and scenery
+state. Theme and Projection are independent.
+
+An explicit projection choice is remembered in `passport:projection:v1`; opening
+the app does not write a default. Invalid or unreadable preferences use Equal
+Earth with a separate warning, without overwriting the saved value. A failed
+save keeps the choice for the current page and explains that it could not be
+remembered. Projection is browser-local, not part of travel JSON, Google Drive
+snapshots or QR contents.
+
 Click a polygon, small-territory dot, or place in the sidebar to select
 **Visited**, **Lived / Living**, **Want to Visit**, or **Reset (Unvisited)**.
 Scroll/double-click to zoom, drag to pan, or use the zoom and reset-view buttons.
@@ -235,8 +248,9 @@ ISO wishlist and unvisited places remain in the denominator; additional non-ISO
 areas are excluded entirely. Search/status filters change the list, not the progress values.
 These ISO-only ratios differ from the global counters and world-in-color progress,
 which still include additional areas (and wishlist in world-in-color).
-Mercator cannot show the poles: polar land is clipped by the viewport, with an
-Antarctica marker kept within the initial map extent. Pan/zoom to explore.
+Equal Earth shows the full world including the poles. Mercator cannot show the
+poles: polar land is clipped by the viewport, with an Antarctica marker kept
+within the initial map extent. Pan/zoom to explore.
 Flags depend on platform emoji support; ISO country codes are always present.
 Additional areas use a generic symbol and an explicit non-ISO label instead of
 an invented national flag or ISO code.
@@ -295,7 +309,7 @@ a picture and embedded as a transparent raster for reliable PNG rendering.
 The button uses the active theme's filled accent color and a local SVG camera.
 The optional name is limited to 60 characters. Long text is wrapped or shortened to fit.
 
-The picture includes a separately fitted whole-world map, all-place status and
+The picture includes a separately fitted map using the selected projection, all-place status and
 favourite statistics, visited-or-lived world progress, continent coverage, and
 the three highest-point **currently earned** badges. Equal-point badges retain
 catalog order; the total earned count/points includes all earned badges.
@@ -303,6 +317,13 @@ Original star, mountain and globe stickers accompany the real badge names and
 points. These and the scenic collage are illustrative decoration, not additional
 achievements or a claim that you visited the illustrated destinations.
 No achievements are invented for an empty or unearned catalog.
+
+Equal Earth pictures include the full polar geography. Mercator pictures use a
+bounded world view (approximately 85.0511 degrees north/south), clipping polar
+land and keeping an Antarctica marker visible inside the map. Both choices
+retain every catalog entry and its statistics; projection never changes counts.
+The generator follows the current choice even after closing and reopening, and
+discards stale results if the projection changes during generation.
 
 Four strips show Visited, Lived / Living, Want to Visit and Favourites. Each
 uses the full registry, alphabetical names, its format's display limit and an
@@ -837,8 +858,9 @@ model; `infographic-assets.ts` provides flags/QR, `infographic-artwork.ts` the
 original collage/stickers, and `infographic-title.ts` local typography.
 `infographic-renderer.ts` and `infographic-ui.ts` provide SVG-to-PNG composition
 and the lazy preview dialog. `dom.ts` holds shared DOM helpers (unique IDs,
-downloads); `theme.ts` and `sidebar-visibility.ts` own browser-local
-preferences; `sidebar-tabs.ts` the accessible tab strip; `statistics.ts` /
+downloads); `theme.ts`, `projection-preference.ts` and `sidebar-visibility.ts`
+own browser-local preferences; `projection.ts` provides shared projection
+definitions/fitting; `sidebar-tabs.ts` the accessible tab strip; `statistics.ts` /
 `statistics-ui.ts` the all-place Stats panel; `badges.ts` / `badges-ui.ts` the
 formula evaluator and Badges panel; `scenery.ts` the decorative animation; and
 `types.ts` shared types. Theme packages live in `src/themes`, CSS in

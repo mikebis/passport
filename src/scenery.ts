@@ -47,7 +47,7 @@ export function createRouteSampler(points: readonly MapPoint[]): (progress: numb
   };
 }
 
-export function projectedHeading(before: MapPoint, after: MapPoint, worldWidth: number): number {
+export function projectedHeading(before: MapPoint, after: MapPoint, worldWidth = Infinity): number {
   let dx = after[0] - before[0];
   if (dx > worldWidth / 2) dx -= worldWidth;
   if (dx < -worldWidth / 2) dx += worldWidth;
@@ -174,7 +174,7 @@ export function createScenery(svg: SVGSVGElement, onState: (state: SceneryState)
       }
       const point = transform.apply(position);
       const bob = route.kind === 'ship' ? Math.sin(clock.elapsed / 850 + route.phase * Math.PI * 2) * .65 : 0;
-      const angle = route.kind === 'cloud' ? 0 : projectedHeading(before, after, projection.scale() * Math.PI * 2);
+      const angle = route.kind === 'cloud' ? 0 : projectedHeading(before, after);
       const outside = point[0] < -size || point[0] > width + size || point[1] < -size || point[1] > height + size;
       group.style.display = outside ? 'none' : '';
       group.setAttribute('transform', `translate(${point[0].toFixed(3)},${(point[1] + bob).toFixed(3)}) rotate(${angle.toFixed(3)})`);

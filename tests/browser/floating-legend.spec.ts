@@ -63,14 +63,14 @@ for (const theme of ['classic', 'dark', 'medieval']) {
       }
       await expect(legend.locator('a, button, [tabindex]')).toHaveCount(0);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      await page.locator('.google-sync summary').click();
+      await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
       for (const selector of ['#export-data', '#copy-data', '#import-data', '.data-license a']) {
         for (const item of await page.locator(selector).all()) {
           await item.scrollIntoViewIfNeeded();
           await expect(item).toBeInViewport();
         }
       }
-      await page.locator('.google-sync summary').click();
+      await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
       await page.locator('#save-status').scrollIntoViewIfNeeded();
       await expect(page.locator('#save-status')).toBeInViewport();
     }

@@ -45,7 +45,8 @@ followed by a **View on GitHub** link to the
 [source repository](https://github.com/mikebis/passport).
 The shared footer uses larger, higher-contrast text and clearly underlined links
 with visible keyboard focus. It scrolls independently on short desktop windows
-so data actions and credits remain reachable without crowding out the country list.
+so credits remain reachable without crowding out the country list. Save status,
+JSON backup/import controls and Google Drive sync live in **Save/Export**.
 
 On desktop, **Hide sidebar** at the map's bottom-right corner, level with the
 legend, gives the full width to the map; **Show sidebar** restores the same
@@ -59,7 +60,7 @@ desktop choice.
 
 ### Favourite places
 
-Use the star beside a place in **Manage countries**, or the **Favourite** toggle
+Use the star beside a place in **Countries**, or the **Favourite** toggle
 in its map/sidebar popover. An outlined star becomes a filled golden star.
 Favourites do not change map boundaries, tiny-place marker rings or map previews.
 All ISO and additional places, including Antarctica, can be favourites.
@@ -81,8 +82,8 @@ do not understand the field and can discard it when saving or synchronizing.
 
 ### Optional Google sign-in and Drive sync
 
-Open **Google Drive sync** in the sidebar footer and choose **Connect Google
-Drive**, then **Continue with Google**. Google resources are loaded only after
+Open **Save/Export** and choose **Connect Google Drive**, then **Continue with
+Google**. Google resources are loaded only after
 this opt-in for sign-in/Drive. Separately configured usage analytics can contact
 Google on eligible public production visits without connecting Drive. The connection requires a
 configured public OAuth client ID (setup below).
@@ -341,28 +342,35 @@ and [configuration reference](https://developers.google.com/analytics/devguides/
 
 ### Sidebar tabs and statistics
 
-The sidebar has **Manage countries**, **Stats**, and **Badges** tabs. Only the
+The sidebar has **Countries**, **Stats**, **Badges**, and **Save/Export** tabs. Only the
 heading and footer are shared: the theme picker, existing all-place totals,
-search, filters and country list live in Manage countries. Keyboard users can
-switch tabs with Left/Right and Home/End. Manage countries opens on reload;
+search, filters and country list live in Countries. Keyboard users can
+switch tabs with Left/Right and Home/End. Countries opens on reload;
 switching tabs retains its search, filters, accordion choices and scroll.
 Sidebar hiding and mobile transitions retain the active tab.
+Save/Export groups its controls under matching category headings: always-visible
+**Google Drive sync** first, **Import / Export data** for the device save status,
+Export data, Copy JSON, and Import data buttons, then **Sharing** for Share picture.
+Actions use larger, full-width
+buttons stacked one per line, including the Google connection controls. Sync
+continues in the background when another tab is active. Attribution, GitHub and Privacy links
+remain in the shared footer.
 
 Stats reports the four status counts, combined visited-or-lived count and
 percentage, continent coverage, and per-continent completed/total percentages.
 It counts **all tracked countries and territories** (currently 266), including
 additional non-ISO places and Antarctica as the seventh continent. Each catalog
 entry counts once, even where geometries overlap; subdivisions do not count.
-Its denominators come from the full registry, not Manage's filters.
-Manage's continent-summary ratios remain ISO-only; its global totals cover
+Its denominators come from the full registry, not Countries' filters.
+Countries' continent-summary ratios remain ISO-only; its global totals cover
 all tracked places.
 Statistics and badges update on edits, imports and accepted Drive versions,
 even when local saving fails; they do not change the map or travel JSON.
 
 ### Share a travel picture
 
-Choose the colored camera button at the top-right of the sidebar beside
-**Your places**, available from any tab. Its tooltip and accessible name are
+Open **Save/Export** and choose the colored **Share picture** button with its
+camera icon and visible text. Its tooltip and accessible name are also
 **Share picture**. Pick a **Picture format**, optionally enter your name,
 then use **Download PNG** to save the exact finished preview as
 `passport-infographic.png`.

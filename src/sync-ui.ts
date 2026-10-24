@@ -7,13 +7,16 @@ import { downloadText, uniqueId } from './dom';
 
 export function createGoogleSync(
   host: HTMLElement, store: TravelStore, registry: readonly Territory[], storage: Storage | undefined, beforeReplace: () => void,
+  focusFallback: () => void,
 ): () => void {
   const auth = new GoogleAuth();
   const sync = new DriveSync(auth, new GoogleDrive(registry), store, storage, beforeReplace);
-  const details = document.createElement('details');
-  details.className = 'google-sync';
-  const summary = document.createElement('summary');
-  summary.textContent = 'Google Drive sync';
+  const section = document.createElement('section');
+  section.className = 'google-sync save-export-group';
+  const heading = document.createElement('h3');
+  heading.id = uniqueId('google-sync-heading');
+  heading.textContent = 'Google Drive sync';
+  section.setAttribute('aria-labelledby', heading.id);
   const panel = document.createElement('div');
   panel.className = 'google-sync-panel';
   const account = document.createElement('p');
@@ -33,18 +36,22 @@ export function createGoogleSync(
   retry.className = 'button secondary';
   retry.textContent = 'Sync now';
   const signOut = document.createElement('button');
-  signOut.className = 'text-button';
+  signOut.className = 'button secondary';
   signOut.textContent = 'Sign out';
   const privacy = document.createElement('p');
   privacy.className = 'google-sync-last';
   privacy.textContent = 'Optional. Only private app-data access; no access to your other Drive files. Signing out keeps this map on your device.';
   controls.append(connect, retry, signOut);
   panel.append(account, status, warning, last, controls, privacy);
-  details.append(summary, panel);
-  host.append(details);
+  section.append(heading, panel);
+  host.append(section);
   let prepared = false;
   let dialog: HTMLDialogElement | undefined;
   let displayed: SyncConflict | undefined;
+  const focusRetry = (): void => {
+    if (retry.checkVisibility()) retry.focus();
+    else focusFallback();
+  };
 
   const closeDialog = (): void => {
     if (dialog) { dialog.close(); dialog.remove(); dialog = undefined; }
@@ -84,8 +91,8 @@ export function createGoogleSync(
     const cancel = document.createElement('button');
     cancel.className = 'button secondary';
     cancel.textContent = 'Cancel and pause sync';
-    cancel.addEventListener('click', () => { closeDialog(); sync.pauseConflict(); retry.focus(); });
-    modal.addEventListener('cancel', (event) => { event.preventDefault(); closeDialog(); sync.pauseConflict(); retry.focus(); });
+    cancel.addEventListener('click', () => { closeDialog(); sync.pauseConflict(); focusRetry(); });
+    modal.addEventListener('cancel', (event) => { event.preventDefault(); closeDialog(); sync.pauseConflict(); focusRetry(); });
     modal.setAttribute('aria-labelledby', heading.id);
     modal.setAttribute('aria-describedby', message.id);
     modal.append(heading, message, options, cancel);
@@ -95,7 +102,6 @@ export function createGoogleSync(
   }
 
   connect.addEventListener('click', () => {
-    details.open = true;
     if (prepared) void sync.connect();
     else void sync.prepare();
   });
@@ -121,7 +127,7 @@ export function createGoogleSync(
     retry.disabled = ['checking', 'syncing', 'connecting'].includes(state.phase);
     signOut.hidden = !state.account && state.phase !== 'connecting';
     if (state.phase !== 'conflict') closeDialog();
-    else if (state.conflict && state.conflict !== displayed) { details.open = true; showConflict(state.conflict); }
+    else if (state.conflict && state.conflict !== displayed) showConflict(state.conflict);
   });
   const onStorage = (event: StorageEvent): void => { if (event.storageArea === storage) sync.storageChanged(event); };
   const onOnline = (): void => sync.resume();
@@ -130,7 +136,7 @@ export function createGoogleSync(
   window.addEventListener('online', onOnline);
   document.addEventListener('visibilitychange', onVisibility);
   return () => {
-    unsubscribe(); sync.dispose(); closeDialog(); details.remove();
+    unsubscribe(); sync.dispose(); closeDialog(); section.remove();
     window.removeEventListener('storage', onStorage);
     window.removeEventListener('online', onOnline);
     document.removeEventListener('visibilitychange', onVisibility);

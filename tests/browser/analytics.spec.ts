@@ -110,8 +110,10 @@ test.describe('configured production analytics', () => {
     await page.getByRole('button', { name: 'Visited', exact: true }).click();
     await page.getByRole('tab', { name: 'Stats', exact: true }).click();
     const download = page.waitForEvent('download');
+    await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
     await page.getByRole('button', { name: 'Export data', exact: true }).click();
     expect((await download).suggestedFilename()).toBe('passport-data.json');
+    await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
     await page.getByRole('button', { name: 'Share picture', exact: true }).click();
     const dialog = page.getByRole('dialog', { name: 'Your travel passport', exact: true });
     await dialog.getByLabel('Name (optional)', { exact: true }).fill('PrivatePictureName');
@@ -149,6 +151,7 @@ test.describe('configured production analytics', () => {
       if (failure === 'timeout') await page.clock.runFor(15001);
       await expect.poll(() => warnings.filter(message => message.includes('Google Analytics could not load.')).length).toBe(1);
       expect(mock.payloads).toEqual([]);
+      await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
       await expect(page.getByRole('button', { name: 'Export data', exact: true })).toBeEnabled();
       await expect(page.locator('#warning')).toBeHidden();
       await expect(page.locator('script[src*="googletagmanager.com"]')).toHaveCount(0);
@@ -171,7 +174,7 @@ test.describe('configured production analytics', () => {
     await ready(page);
     await expect.poll(() => mock.payloads.length).toBe(1);
     await page.getByRole('tab', { name: 'Stats', exact: true }).click();
-    await page.getByRole('tab', { name: 'Manage countries', exact: true }).click();
+    await page.getByRole('tab', { name: 'Countries', exact: true }).click();
     expect(await commands(page)).toHaveLength(4);
     expect(await page.evaluate(() => fetch('https://unrelated.example.test/collect').then(() => true, () => false))).toBe(false);
     await expect.poll(() => mock.violations.some(value => value.includes('connect-src') && value.includes('unrelated.example.test'))).toBe(true);
@@ -207,9 +210,9 @@ test('Privacy link is shared, keyboard accessible and readable in every theme an
   for (const viewport of [{ width: 1440, height: 900 }, { width: 1000, height: 620 }, { width: 320, height: 740 }]) {
     await page.setViewportSize(viewport);
     for (const theme of ['classic', 'dark', 'medieval']) {
-      await page.getByRole('tab', { name: 'Manage countries', exact: true }).click();
+      await page.getByRole('tab', { name: 'Countries', exact: true }).click();
       await page.getByRole('combobox', { name: 'Theme', exact: true }).selectOption(theme);
-      for (const tab of ['Manage countries', 'Stats', 'Badges']) {
+      for (const tab of ['Countries', 'Stats', 'Badges', 'Save/Export']) {
         await page.getByRole('tab', { name: tab, exact: true }).click();
         const link = page.locator('.sidebar-footer').getByRole('link', { name: 'Privacy', exact: true });
         await link.scrollIntoViewIfNeeded();

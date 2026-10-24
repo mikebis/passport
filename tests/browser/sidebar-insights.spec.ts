@@ -42,13 +42,13 @@ async function replace(page: Page, data: LocationEntry[]): Promise<void> {
   await page.getByRole('button', { name: 'Replace data', exact: true }).click();
 }
 
-test('tabs share only heading/footer and have complete keyboard and panel semantics', async ({ page }) => {
+test('tabs share only heading/credits and have complete keyboard and panel semantics', async ({ page }) => {
   await ready(page);
   await expect(page.getByRole('tablist', { name: 'Sidebar views' })).toBeVisible();
-  await expect(tab(page, 'Manage countries')).toHaveAttribute('aria-selected', 'true');
-  await expect(page.getByRole('tabpanel', { name: 'Manage countries' })).toBeVisible();
+  await expect(tab(page, 'Countries')).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tabpanel', { name: 'Countries' })).toBeVisible();
   await expect(page.getByRole('searchbox')).toBeVisible();
-  await tab(page, 'Manage countries').focus();
+  await tab(page, 'Countries').focus();
   await page.keyboard.press('ArrowRight');
   await expect(tab(page, 'Stats')).toBeFocused();
   await expect(tab(page, 'Stats')).toHaveAttribute('aria-selected', 'true');
@@ -56,24 +56,45 @@ test('tabs share only heading/footer and have complete keyboard and panel semant
   await expect(page.locator('#theme-picker')).toBeHidden();
   await expect(page.locator('.travel-stats')).toBeHidden();
   await expect(page.getByRole('heading', { name: 'Your places.' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Export data' })).toBeVisible();
+  await expect(page.locator('#export-data')).toBeHidden();
+  await expect(page.locator('#share-picture')).toBeHidden();
+  await expect(page.locator('.data-license')).toBeVisible();
+  await expect(page.getByRole('tab')).toHaveText(['Countries', 'Stats', 'Badges', 'Save/Export']);
   await page.keyboard.press('Tab');
   await expect(page.locator('#panel-stats')).toBeFocused();
   await tab(page, 'Stats').focus();
-  await page.keyboard.press('End');
+  await page.keyboard.press('ArrowRight');
   await expect(tab(page, 'Badges')).toBeFocused();
   await expect(page.locator('.badge-card')).toHaveCount(catalog.length);
+  await page.keyboard.press('End');
+  await expect(tab(page, 'Save/Export')).toBeFocused();
+  await expect(page.getByRole('tabpanel', { name: 'Save/Export' })).toBeVisible();
+  for (const selector of ['#save-status', '#export-data', '#copy-data', '#import-data', '#google-sync', '#share-picture']) {
+    await expect(page.locator(`#panel-save-export ${selector}`)).toBeVisible();
+  }
+  await expect(page.locator('#share-picture')).toHaveText('Share picture');
+  const panel = page.getByRole('tabpanel', { name: 'Save/Export', exact: true });
+  await expect(panel.getByRole('heading', { level: 3 })).toHaveText(['Google Drive sync', 'Import / Export data', 'Sharing']);
+  const data = panel.getByRole('region', { name: 'Import / Export data', exact: true });
+  await expect(data.getByRole('button')).toHaveText(['Export data', 'Copy JSON', 'Import data']);
+  await expect(data.locator('#save-status')).toBeVisible();
+  await expect(panel.getByRole('region', { name: 'Sharing', exact: true }).getByRole('button')).toHaveText('Share picture');
+  for (const heading of await panel.getByRole('heading', { level: 3 }).all()) {
+    await expect(heading).toHaveCSS('font-size', '16px');
+    await expect(heading).toHaveCSS('font-weight', '600');
+  }
+  await expect(page.locator('.sidebar-heading #share-picture, .sidebar-footer button')).toHaveCount(0);
   await page.keyboard.press('ArrowRight');
-  await expect(tab(page, 'Manage countries')).toBeFocused();
+  await expect(tab(page, 'Countries')).toBeFocused();
   await page.keyboard.press('ArrowLeft');
-  await expect(tab(page, 'Badges')).toBeFocused();
+  await expect(tab(page, 'Save/Export')).toBeFocused();
   await page.keyboard.press('Home');
-  await expect(tab(page, 'Manage countries')).toBeFocused();
+  await expect(tab(page, 'Countries')).toBeFocused();
   await expect(page.getByRole('tab', { selected: true })).toHaveCount(1);
   await expect(page.locator('[role="tab"][tabindex="0"]')).toHaveCount(1);
   await tab(page, 'Badges').click();
   await page.reload();
-  await expect(tab(page, 'Manage countries')).toHaveAttribute('aria-selected', 'true');
+  await expect(tab(page, 'Countries')).toHaveAttribute('aria-selected', 'true');
 });
 
 test('Stats counts all places independently of filters while Manage retains ISO-only continent ratios', async ({ page }) => {
@@ -96,14 +117,14 @@ test('Stats counts all places independently of filters while Manage retains ISO-
   await mapStatus(page, 'custom:SOL', 'visited');
   await expect(page.locator('[data-stat="completed"]')).toHaveText('7/266 (2.6%)');
   await expect(page.locator('[data-stat="continents"]')).toHaveText('3/7');
-  await tab(page, 'Manage countries').click();
+  await tab(page, 'Countries').click();
   await expect(page.locator('.continent').filter({ has: page.locator('summary', { hasText: 'Europe' }) }).locator('.continent-count')).toHaveText('(4/52)');
   await tab(page, 'Stats').click();
   await replace(page, []);
   await expect(page.locator('[data-stat="completed"]')).toHaveText('0/266 (0%)');
   await expect(page.locator('[data-stat="continents"]')).toHaveText('0/7');
   await expect(tab(page, 'Stats')).toHaveAttribute('aria-selected', 'true');
-  await tab(page, 'Manage countries').click();
+  await tab(page, 'Countries').click();
   await expect(page.getByRole('searchbox')).toHaveValue('SVK');
   await expect(page.getByRole('button', { name: 'Filter by Visited', exact: true })).toHaveAttribute('aria-pressed', 'true');
 });
@@ -170,7 +191,7 @@ test('badge countries include all distinct formula references with live, theme-a
   );
   const original = await countries.first().elementHandle();
   for (const theme of ['classic', 'dark', 'medieval']) {
-    await tab(page, 'Manage countries').click();
+    await tab(page, 'Countries').click();
     await page.locator('#theme-picker').selectOption(theme);
     await tab(page, 'Badges').click();
     for (const [id, status, label] of [
@@ -223,7 +244,7 @@ test('switching panels and updating badge cards preserves independent scroll pos
   await page.locator('#panel-badges').evaluate((node) => { node.scrollTop = 250; });
   await tab(page, 'Stats').click();
   await page.locator('#panel-stats').evaluate((node) => { node.scrollTop = 100; });
-  await tab(page, 'Manage countries').click();
+  await tab(page, 'Countries').click();
   expect(await page.locator('#country-groups').evaluate((node) => node.scrollTop)).toBe(150);
   await expect(page.locator('.continent').filter({ has: page.locator('summary', { hasText: 'Europe' }) })).toHaveAttribute('open', '');
   await tab(page, 'Badges').click();
@@ -265,7 +286,7 @@ for (const failure of ['missing', 'json', 'formula', 'schema']) {
     if (failure === 'formula') await expect(page.locator('.badge-message')).toContainText('GER');
     await tab(page, 'Stats').click();
     await expect(page.locator('[data-stat="visited"]')).toHaveText('4');
-    await tab(page, 'Manage countries').click();
+    await tab(page, 'Countries').click();
     await expect(page.getByRole('searchbox')).toBeVisible();
     await tab(page, 'Badges').click();
     await page.route('**/data/badges.json', (route) => route.fulfill({ json: catalog }));
@@ -312,7 +333,7 @@ test('tab changes preserve Manage, map/scenery identities, selection and focus a
   await expect(page.locator('.status-popover')).toBeHidden();
   await expect(page.locator('path[data-country="SVK"]')).toHaveClass(/is-selected/);
   await tab(page, 'Stats').click();
-  await tab(page, 'Manage countries').click();
+  await tab(page, 'Countries').click();
   expect(await identity.evaluate((read) => read())).toBe(true);
   await expect(page.getByRole('searchbox')).toHaveValue('SVK');
   await expect(page.getByRole('button', { name: 'Filter by Visited', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -336,7 +357,7 @@ test('long badge lists scroll internally without creating desktop page overflow 
     value: index,
   })));
   for (const theme of ['classic', 'dark', 'medieval']) {
-    await tab(page, 'Manage countries').click();
+    await tab(page, 'Countries').click();
     await page.locator('#theme-picker').selectOption(theme);
     await tab(page, 'Badges').click();
     await expect(page.locator('.badge-card')).toHaveCount(30);
@@ -347,7 +368,8 @@ test('long badge lists scroll internally without creating desktop page overflow 
       expect(await panel.evaluate((node) => node.scrollHeight > node.clientHeight)).toBe(true);
       await panel.evaluate((node) => { node.scrollTop = node.scrollHeight; });
       await expect(page.locator('.badge-card').last()).toBeInViewport();
-      await expect(page.locator('#export-data')).toBeInViewport();
+      await expect(page.locator('#export-data')).toBeHidden();
+      await expect(page.locator('.data-license')).toBeInViewport();
       await panel.hover();
       await page.mouse.wheel(0, 600);
       expect(await page.evaluate(() => window.scrollY)).toBe(0);
@@ -357,18 +379,22 @@ test('long badge lists scroll internally without creating desktop page overflow 
 });
 
 for (const theme of ['classic', 'dark', 'medieval']) {
-  test(`${theme} panels fit short desktop and narrow mobile while footer controls remain reachable`, async ({ page }) => {
+  test(`${theme} panels fit short desktop and narrow mobile with reachable Save/Export controls and credits`, async ({ page }) => {
     await ready(page, [{ ...catalog[0], name: '<script>not executable</script>'.repeat(3), description: 'A long description. '.repeat(30) }, ...catalog.slice(1)]);
     await page.locator('#theme-picker').selectOption(theme);
     for (const size of [{ width: 1000, height: 620 }, { width: 320, height: 740 }]) {
       await page.setViewportSize(size);
-      for (const name of ['Manage countries', 'Stats', 'Badges']) {
+      for (const name of ['Countries', 'Stats', 'Badges', 'Save/Export']) {
         await tab(page, name).click();
         await expect(page.getByRole('tabpanel', { name })).toBeVisible();
-        if (name === 'Manage countries') {
+        if (name === 'Countries') {
           expect((await page.locator('#country-groups').boundingBox())!.height).toBeGreaterThan(80);
         }
         for (const selector of ['#export-data', '#copy-data', '#import-data', '.data-license a']) {
+          if (name !== 'Save/Export' && selector !== '.data-license a') {
+            await expect(page.locator(selector)).toBeHidden();
+            continue;
+          }
           await page.locator(selector).first().scrollIntoViewIfNeeded();
           await expect(page.locator(selector).first()).toBeInViewport();
         }

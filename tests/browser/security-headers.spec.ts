@@ -38,6 +38,7 @@ test('the application, themes and picture generator work under the production CS
   await expect(page.locator('.country-boundary')).toHaveCount(registry.length);
   for (const theme of ['dark', 'medieval', 'classic']) await page.getByRole('combobox', { name: 'Theme' }).selectOption(theme);
   await page.getByRole('tab', { name: 'Badges' }).click();
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Share picture', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Your travel passport', exact: true });
   await expect(dialog.getByRole('button', { name: 'Download PNG', exact: true })).toBeEnabled({ timeout: 20000 });
@@ -61,7 +62,7 @@ test('the Google connection flow is permitted by the production CSP', async ({ p
   await page.route(/https:\/\/www\.googleapis\.com\/drive\/v3\/files/, (route) => route.fulfill({ json: { files: [], incompleteSearch: false } }));
   await page.goto('./');
   await expect(page.locator('.country-boundary')).toHaveCount(registry.length);
-  await page.locator('.google-sync summary').click();
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   const connect = page.getByRole('button', { name: 'Connect Google Drive', exact: true });
   test.skip(await connect.isDisabled(), 'Configured build required for mocked Google provider scenarios.');
   await connect.click();

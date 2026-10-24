@@ -21,6 +21,7 @@ async function ready(page: Page): Promise<void> {
 }
 
 async function findCountry(page: Page, id: string): Promise<void> {
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await page.getByRole('searchbox').fill(id);
   await page.locator(`.country-row[data-country="${id}"]`).click();
   await expect(page.getByRole('dialog', { name: 'Change travel status' })).toBeVisible();
@@ -242,12 +243,14 @@ test('download export round-trips all countries and nested subdivisions', async 
     subdivisions: [{ id: 'US-CA', name: 'California', continent: 'North America', status: 'visited' }],
   }];
   const chooserPromise = page.waitForEvent('filechooser');
-  await page.getByRole('button', { name: 'Import', exact: true }).click();
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
+  await page.getByRole('button', { name: 'Import data', exact: true }).click();
   await (await chooserPromise).setFiles({ name: 'trip.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(nested)) });
   await expect(page.getByRole('dialog', { name: 'Replace your travel data?' })).toBeVisible();
   await page.getByRole('button', { name: 'Replace data', exact: true }).click();
   await expect(page.locator('#lived-count')).toHaveText('1');
   const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Export data' }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe('passport-data.json');
@@ -276,6 +279,7 @@ test('cancelled or invalid import leaves current data untouched', async ({ page 
 test('clipboard export succeeds and denial offers download instead', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await ready(page);
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Copy JSON' }).click();
   await expect(page.locator('#toast')).toContainText('JSON copied');
   const clipboard = await page.evaluate(() => navigator.clipboard.readText());
@@ -283,6 +287,7 @@ test('clipboard export succeeds and denial offers download instead', async ({ pa
   await page.evaluate(() => {
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: () => Promise.reject(new Error('denied')) } });
   });
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Copy JSON' }).click();
   await expect(page.locator('#toast')).toContainText('Could not copy JSON');
   await expect(page.locator('#toast')).toContainText('Export data');
@@ -403,6 +408,7 @@ test('mobile layout has reachable controls and no horizontal overflow', async ({
   expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(360);
   expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(740);
   await page.keyboard.press('Escape');
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Export data' }).scrollIntoViewIfNeeded();
   await expect(page.getByRole('button', { name: 'Export data' })).toBeInViewport();
 });
@@ -672,6 +678,7 @@ test('custom JSON import and clipboard export round-trip and older replacement r
   await page.locator('#import-file').setInputFiles({ name: 'additional.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(data)) });
   await page.getByRole('button', { name: 'Replace data', exact: true }).click();
   await expect(page.locator('path[data-country="custom:CYN"]')).toHaveAttribute('data-status', 'lived');
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Copy JSON' }).click();
   await expect(page.locator('#toast')).toContainText('JSON copied');
   const exported = JSON.parse(await page.evaluate(() => navigator.clipboard.readText()));

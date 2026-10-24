@@ -59,7 +59,7 @@ async function checkContrast(page: Page): Promise<void> {
     const a = luminance(credits.color.match(/[\d.]+/g)!.map(Number));
     const b = luminance(sidebar.backgroundColor.match(/[\d.]+/g)!.map(Number));
     ratios.push({ foreground: 'sidebar credits', background: 'sidebar', ratio: (Math.max(a, b) + .05) / (Math.min(a, b) + .05) });
-    for (const node of document.querySelectorAll('.sidebar-footer #save-status, .sidebar-footer summary, .sidebar-footer .text-button, .sidebar-footer .google-sync-status, .sidebar-footer .google-sync-last, .sidebar-footer .google-account, .data-license a')) {
+    for (const node of document.querySelectorAll('#save-status, .save-export-panel .button.secondary, .google-sync h3, .google-sync-status, .google-sync-last, .google-account, .data-license a')) {
       const value = luminance(getComputedStyle(node).color.match(/[\d.]+/g)!.map(Number));
       ratios.push({ foreground: node.id || node.className || node.textContent || 'footer text', background: 'sidebar',
         ratio: (Math.max(value, b) + .05) / (Math.min(value, b) + .05) });
@@ -158,6 +158,7 @@ for (const skin of skins) {
     await expect(page.getByRole('tooltip')).toContainText('Nauru');
     const tooltip = await page.getByRole('tooltip').evaluate(node => getComputedStyle(node).backgroundColor);
     expect(tooltip).not.toBe('rgba(0, 0, 0, 0)');
+    await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
     await page.getByRole('button', { name: 'Export data', exact: false }).click();
     await expect(page.locator('#toast')).toBeVisible();
     expect(await page.locator('#toast').evaluate(node => getComputedStyle(node).backgroundColor)).not.toBe(skin.surface);
@@ -182,28 +183,30 @@ for (const skin of skins) {
     expect(box!.x).toBeGreaterThanOrEqual(12);
     expect(box!.x + box!.width).toBeLessThanOrEqual(378);
     await page.keyboard.press('Escape');
+    await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
     await page.getByRole('button', { name: 'Export data', exact: false }).scrollIntoViewIfNeeded();
     await expect(page.getByRole('button', { name: 'Export data', exact: false })).toBeInViewport();
   });
 
-  test(`${skin.id} footer has readable type, contrasting links and reachable keyboard controls at narrow sizes`, async ({ page }, testInfo) => {
+  test(`${skin.id} Save/Export and footer have readable type, contrasting links and reachable keyboard controls`, async ({ page }, testInfo) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await ready(page);
     await page.locator('#theme-picker').selectOption(skin.id);
-    await page.locator('.google-sync summary').click();
+    await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
     const footer = page.locator('.sidebar-footer');
     for (const [width, height] of [[1440, 900], [1000, 620], [740, 620], [320, 800]]) {
       await page.setViewportSize({ width: width!, height: height! });
-      const type = await footer.evaluate((node) => {
-        return [...node.querySelectorAll<HTMLElement>('#save-status, .google-sync, .google-sync-last, .data-license, button, summary, a')]
+      const type = await page.locator('.sidebar').evaluate((node) => {
+        return [...node.querySelectorAll<HTMLElement>('#save-status, .google-sync, .google-sync-last, .data-license, .save-export-panel button, .google-sync h3, .data-license a')]
           .map((element) => {
             const style = getComputedStyle(element);
             return { label: element.className || element.tagName, font: parseFloat(style.fontSize),
-              line: parseFloat(style.lineHeight), small: element.matches('.google-sync-last, .data-license, .data-license a') };
+              line: parseFloat(style.lineHeight), small: element.matches('.data-license, .data-license a'),
+              secondary: element.matches('.google-sync-last') };
           });
       });
       for (const item of type) {
-        expect(item.font, item.label).toBeGreaterThanOrEqual(item.small ? 11 : 12);
+        expect(item.font, item.label).toBeGreaterThanOrEqual(item.small ? 11 : item.secondary ? 12 : 14);
         expect(item.line / item.font, item.label).toBeGreaterThanOrEqual(1.59);
       }
       await checkContrast(page);
@@ -216,8 +219,14 @@ for (const skin of skins) {
         await expect(link).toHaveCSS('text-decoration-thickness', '2px');
         await checkContrast(page);
       }
+      await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
       await page.locator('#export-data').focus();
-      for (const selector of ['#copy-data', '#import-data', '.data-license a:first-of-type', '.data-license a:nth-of-type(2)', '.data-license a:nth-of-type(3)', '.repo-link']) {
+      for (const selector of ['#copy-data', '#import-data']) {
+        await page.keyboard.press('Tab');
+        await expect(page.locator(selector)).toBeFocused();
+      }
+      await page.locator('#share-picture').focus();
+      for (const selector of ['.data-license a:first-of-type', '.data-license a:nth-of-type(2)', '.data-license a:nth-of-type(3)', '.repo-link']) {
         await page.keyboard.press('Tab');
         const control = page.locator(selector);
         await expect(control).toBeFocused();
@@ -239,13 +248,13 @@ for (const skin of skins) {
       }
       expect(await footer.evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      if (width! > 720) expect(await page.locator('.country-groups').evaluate((node) => node.clientHeight)).toBeGreaterThan(90);
+      expect(await page.locator('#panel-save-export').evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
       if (width === 1000 || width === 320) {
         await footer.screenshot({ path: testInfo.outputPath(`footer-${skin.id}-${width}.png`) });
       }
     }
-    await page.addStyleTag({ content: '.sidebar-footer { font-size: 24px; } .data-license, .google-sync-last { font-size: 22px; }' });
-    for (const control of await footer.locator(':is(a, button:not(:disabled), summary):visible').all()) {
+    await page.addStyleTag({ content: '.sidebar-footer, .save-export-panel { font-size: 24px; } .data-license, .google-sync-last { font-size: 22px; }' });
+    for (const control of await page.locator('.sidebar').locator(':is(a, button:not(:disabled)):visible').all()) {
       await control.scrollIntoViewIfNeeded();
       await expect(control).toBeInViewport();
     }

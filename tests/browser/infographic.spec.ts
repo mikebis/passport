@@ -30,6 +30,7 @@ async function ready(page: Page, entries = seed, badges: unknown = catalog): Pro
   await expect(page.locator('.country-boundary')).toHaveCount(registry.length);
 }
 async function open(page: Page): Promise<void> {
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Share picture', exact: true }).click();
   await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
 }
@@ -253,6 +254,7 @@ test('handwritten fonts stay local and lazy, retry HTTP/decode failures and cach
     if (latinRequests === 2) return route.fulfill({ contentType: 'font/woff2', body: 'Invalid font bytes' });
     return route.continue();
   });
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Share picture', exact: true }).click();
   await expect(picture(page).getByRole('alert')).toContainText('handwritten title font');
   await expect(downloadButton(page)).toBeDisabled();
@@ -322,6 +324,7 @@ test('catalog failures are isolated, retryable and shared with the Badges tab', 
     requests++;
     return requests === 1 ? route.fulfill({ status: 503, body: 'Unavailable' }) : route.fulfill({ json: catalog });
   });
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Share picture', exact: true }).click();
   await expect(picture(page).getByRole('alert')).toContainText('Could not prepare');
   await expect(downloadButton(page)).toBeDisabled();
@@ -345,6 +348,7 @@ test('missing or unsafe flag assets never produce a partial-success picture and 
     if (requests === 3) return route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg"><path></svg>' });
     return route.continue();
   });
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Share picture', exact: true }).click();
   await expect(picture(page).getByRole('alert')).toContainText('flag SK');
   await picture(page).getByRole('button', { name: 'Retry picture' }).click();
@@ -367,6 +371,7 @@ test('PNG encoding failures are explicit and retry uses a fresh render', async (
       original.call(this, callback, type, quality);
     };
   });
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Share picture', exact: true }).click();
   await expect(picture(page).getByRole('alert')).toContainText('could not encode the PNG');
   await expect(downloadButton(page)).toBeDisabled();
@@ -406,6 +411,7 @@ test('closing or editing during a delayed load ignores stale work and renders on
   let release!: () => void;
   const gate = new Promise<void>((resolve) => { release = resolve; });
   await page.route('**/data/badges.json', async (route) => { await gate; await route.fulfill({ json: catalog }); });
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Share picture', exact: true }).click();
   await expect(picture(page).locator('.infographic-message')).toContainText('Preparing');
   await picture(page).getByLabel('Name (optional)').fill('Old name');
@@ -415,6 +421,7 @@ test('closing or editing during a delayed load ignores stale work and renders on
   await expect(picture(page)).toBeHidden();
   await page.locator('path.country-boundary[data-country="CZE"]').dispatchEvent('click', { clientX: 100, clientY: 100 });
   await page.locator('.status-choice[data-status="visited"]').click();
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Share picture', exact: true }).click();
   await picture(page).getByLabel('Name (optional)').fill('Latest name');
   await picture(page).getByLabel('Picture format').selectOption('story');
@@ -450,7 +457,7 @@ test('custom-only edits and imports keep Stats and pictures consistent even when
   await page.getByRole('tab', { name: 'Stats', exact: true }).click();
   await expect(page.locator('[data-stat="completed"]')).toHaveText('2/266 (0.8%)');
   await expect(page.locator('[data-stat="continents"]')).toHaveText('1/7');
-  await page.getByRole('tab', { name: 'Manage countries', exact: true }).click();
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await page.evaluate(() => {
     const original = Storage.prototype.setItem;
     Storage.prototype.setItem = function (key, value) {
@@ -481,7 +488,7 @@ test('custom-only edits and imports keep Stats and pictures consistent even when
     '1/266', 'Visited or lived \u00b7 0.4%', '1/7', 'Continents explored']);
   await page.keyboard.press('Escape');
   await expect(page.locator('[data-stat="completed"]')).toHaveText('1/266 (0.4%)');
-  await page.getByRole('tab', { name: 'Manage countries', exact: true }).click();
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   for (const [continent, total] of [['Europe', 52], ['Africa', 60]]) {
     await expect(page.locator('.continent').filter({ has: page.locator('summary', { hasText: String(continent) }) })
       .locator('.continent-count')).toHaveText(`(0/${total})`);
@@ -660,27 +667,40 @@ test('every ISO flag can be loaded, validated and embedded from the deployed loc
   expect([...fetched].sort()).toEqual(iso.map((country) => country.alpha2!.toLowerCase()).sort());
 });
 
-async function checkFooterActions(page: Page): Promise<void> {
+async function checkSaveExportActions(page: Page): Promise<void> {
   await page.mouse.move(0, 0);
-  const actions = page.locator('.sidebar-footer > .data-actions > button');
-  await expect(actions).toHaveText(['Export data', 'Copy JSON', 'Import']);
+  const actions = page.getByRole('region', { name: 'Import / Export data', exact: true }).locator('.data-actions > button');
+  await expect(actions).toHaveText(['Export data', 'Copy JSON', 'Import data']);
   for (const action of await actions.all()) {
-    await expect(action).toHaveClass('text-button');
+    await expect(action).toHaveClass('button secondary');
     await expect(action).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-    await expect(action).toHaveCSS('border-top-width', '0px');
-    await expect(action).toHaveCSS('text-decoration-line', 'underline');
+    await expect(action).toHaveCSS('border-top-width', '1px');
+    await expect(action).toHaveCSS('text-decoration-line', 'none');
+    await expect(action).toHaveCSS('font-size', '14px');
+    await expect(action).toHaveCSS('padding', '12px 16px');
     await action.scrollIntoViewIfNeeded();
     await expect(action).toBeInViewport();
   }
   const rows = await actions.evaluateAll((buttons) => buttons.map((button) => {
     const bounds = button.getBoundingClientRect();
-    return { x: bounds.x, y: bounds.y, right: bounds.right };
+    return { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height, bottom: bounds.bottom };
   }));
   for (const bounds of rows) {
-    expect(bounds.y).toBe(rows[0]!.y);
+    expect(bounds.x).toBe(rows[0]!.x);
+    expect(bounds.width).toBe(rows[0]!.width);
+    expect(bounds.height).toBeGreaterThanOrEqual(48);
   }
-  expect(rows[0]!.x).toBeLessThan(rows[1]!.x);
-  expect(rows[1]!.right).toBeLessThan(rows[2]!.x);
+  expect(rows[1]!.y - rows[0]!.bottom).toBe(12);
+  expect(rows[2]!.y - rows[1]!.bottom).toBe(12);
+  const share = page.locator('#share-picture');
+  expect(await share.evaluate((node) => node.getBoundingClientRect().width)).toBe(rows[0]!.width);
+  await expect(share).toHaveCSS('font-size', '14px');
+  await expect(share).toHaveCSS('padding', '12px 16px');
+  const contentWidth = await page.locator('#panel-save-export').evaluate((node) => {
+    const style = getComputedStyle(node);
+    return node.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+  });
+  expect(rows[0]!.width).toBeCloseTo(contentWidth, 1);
   expect(await actions.evaluateAll((buttons) => buttons.map((button) => button.id)))
     .toEqual(['export-data', 'copy-data', 'import-data']);
   await expect(page.locator('.sidebar-footer #share-picture, .picture-actions')).toHaveCount(0);
@@ -689,59 +709,58 @@ async function checkFooterActions(page: Page): Promise<void> {
   await expect(page.locator('.data-license a').last()).toBeInViewport();
 }
 
-async function checkHeadingCamera(page: Page): Promise<void> {
+async function checkSaveExportCamera(page: Page): Promise<void> {
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   const share = page.getByRole('button', { name: 'Share picture', exact: true });
   await expect(share).toHaveCount(1);
-  await expect(page.locator('.sidebar-heading > #share-picture')).toHaveCount(1);
+  await expect(page.getByRole('region', { name: 'Sharing', exact: true }).locator('#share-picture')).toHaveCount(1);
   await expect(page.locator('.globe-icon')).toHaveCount(0);
   await expect(share).toHaveAttribute('title', 'Share picture');
   await expect(share).toHaveAttribute('aria-label', 'Share picture');
-  await expect(share).toHaveText('');
+  await expect(share).toHaveText('Share picture');
   await share.scrollIntoViewIfNeeded();
   await expect(share).toBeInViewport();
-  const geometry = await page.locator('.sidebar-heading').evaluate((heading) => {
-    const button = heading.querySelector('#share-picture')!.getBoundingClientRect();
-    const title = heading.querySelector('div')!.getBoundingClientRect();
-    const bounds = heading.getBoundingClientRect();
+  const geometry = await share.evaluate((node) => {
+    const button = node.getBoundingClientRect();
+    const panel = node.parentElement!;
+    const bounds = panel.getBoundingClientRect();
     return {
-      width: button.width, height: button.height, gap: button.left - title.right,
-      rightInset: bounds.right - button.right,
-      paddingRight: parseFloat(getComputedStyle(heading).paddingRight),
-      centerOffset: button.top + button.height / 2 - title.top - title.height / 2,
-      fits: heading.scrollWidth <= heading.clientWidth,
+      width: button.width, height: button.height,
+      fits: button.left >= bounds.left && button.right <= bounds.right && panel.scrollWidth <= panel.clientWidth,
     };
   });
   expect(geometry.width).toBeGreaterThanOrEqual(40);
-  expect(geometry.height).toBe(geometry.width);
-  expect(geometry.gap).toBeGreaterThanOrEqual(12);
-  expect(geometry.rightInset).toBeCloseTo(geometry.paddingRight, 1);
-  expect(geometry.centerOffset).toBeCloseTo(0, 1);
+  expect(geometry.height).toBeGreaterThanOrEqual(48);
   expect(geometry.fits).toBe(true);
 }
 
 for (const theme of ['classic', 'dark', 'medieval'] as const) {
-  test(`${theme}: shared heading camera, footer actions, short desktop/mobile fit, focus containment and preserved live map`, async ({ page }) => {
+  test(`${theme}: Save/Export camera and actions, short desktop/mobile fit, focus containment and preserved live map`, async ({ page }) => {
     await page.setViewportSize({ width: 1000, height: 620 });
     await ready(page, [], []);
     await page.locator('#theme-picker').selectOption(theme);
+    await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
     const share = page.getByRole('button', { name: 'Share picture', exact: true });
     await expect(share).toHaveClass('button primary');
     await expect(share.locator('svg')).toBeVisible();
     await expect(share.locator('svg')).toHaveAttribute('aria-hidden', 'true');
     const fills = { classic: 'rgb(8, 106, 168)', dark: 'rgb(115, 151, 235)', medieval: 'rgb(100, 69, 30)' };
     await expect(share).toHaveCSS('background-color', fills[theme]);
-    await checkHeadingCamera(page);
+    await checkSaveExportCamera(page);
     await share.focus();
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Shift+Tab');
     await expect(share).toBeFocused();
     await expect(share).toHaveCSS('outline-style', 'solid');
     await page.keyboard.press('Tab');
-    await expect(page.getByRole('tab', { name: 'Manage countries', exact: true })).toBeFocused();
+    await expect(page.getByRole('link', { name: 'Data sources', exact: true })).toBeFocused();
     await page.keyboard.press('Shift+Tab');
     await expect(share).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(downloadButton(page)).toBeEnabled({ timeout: 20000 });
     await page.keyboard.press('Escape');
     await expect(share).toBeFocused();
+    await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
     await page.locator('#export-data').focus();
     for (const id of ['copy-data', 'import-data']) {
       await page.keyboard.press('Tab');
@@ -749,17 +768,18 @@ for (const theme of ['classic', 'dark', 'medieval'] as const) {
     }
     for (let index = 0; index < 2; index++) await page.keyboard.press('Shift+Tab');
     await expect(page.locator('#export-data')).toBeFocused();
-    await page.locator('.google-sync summary').click();
-    expect(await page.locator('.country-groups').evaluate((node) => node.clientHeight)).toBeGreaterThan(90);
-    await checkFooterActions(page);
+    await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
+    await expect(page.locator('.country-groups')).toBeHidden();
+    await checkSaveExportActions(page);
     await share.scrollIntoViewIfNeeded();
     await expect(share).toBeInViewport();
     if (process.env.INFOGRAPHIC_CAPTURE_DIR) await page.locator('.sidebar').screenshot({ path: join(process.env.INFOGRAPHIC_CAPTURE_DIR, `passport-share-button-${theme}.png`) });
+    await page.getByRole('tab', { name: 'Countries', exact: true }).click();
     await page.getByRole('searchbox').fill('SVK');
     await page.getByRole('button', { name: 'Filter by Favourites', exact: true }).click();
     const map = await page.locator('path.country-boundary[data-country="SVK"]').elementHandle();
     const scenery = await page.locator('.map-scenery').elementHandle();
-    for (const tab of ['Stats', 'Badges', 'Manage countries']) {
+    for (const tab of ['Stats', 'Badges', 'Countries']) {
       await page.getByRole('tab', { name: tab, exact: true }).click();
       await open(page);
       await expect(image(page)).toHaveAttribute('alt', /0 of 266 places.*0 badges earned/);
@@ -773,23 +793,25 @@ for (const theme of ['classic', 'dark', 'medieval'] as const) {
       });
       expect(fits).toBe(true);
       await page.keyboard.press('Escape');
-      await expect(page.getByRole('tab', { name: tab, exact: true })).toHaveAttribute('aria-selected', 'true');
+      await expect(share).toBeFocused();
+      await expect(page.getByRole('tab', { name: 'Save/Export', exact: true })).toHaveAttribute('aria-selected', 'true');
     }
     expect(await map!.evaluate((node) => node.isConnected)).toBe(true);
     expect(await scenery!.evaluate((node) => node.isConnected)).toBe(true);
+    await page.getByRole('tab', { name: 'Countries', exact: true }).click();
     await expect(page.getByRole('searchbox')).toHaveValue('SVK');
     await expect(page.getByRole('button', { name: 'Filter by Favourites', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await page.setViewportSize({ width: 1440, height: 900 });
-    await checkHeadingCamera(page);
+    await checkSaveExportCamera(page);
     if (process.env.INFOGRAPHIC_CAPTURE_DIR) {
       await page.locator('.sidebar-heading').screenshot({ path: join(process.env.INFOGRAPHIC_CAPTURE_DIR, `passport-share-header-${theme}-desktop.png`) });
     }
     await page.setViewportSize({ width: 320, height: 740 });
-    await checkHeadingCamera(page);
+    await checkSaveExportCamera(page);
     if (process.env.INFOGRAPHIC_CAPTURE_DIR) {
       await page.locator('.sidebar-heading').screenshot({ path: join(process.env.INFOGRAPHIC_CAPTURE_DIR, `passport-share-header-${theme}-mobile.png`) });
     }
-    await checkFooterActions(page);
+    await checkSaveExportActions(page);
     await open(page);
     await picture(page).getByLabel('Picture format').selectOption('story');
     await expect(downloadButton(page)).toBeEnabled();
@@ -923,6 +945,7 @@ test('projection changes invalidate pending picture work and apply after closing
     await route.fulfill({ json: catalog });
   });
   const request = page.waitForRequest('**/data/badges.json');
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Share picture', exact: true }).click();
   await request;
   await page.locator('#projection-picker').evaluate((node: HTMLSelectElement) => {
@@ -935,6 +958,7 @@ test('projection changes invalidate pending picture work and apply after closing
   await expect(image(page)).toHaveAttribute('alt', /Mercator projection/);
   expect(await page.evaluate(async () => String(await Reflect.get(window, '__pictureSvg')))).toContain('data-projection="mercator"');
   await picture(page).getByRole('button', { name: 'Close', exact: true }).click();
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await page.getByRole('combobox', { name: 'Projection', exact: true }).selectOption('equal-earth');
   await open(page);
   await expect(image(page)).toHaveAttribute('alt', /Equal Earth projection/);

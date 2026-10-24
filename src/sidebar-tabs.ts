@@ -1,7 +1,7 @@
-export type SidebarTab = 'manage' | 'stats' | 'badges';
+export type SidebarTab = 'manage' | 'stats' | 'badges' | 'save-export';
 
 export function createSidebarTabs(container: HTMLElement, change: (tab: SidebarTab) => void) {
-  const ids: SidebarTab[] = ['manage', 'stats', 'badges'];
+  const ids: SidebarTab[] = ['manage', 'stats', 'badges', 'save-export'];
   const buttons = ids.map((id) => {
     const button = container.querySelector<HTMLButtonElement>(`#tab-${id}`);
     const panel = container.querySelector<HTMLElement>(`#panel-${id}`);

@@ -260,7 +260,7 @@ test('keyboard toggles, stable rows and focus recovery during an external replac
   });
   await importEntries(page, []);
   expect(await page.evaluate(() => Reflect.get(window, 'filterFocusEvents'))).toContain('search');
-  await expect(page.getByRole('button', { name: 'Import', exact: true })).toBeFocused();
+  await expect(page.getByRole('searchbox')).toBeFocused();
   await expect(page.locator('.sidebar-country-preview')).toBeHidden();
   await expectIds(page, []);
   await filter(page, 'visited').focus();
@@ -335,7 +335,8 @@ for (const theme of ['classic', 'dark', 'medieval']) {
     }
     for (const size of [{ width: 1000, height: 620 }, { width: 320, height: 740 }]) {
       await page.setViewportSize(size);
-      await page.locator('.google-sync summary').click();
+      await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
+      await page.getByRole('tab', { name: 'Countries', exact: true }).click();
       await filter(page, 'visited').click();
       const bounds = await page.locator('#country-groups').boundingBox();
       expect(bounds!.height).toBeGreaterThan(80);
@@ -366,7 +367,8 @@ for (const theme of ['classic', 'dark', 'medieval']) {
       }
       await expect(page.getByRole('button', { name: 'Show all statuses', exact: true })).toHaveAttribute('title', 'Show all statuses');
       await filter(page, 'visited').click();
-      await page.locator('.google-sync summary').click();
+      await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
+      await page.getByRole('tab', { name: 'Countries', exact: true }).click();
     }
   });
 }

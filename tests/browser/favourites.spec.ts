@@ -34,6 +34,7 @@ async function ready(page: Page): Promise<void> {
   await expect(page.locator('.country-boundary')).toHaveCount(registry.length);
 }
 async function find(page: Page, id: string): Promise<void> {
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await page.getByRole('searchbox').fill(id);
   await expect(row(page, id)).toBeVisible();
 }
@@ -91,7 +92,7 @@ test('star filter intersects favourites with status and search, supports keyboar
   await expectVisible(page, favourites);
   await page.getByRole('tab', { name: 'Stats', exact: true }).click();
   await expect(page.locator('[data-stat="completed"]')).toHaveText('2/266 (0.8%)');
-  await page.getByRole('tab', { name: 'Manage countries', exact: true }).click();
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await page.locator('#theme-picker').selectOption('dark');
   await page.getByRole('button', { name: 'Hide sidebar', exact: true }).click();
   await page.getByRole('button', { name: 'Show sidebar', exact: true }).click();
@@ -210,6 +211,7 @@ test('favourites export and import with subdivisions, cancellation, legacy defau
   await find(page, 'SVK');
   await star(page, 'SVK').click();
   const downloaded = page.waitForEvent('download');
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Export data' }).click();
   const stream = await (await downloaded).createReadStream();
   let text = '';
@@ -255,7 +257,7 @@ test('favourite edits preserve filtered membership, row identity, search and map
   await expect(path(page, 'FRA')).toHaveClass(/is-selected/);
   expect(await identity.evaluate((check) => check())).toBe(true);
   await page.getByRole('tab', { name: 'Badges', exact: true }).click();
-  await page.getByRole('tab', { name: 'Manage countries', exact: true }).click();
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await expect(page.getByRole('searchbox')).toHaveValue('SVK');
   await expect(page.getByRole('button', { name: 'Filter by Visited', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button', { name: 'Hide sidebar', exact: true }).click();
@@ -293,7 +295,7 @@ test('an external replacement hiding a focused star recovers focus and clears th
   expect(await page.evaluate(() => Reflect.get(window, 'favouriteFocusEvents'))).toContain('search');
   await expect(star(page, 'SVK')).toBeHidden();
   await expect(page.locator('.sidebar-country-preview')).toBeHidden();
-  await expect(page.getByRole('button', { name: 'Import', exact: true })).toBeFocused();
+  await expect(page.getByRole('searchbox')).toBeFocused();
 });
 
 test('failed local saves still update favourite stars and flags in memory', async ({ page }) => {
@@ -365,6 +367,7 @@ for (const theme of ['classic', 'dark', 'medieval']) {
       await expect(star(page, 'custom:SPI')).toBeVisible();
       await star(page, 'custom:SPI').click();
       await expect(star(page, 'custom:SPI')).toHaveAttribute('aria-pressed', size.width === 1000 ? 'true' : 'false');
+      await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
       await page.locator('#export-data').scrollIntoViewIfNeeded();
       await expect(page.locator('#export-data')).toBeInViewport();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

@@ -140,7 +140,8 @@ for (const theme of ['classic', 'dark', 'medieval']) {
   test(`${theme}: projection controls and both maps fit narrow layouts and keep polar/tiny places selectable`, async ({ page }, testInfo) => {
     await ready(page);
     await page.locator('#theme-picker').selectOption(theme);
-    await page.locator('.google-sync summary').click();
+    await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
+    await page.getByRole('tab', { name: 'Countries', exact: true }).click();
     for (const [width, height] of [[1000, 620], [740, 620], [320, 800]]) {
       await page.setViewportSize({ width: width!, height: height! });
       const themeBox = (await page.locator('#theme-picker').boundingBox())!;

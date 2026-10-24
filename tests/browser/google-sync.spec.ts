@@ -56,10 +56,11 @@ async function ready(page: Page): Promise<void> {
   await expect(page.locator('.country-boundary')).toHaveCount(266);
 }
 async function connect(page: Page): Promise<void> {
-  await page.locator('.google-sync summary').click();
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   const button = page.getByRole('button', { name: 'Connect Google Drive', exact: true });
   test.skip(await button.isDisabled(), 'Configured build required for mocked Google provider scenarios.');
   await button.click();
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Continue with Google', exact: true }).click();
 }
 async function backup(page: Page): Promise<void> {
@@ -68,6 +69,7 @@ async function backup(page: Page): Promise<void> {
   await expect(page.locator('#google-sync')).toHaveAttribute('data-sync-phase', 'synced');
 }
 async function status(page: Page, id: string, value: string): Promise<void> {
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await page.getByRole('searchbox').fill(id);
   await page.locator(`.country-row[data-country="${id}"]`).click();
   await page.locator(`.status-choice[data-status="${value}"]`).click();
@@ -92,7 +94,7 @@ test('local use makes no Google requests and unconfigured Google never blocks th
   const drive = await mockGoogle(page);
   await ready(page);
   await status(page, 'EST', 'visited');
-  await page.locator('.google-sync summary').click();
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   if (await page.getByRole('button', { name: 'Connect Google Drive', exact: true }).isDisabled()) {
     await expect(page.locator('.google-sync-status')).toContainText('not configured');
   }
@@ -125,6 +127,7 @@ test('chooses a remote version only after confirmation, with downloadable versio
   await ready(page);
   await backup(page);
   addRemote(drive);
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Sync now', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Choose your travel map' });
   await expect(dialog).toBeVisible();
@@ -143,15 +146,18 @@ test('accepted Drive replacement updates active sidebar filter membership withou
   const drive = await mockGoogle(page);
   await ready(page);
   await backup(page);
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await page.getByRole('button', { name: 'Filter by Lived / Living', exact: true }).click();
   await expect(page.locator('.empty-state')).toBeVisible();
   addRemote(drive);
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Sync now', exact: true }).click();
   await expect(page.locator('.country-row[data-country="EST"]')).toBeHidden();
   const size = drive.files.size;
   await page.getByRole('dialog', { name: 'Choose your travel map' })
     .getByRole('button', { name: /^Google Drive version/ }).click();
   await expect(page.locator('#google-sync')).toHaveAttribute('data-sync-phase', 'synced');
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await expect(page.locator('.country-row[data-country="EST"]')).toBeVisible();
   await expect(page.locator('.sidebar-meta')).toHaveText('1 matching places');
   await expect(page.getByRole('button', { name: 'Filter by Lived / Living', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -170,10 +176,12 @@ test('accepted Drive data refreshes an open travel picture without upload echo',
   drive.files.get('remote-version')!.snapshot.entries.push({
     id: 'custom:SOL', name: 'Somaliland', continent: 'Africa', status: 'visited', favourite: true,
   });
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Sync now', exact: true }).click();
   const conflict = page.getByRole('dialog', { name: 'Choose your travel map' });
   await expect(conflict).toBeVisible();
   await page.getByRole('button', { name: 'Cancel and pause sync', exact: true }).click();
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Share picture', exact: true }).click();
   const picture = page.getByRole('dialog', { name: 'Your travel passport', exact: true });
   await expect(picture.getByRole('button', { name: 'Download PNG' })).toBeEnabled({ timeout: 20000 });
@@ -198,6 +206,7 @@ test('favourite-only changes save to Drive and remote replacements update stars 
   const drive = await mockGoogle(page);
   await ready(page);
   await backup(page);
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await page.getByRole('searchbox').fill('EST');
   const star = page.locator('.country-favourite[data-country="EST"]');
   await star.click();
@@ -207,16 +216,19 @@ test('favourite-only changes save to Drive and remote replacements update stars 
   expect(localVersion.entries.find((entry) => entry.id === 'EST')).toMatchObject({
     favourite: true, status: 'unvisited',
   });
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await page.getByRole('button', { name: 'Filter by Favourites', exact: true }).click();
   addRemote(drive, 'unvisited');
   drive.files.get('remote-version')!.snapshot.entries = localVersion.entries.map((entry) =>
     entry.id === 'EST' ? { ...entry, favourite: false } : entry);
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Sync now', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Choose your travel map' });
   const remote = dialog.locator('.sync-version').filter({ has: page.getByRole('button', { name: /^Google Drive version/ }) });
   await expect(remote).toContainText('0 place statuses and 1 favourite flags differ');
   const files = drive.files.size;
   await remote.getByRole('button', { name: /^Google Drive version/ }).click();
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await expect(star).toHaveAttribute('aria-pressed', 'false');
   await expect(star).toBeHidden();
   await expect(page.getByRole('button', { name: 'Filter by Favourites', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -236,16 +248,18 @@ test('accepted Drive data updates hidden Manage and live Stats/Badges without ch
   await page.getByRole('tab', { name: 'Badges', exact: true }).click();
   await expect(page.locator('#badge-summary')).toContainText('0/10 points');
   addRemote(drive);
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Sync now', exact: true }).click();
   const size = drive.files.size;
   await page.getByRole('dialog', { name: 'Choose your travel map' })
     .getByRole('button', { name: /^Google Drive version/ }).click();
+  await page.getByRole('tab', { name: 'Badges', exact: true }).click();
   await expect(page.getByRole('tab', { name: 'Badges', exact: true })).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('#badge-summary')).toContainText('10/10 points');
   await expect(page.locator('.badge-country[data-country="EST"]')).toHaveAttribute('data-status', 'lived');
   await page.getByRole('tab', { name: 'Stats', exact: true }).click();
   await expect(page.locator('[data-stat="lived"]')).toHaveText('1');
-  await page.getByRole('tab', { name: 'Manage countries', exact: true }).click();
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await expect(page.locator('#lived-count')).toHaveText('1');
   expect(drive.files.size).toBe(size);
   expect([...drive.files.values()].some((file) => 'badges' in file.snapshot)).toBe(false);
@@ -256,10 +270,12 @@ test('cancelled conflict stays paused and sign-out leaves local and Drive maps i
   await ready(page);
   await backup(page);
   addRemote(drive);
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Sync now', exact: true }).click();
   await page.getByRole('button', { name: 'Cancel and pause sync', exact: true }).click();
   await expect(page.locator('#google-sync')).toHaveAttribute('data-sync-phase', 'paused');
   await status(page, 'EST', 'visited');
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   await expect(page.locator('#google-sync')).toHaveAttribute('data-sync-phase', 'local');
   const requests = drive.requests.length;
@@ -267,6 +283,23 @@ test('cancelled conflict stays paused and sign-out leaves local and Drive maps i
   expect(drive.requests.length).toBe(requests);
   expect(drive.files.size).toBe(2);
   await expect(page.locator('path[data-country="EST"]')).toHaveAttribute('data-status', 'visited');
+});
+
+test('background conflicts preserve Countries and restore visible focus when cancelled', async ({ page }) => {
+  const drive = await mockGoogle(page);
+  await ready(page);
+  await backup(page);
+  addRemote(drive);
+  await status(page, 'USA', 'visited');
+  const dialog = page.getByRole('dialog', { name: 'Choose your travel map' });
+  await expect(dialog).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Countries', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('#panel-save-export')).toBeHidden();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('searchbox')).toBeFocused();
+  await expect(page.locator('#google-sync')).toHaveAttribute('data-sync-phase', 'paused');
+  await expect(page.locator('path[data-country="USA"]')).toHaveAttribute('data-status', 'visited');
 });
 
 test('denied Drive setup is actionable and retry does not create duplicate files', async ({ page }) => {
@@ -278,6 +311,7 @@ test('denied Drive setup is actionable and retry does not create duplicate files
   await expect(page.locator('.google-sync-status')).toContainText('accessNotConfigured');
   expect(drive.files.size).toBe(0);
   drive.failList = false;
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Sync now', exact: true }).click();
   await page.getByRole('button', { name: 'Back up this device to Google Drive', exact: true }).click();
   await expect(page.locator('#google-sync')).toHaveAttribute('data-sync-phase', 'synced');
@@ -289,9 +323,11 @@ test('a changed Google account cannot silently adopt the current device map', as
   await ready(page);
   await backup(page);
   await status(page, 'EST', 'visited');
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   drive.owner = 'account-two';
   drive.files.clear();
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Continue with Google', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Choose your travel map' })).toContainText('account-two@example.test');
   expect(drive.files.size).toBe(0);
@@ -314,13 +350,15 @@ test('a blocked Google script is recoverable without affecting local use', async
   const drive = await mockGoogle(page);
   await page.route('https://accounts.google.com/gsi/client', (route) => route.abort(), { times: 1 });
   await ready(page);
-  await page.locator('.google-sync summary').click();
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   const connect = page.getByRole('button', { name: 'Connect Google Drive', exact: true });
   test.skip(await connect.isDisabled(), 'Configured mock-provider build required.');
   await connect.click();
   await expect(page.locator('.google-sync-status')).toContainText('could not load');
   await status(page, 'EST', 'visited');
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await connect.click();
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Continue with Google', exact: true }).click();
   await page.getByRole('button', { name: 'Back up this device to Google Drive', exact: true }).click();
   await expect(page.locator('#google-sync')).toHaveAttribute('data-sync-phase', 'synced');
@@ -351,7 +389,7 @@ test('sign-out in another real tab disconnects without overwriting the current m
   const second = await context.newPage();
   await mockGoogle(second, drive);
   await ready(second);
-  await second.locator('.google-sync summary').click();
+  await second.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await second.getByRole('button', { name: 'Reconnect Google', exact: true }).click();
   await second.getByRole('button', { name: 'Continue with Google', exact: true }).click();
   await expect(second.locator('#google-sync')).toHaveAttribute('data-sync-phase', 'synced');
@@ -374,7 +412,9 @@ test('hiding the sidebar leaves automatic Google synchronization running and its
   await expect.poll(() => drive.files.size).toBe(2);
   await expect(page.locator('#google-sync')).toHaveAttribute('data-sync-phase', 'synced');
   await page.getByRole('button', { name: 'Show sidebar', exact: true }).click();
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await expect(page.getByRole('searchbox')).toHaveValue('EST');
   await expect(page.locator('.country-row[data-country="EST"]')).toHaveAttribute('data-status', 'visited');
 });
@@ -383,16 +423,28 @@ test('connection controls fit all themes on narrow screens and remain keyboard a
   await mockGoogle(page);
   await page.setViewportSize({ width: 360, height: 800 });
   await ready(page);
-  await page.locator('.google-sync summary').click();
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   for (const theme of ['classic', 'dark', 'medieval']) {
+    await page.getByRole('tab', { name: 'Countries', exact: true }).click();
     await page.locator('#theme-picker').selectOption(theme);
+    await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Export data' })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: testInfo.outputPath(`sync-${theme}-mobile.png`), fullPage: true });
   }
-  await page.locator('.google-sync summary').focus();
-  await page.keyboard.press('Enter');
-  await expect(page.locator('.google-sync')).not.toHaveAttribute('open');
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
+  const section = page.getByRole('region', { name: 'Google Drive sync', exact: true });
+  await expect(section.getByRole('heading', { name: 'Google Drive sync', level: 3 })).toBeVisible();
+  await expect(section.locator('details, summary, [aria-expanded]')).toHaveCount(0);
+  await page.locator('#panel-save-export').focus();
+  await page.keyboard.press('Tab');
+  const connect = section.getByRole('button', { name: 'Connect Google Drive', exact: true });
+  if (await connect.isEnabled()) await expect(connect).toBeFocused();
+  else await expect(page.locator('#export-data')).toBeFocused();
+  await page.locator('#import-data').focus();
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#share-picture')).toBeFocused();
+  await expect(section.locator('.google-sync-status')).toBeVisible();
 });
 
 test('conflict choices fit desktop and narrow Medieval without moving the map', async ({ page }, testInfo) => {
@@ -401,12 +453,15 @@ test('conflict choices fit desktop and narrow Medieval without moving the map', 
   await ready(page);
   await backup(page);
   addRemote(drive);
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Sync now', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Choose your travel map' })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('sync-conflict-desktop.png'), fullPage: true });
   await page.getByRole('button', { name: 'Cancel and pause sync', exact: true }).click();
   await page.setViewportSize({ width: 360, height: 800 });
+  await page.getByRole('tab', { name: 'Countries', exact: true }).click();
   await page.locator('#theme-picker').selectOption('medieval');
+  await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
   await page.getByRole('button', { name: 'Sync now', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Choose your travel map' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -419,12 +474,40 @@ for (const theme of ['classic', 'dark', 'medieval']) {
     drive.owner = 'a-long-account-name-for-testing-footer-wrapping-without-truncating-the-identity';
     await page.setViewportSize({ width: 1100, height: 620 });
     await ready(page);
+    await page.getByRole('tab', { name: 'Countries', exact: true }).click();
     await page.locator('#theme-picker').selectOption(theme);
     await backup(page);
     await expect(page.locator('.google-account')).toContainText(`${drive.owner}@example.test`);
     expect(await page.locator('.google-sync-panel').evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
-    await expect(page.locator('.google-account')).toHaveCSS('font-size', '12px');
-    await expect(page.locator('.google-sync-last').last()).toHaveCSS('font-size', '11px');
+    await expect(page.locator('.google-account')).toHaveCSS('font-size', '14px');
+    await expect(page.locator('.google-sync-last').last()).toHaveCSS('font-size', '12px');
+    const controls = page.locator('.google-sync .data-actions > button:visible');
+    await expect(controls).toHaveText(['Sync now', 'Sign out']);
+    for (const control of await controls.all()) {
+      await control.scrollIntoViewIfNeeded();
+      await expect(control).toBeInViewport();
+      await expect(control).toHaveClass('button secondary');
+      await expect(control).toHaveCSS('font-size', '14px');
+      await expect(control).toHaveCSS('padding', '12px 16px');
+    }
+    const sizes = await controls.evaluateAll((buttons) => buttons.map((button) => {
+      const { x, y, width, height, bottom } = button.getBoundingClientRect();
+      return { x, y, width, height, bottom };
+    }));
+    expect(sizes[0]!.height).toBeGreaterThanOrEqual(48);
+    expect(sizes[1]!.height).toBeGreaterThanOrEqual(48);
+    expect(sizes[1]!.x).toBe(sizes[0]!.x);
+    expect(sizes[1]!.width).toBe(sizes[0]!.width);
+    expect(sizes[1]!.y - sizes[0]!.bottom).toBe(12);
+    expect(sizes[0]!.width).toBe(await page.locator('#export-data').evaluate((node) => node.getBoundingClientRect().width));
+    await page.setViewportSize({ width: 320, height: 740 });
+    await expect(page.locator('.google-account')).toContainText(`${drive.owner}@example.test`);
+    expect(await page.locator('.google-sync-panel').evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
+    for (const control of await page.locator('#panel-save-export button:visible').all()) {
+      await control.scrollIntoViewIfNeeded();
+      await expect(control).toBeInViewport();
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await status(page, 'EST', 'visited');
     await expect(page.locator('path[data-country="EST"]')).toHaveAttribute('data-status', 'visited');
     for (const name of ['Data sources', 'mledoze/countries', 'ODbL', 'View on GitHub']) {
@@ -432,6 +515,7 @@ for (const theme of ['classic', 'dark', 'medieval']) {
       await link.scrollIntoViewIfNeeded();
       await expect(link).toBeInViewport();
     }
+    await page.getByRole('tab', { name: 'Save/Export', exact: true }).click();
     await page.getByRole('button', { name: 'Sign out', exact: true }).click();
     await status(page, 'USA', 'lived');
     await expect(page.locator('path[data-country="USA"]')).toHaveAttribute('data-status', 'lived');

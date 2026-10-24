@@ -119,11 +119,12 @@ async function boot(): Promise<void> {
           </div>
         </section>
         <aside id="places-sidebar" class="sidebar" aria-labelledby="places-heading">
-          <div class="sidebar-heading"><div><p class="eyebrow">THE WORLD, YOUR WAY</p><h2 id="places-heading">Your places<span>.</span></h2></div><button id="share-picture" type="button" class="button primary" aria-label="Share picture" title="Share picture"><svg class="share-picture-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 6 9.5 4h5L16 6h4a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13.5" r="4"/></svg></button></div>
+          <div class="sidebar-heading"><div><p class="eyebrow">THE WORLD, YOUR WAY</p><h2 id="places-heading">Your places<span>.</span></h2></div></div>
           <div class="sidebar-tabs" role="tablist" aria-label="Sidebar views">
-            <button id="tab-manage" role="tab" aria-selected="true" aria-controls="panel-manage">Manage countries</button>
+            <button id="tab-manage" role="tab" aria-selected="true" aria-controls="panel-manage">Countries</button>
             <button id="tab-stats" role="tab" aria-selected="false" aria-controls="panel-stats" tabindex="-1">Stats</button>
             <button id="tab-badges" role="tab" aria-selected="false" aria-controls="panel-badges" tabindex="-1">Badges</button>
+            <button id="tab-save-export" role="tab" aria-selected="false" aria-controls="panel-save-export" tabindex="-1">Save/Export</button>
           </div>
           <section id="panel-manage" class="sidebar-panel manage-panel" role="tabpanel" aria-labelledby="tab-manage">
           <div class="display-settings">
@@ -142,9 +143,21 @@ async function boot(): Promise<void> {
           </section>
           <section id="panel-stats" class="sidebar-panel insight-panel" role="tabpanel" aria-labelledby="tab-stats" tabindex="0" hidden></section>
           <section id="panel-badges" class="sidebar-panel insight-panel" role="tabpanel" aria-labelledby="tab-badges" tabindex="0" hidden></section>
-          <footer class="sidebar-footer"><p id="save-status"><span class="save-indicator"></span> Changes stay in your browser</p><div id="google-sync"></div>
-            <div class="data-actions"><button id="export-data" class="text-button">Export data</button><button id="copy-data" class="text-button">Copy JSON</button><button id="import-data" class="text-button">Import</button></div>
-            <input id="import-file" type="file" accept=".json,application/json" hidden /><p class="data-license">Boundaries: Natural Earth \u00b7 <a href="${import.meta.env.BASE_URL}data/provenance.json" target="_blank" rel="noopener">Data sources</a><br />Country metadata: <a href="https://github.com/mledoze/countries" target="_blank" rel="noopener">mledoze/countries</a> \u00b7 <a href="${import.meta.env.BASE_URL}data/COUNTRIES-LICENSE.txt" target="_blank" rel="noopener">ODbL</a><br /><a class="repo-link" href="https://github.com/mikebis/passport" target="_blank" rel="noopener"><svg aria-hidden="true" focusable="false" viewBox="0 0 16 16" width="10" height="10"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>View on GitHub</a> \u00b7 <a href="${import.meta.env.BASE_URL}privacy.html" target="_blank" rel="noopener">Privacy</a></p></footer>
+          <section id="panel-save-export" class="sidebar-panel save-export-panel" role="tabpanel" aria-labelledby="tab-save-export" tabindex="0" hidden>
+            <div id="google-sync"></div>
+            <section class="save-export-group" aria-labelledby="data-actions-heading">
+              <h3 id="data-actions-heading">Import / Export data</h3>
+              <p id="save-status"><span class="save-indicator"></span> Changes stay in your browser</p>
+              <div class="data-actions"><button id="export-data" class="button secondary">Export data</button><button id="copy-data" class="button secondary">Copy JSON</button><button id="import-data" class="button secondary">Import data</button></div>
+              <input id="import-file" type="file" accept=".json,application/json" hidden />
+            </section>
+            <section class="save-export-group" aria-labelledby="sharing-heading">
+              <h3 id="sharing-heading">Sharing</h3>
+            <button id="share-picture" type="button" class="button primary" aria-label="Share picture" title="Share picture"><svg class="share-picture-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 6 9.5 4h5L16 6h4a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13.5" r="4"/></svg>Share picture</button>
+            </section>
+          </section>
+          <footer class="sidebar-footer">
+            <p class="data-license">Boundaries: Natural Earth \u00b7 <a href="${import.meta.env.BASE_URL}data/provenance.json" target="_blank" rel="noopener">Data sources</a><br />Country metadata: <a href="https://github.com/mledoze/countries" target="_blank" rel="noopener">mledoze/countries</a> \u00b7 <a href="${import.meta.env.BASE_URL}data/COUNTRIES-LICENSE.txt" target="_blank" rel="noopener">ODbL</a><br /><a class="repo-link" href="https://github.com/mikebis/passport" target="_blank" rel="noopener"><svg aria-hidden="true" focusable="false" viewBox="0 0 16 16" width="10" height="10"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>View on GitHub</a> \u00b7 <a href="${import.meta.env.BASE_URL}privacy.html" target="_blank" rel="noopener">Privacy</a></p></footer>
         </aside>
       </main>
       <div id="warning" class="warning-banner" role="alert" hidden></div>
@@ -339,7 +352,7 @@ async function boot(): Promise<void> {
   else if (initial.cleanupWarning) warn(initial.cleanupWarning, true);
   // The app is created once per page load, so long-lived components (map, popover,
   // sync controller) are intentionally never disposed; their listeners end with the page.
-  createGoogleSync(element('#google-sync'), store, registry, storage, () => popover.close(false));
+  createGoogleSync(element('#google-sync'), store, registry, storage, () => popover.close(false), focusSidebar);
   const sharePicture = element<HTMLButtonElement>('#share-picture');
   let openPicture: (() => void) | undefined;
   sharePicture.addEventListener('click', async () => {
@@ -396,7 +409,8 @@ async function boot(): Promise<void> {
     } finally {
       fileInput.value = '';
       importButton.disabled = false;
-      importButton.focus();
+      if (importButton.checkVisibility()) importButton.focus();
+      else focusSidebar();
     }
   });
 }

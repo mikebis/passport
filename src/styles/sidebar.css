@@ -11,6 +11,15 @@
 .sidebar-panel { flex: 1; min-height: 0; }
 .manage-panel { display: flex; flex-direction: column; }
 .insight-panel { overflow: auto; padding: 16px 24px 22px; scrollbar-width: thin; }
+.save-export-panel { overflow: auto; padding: 16px 24px 22px; scrollbar-width: thin; font-size: 14px; line-height: 1.6; }
+.save-export-panel #save-status { margin: 0 0 12px; display: flex; gap: 6px; align-items: center; }
+.save-export-group { margin: 0 0 24px; }
+.save-export-group h3 { margin: 0 0 12px; font-size: 16px; font-weight: 600; }
+.save-export-panel > .save-export-group { padding-top: 20px; border-top: 1px solid var(--border); }
+.save-export-panel > .save-export-group:last-child { margin-bottom: 0; }
+.save-export-panel .data-actions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.save-export-panel .save-export-group .button { width: 100%; min-height: 48px; padding: 12px 16px; font-size: inherit; line-height: inherit; white-space: normal; overflow-wrap: anywhere; }
+.save-export-panel button { scroll-margin: 6px; }
 .insight-panel h3 { margin: 0 0 12px; font-size: 16px; }
 .insight-note { color: var(--muted); font-size: 11px; line-height: 1.7; overflow-wrap: anywhere; }
 .statistics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 16px 0 24px; }
@@ -90,26 +99,21 @@
 .country-row > .status-dot { width: 8px; height: 8px; margin-left: 3px; }
 .empty-state { color: var(--muted); line-height: 1.7; padding: 14px; font-size: 12px; }
 .sidebar-footer { border-top: 1px solid var(--border); padding: 16px 24px 14px; margin-top: auto; max-height: 30dvh; overflow: auto; flex-shrink: 0; font-size: 12px; line-height: 1.6; color: var(--ink); }
-.sidebar-footer > p:first-child { margin: 0 0 12px; display: flex; gap: 6px; align-items: center; }
+.sidebar-footer > .data-license { margin: 0; }
 .save-indicator { width: 6px; height: 6px; flex-shrink: 0; display: inline-block; border-radius: 50%; background: var(--accent-soft); }
-.sidebar-footer .button, .sidebar-footer .text-button { font-size: inherit; line-height: inherit; }
 .sidebar-footer :is(a, button, summary) { scroll-margin: 6px; }
-.sidebar-footer .text-button:hover { background: var(--hover); text-decoration-thickness: 2px; }
 .data-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .data-actions .button { padding: 10px 12px; }
-#share-picture { width: 40px; height: 40px; padding: 0; flex-shrink: 0; }
+#share-picture { max-width: 100%; gap: 8px; }
 .share-picture-icon { flex-shrink: 0; }
 .data-license { color: var(--muted); font-size: 11px; line-height: 1.6; margin: 12px 0 0; overflow-wrap: anywhere; }
 .data-license a { color: var(--ink); font-weight: 600; text-decoration-color: currentColor; text-underline-offset: 3px; }
 .data-license a:hover, .data-license a:focus-visible { color: var(--accent); text-decoration-thickness: 2px; }
 .data-license .repo-link { display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; }
 .data-license .repo-link svg { flex: none; width: 1em; height: 1em; }
-.google-sync { margin: 0 0 12px; }
-.google-sync summary { cursor: pointer; padding: 5px 0; font-weight: 600; }
-.google-sync-panel { max-height: 220px; overflow: auto; padding: 6px; }
 .google-sync-panel p { margin: 5px 0 10px; line-height: 1.6; overflow-wrap: anywhere; }
 .google-account { font-weight: 600; color: var(--ink); }
-.google-sync-last { font-size: 11px; color: var(--muted); }
+.google-sync-last { font-size: 12px; color: var(--muted); }
 .google-sync-warning { color: var(--warning-ink); background: var(--warning); padding: 6px; }
 .sync-conflict { max-height: 85dvh; overflow: auto; }
 .sync-versions { display: grid; gap: 12px; margin: 16px 0; }
@@ -138,6 +142,7 @@
   .sidebar-content { flex: none; }
   .sidebar-panel { flex: none; }
   .insight-panel { max-height: 600px; }
+  .save-export-panel { overflow: visible; }
   .country-groups { max-height: 430px; }
   .travel-stats { padding-top: 24px; }
   .sidebar-footer { padding-bottom: max(20px, env(safe-area-inset-bottom)); max-height: none; overflow: visible; }
